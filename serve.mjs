@@ -144,13 +144,6 @@ const server = createServer(async (req, res) => {
 
     const file = await resolveFile(url.pathname);
     if (!file) {
-      const notFound = join(ROOT, "404.html");
-      if (await exists(notFound)) {
-        const data = await readFile(notFound);
-        res.writeHead(404, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" });
-        res.end(data);
-        return;
-      }
       res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
       res.end("<h1>404 Not Found</h1><p>" + url.pathname + "</p>");
       return;

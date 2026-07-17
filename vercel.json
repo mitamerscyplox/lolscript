@@ -7,90 +7,20 @@
   "trailingSlash": false,
   "redirects": [
     {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.lolscript.store" }],
-      "destination": "https://lolscript.store/:path*",
-      "permanent": true
+      "source": "/(.*)",
+      "destination": "https://www.lolscript.store/$1",
+      "permanent": true,
+      "has": [
+        {
+          "type": "host",
+          "value": "lolscript.store"
+        }
+      ]
     },
     {
       "source": "/discord",
       "destination": "https://discord.gg/n2ng5mJjhm",
       "permanent": false
-    },
-    {
-      "source": "/index.html",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/products",
-      "destination": "/#products",
-      "permanent": true
-    },
-    {
-      "source": "/shop",
-      "destination": "/#products",
-      "permanent": true
-    },
-    {
-      "source": "/buy-lol-script-access-guide",
-      "destination": "/#buy-lol-script-access-guide",
-      "permanent": true
-    },
-    {
-      "source": "/vanguard-emulator-vs-perm-spoofer",
-      "destination": "/#vanguard-emulator-vs-perm-spoofer",
-      "permanent": true
-    },
-    {
-      "source": "/lol-script-features-explained",
-      "destination": "/#lol-script-features-explained",
-      "permanent": true
-    },
-    {
-      "source": "/lol-champion-builds/",
-      "destination": "/lol-champion-builds",
-      "permanent": true
-    },
-    {
-      "source": "/lol-mmr-checker/",
-      "destination": "/lol-mmr-checker",
-      "permanent": true
-    },
-    {
-      "source": "/lol-script/",
-      "destination": "/lol-script",
-      "permanent": true
-    },
-    {
-      "source": "/lol-vanguard-emulator/",
-      "destination": "/lol-vanguard-emulator",
-      "permanent": true
-    },
-    {
-      "source": "/lol-perm-spoofer/",
-      "destination": "/lol-perm-spoofer",
-      "permanent": true
-    },
-    {
-      "source": "/setup-guide/",
-      "destination": "/setup-guide",
-      "permanent": true
-    },
-    {
-      "source": "/terms/",
-      "destination": "/terms",
-      "permanent": true
-    },
-    {
-      "source": "/contact/",
-      "destination": "/contact",
-      "permanent": true
-    },
-    {
-      "source": "/status/",
-      "destination": "/status",
-      "permanent": true
     }
   ],
   "headers": [

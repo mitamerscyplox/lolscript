@@ -1437,17 +1437,6 @@ h3 {
   grid-template-columns: 220px minmax(0, 1fr);
 }
 
-.blog-card-link {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  color: inherit;
-  text-decoration: none;
-}
-
-.blog-card-link:hover h3 {
-  color: var(--accent-soft);
-}
-
 .blog-card img {
   width: 100%;
   height: 100%;

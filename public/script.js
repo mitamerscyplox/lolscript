@@ -58,7 +58,7 @@ function applySiteData() {
 
   const canonical = document.querySelector("[data-canonical]");
   if (canonical && site.canonicalPath) {
-    canonical.href = `https://lolscript.store${site.canonicalPath}`;
+    canonical.href = `https://www.lolscript.store${site.canonicalPath}`;
   }
 
   setText("[data-hero-badge]", site.heroBadge);
@@ -391,14 +391,12 @@ function renderBlogs() {
   if (!mount) return;
   mount.innerHTML = (data.blogs || []).map((blog) => `
     <article class="blog-card" id="${escapeHtml(blog.slug)}">
-      <a href="/#${escapeHtml(blog.slug)}" class="blog-card-link">
-        <img src="${escapeHtml(blog.image)}" alt="${escapeHtml(blog.title)}">
-        <div>
-          <span>${escapeHtml(blog.date)}</span>
-          <h3>${escapeHtml(blog.title)}</h3>
-          <p>${escapeHtml(blog.excerpt)}</p>
-        </div>
-      </a>
+      <img src="${escapeHtml(blog.image)}" alt="${escapeHtml(blog.title)}">
+      <div>
+        <span>${escapeHtml(blog.date)}</span>
+        <h3>${escapeHtml(blog.title)}</h3>
+        <p>${escapeHtml(blog.excerpt)}</p>
+      </div>
     </article>
   `).join("");
 }

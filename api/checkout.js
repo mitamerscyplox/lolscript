@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         return "";
       }
     })();
-    const siteUrl = (process.env.SITE_URL || "https://lolscript.store").replace(/\/+$/, "");
+    const siteUrl = (process.env.SITE_URL || "https://www.lolscript.store").replace(/\/+$/, "");
     const baseOrigin = origin || refererOrigin || siteUrl;
 
     const result = await createCheckout({
