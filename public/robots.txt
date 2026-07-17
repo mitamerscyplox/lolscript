@@ -1,5 +1,7 @@
 User-agent: *
 Disallow: /admin/
 Disallow: /api/
+Disallow: /discord
+Disallow: /lol-champion-builds?*
 
 Sitemap: https://lolscript.store/sitemap.xml

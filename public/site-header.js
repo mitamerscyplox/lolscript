@@ -16,7 +16,44 @@
     else nav.appendChild(termsLink);
   }
 
+  if (nav && !nav.querySelector('a[href="/lol-champion-builds"]')) {
+    const tierLink = nav.querySelector('a[href="/lol-tier-list"]');
+    const buildsLink = document.createElement("a");
+    buildsLink.href = "/lol-champion-builds";
+    buildsLink.textContent = "Champion Builds";
+    const mmrLink = document.createElement("a");
+    mmrLink.href = "/lol-mmr-checker";
+    mmrLink.textContent = "MMR Checker";
+    if (tierLink) {
+      tierLink.after(mmrLink);
+      tierLink.after(buildsLink);
+    } else {
+      nav.appendChild(buildsLink);
+      nav.appendChild(mmrLink);
+    }
+  }
+
   document.querySelectorAll(".footer-links").forEach((footerNav) => {
+    const resourcesCol = Array.from(footerNav.children).find((col) => {
+      const heading = col.querySelector("h3");
+      return heading && /resources|tools/i.test(heading.textContent || "");
+    });
+    if (resourcesCol) {
+      const toolLinks = [
+        { href: "/lol-champion-builds", label: "LoL Champion Builds" },
+        { href: "/lol-mmr-checker", label: "LoL MMR Checker" },
+        { href: "/status", label: "Status" },
+      ];
+      toolLinks.forEach(({ href, label }) => {
+        if (!resourcesCol.querySelector(`a[href="${href}"]`)) {
+          const link = document.createElement("a");
+          link.href = href;
+          link.textContent = label;
+          resourcesCol.appendChild(link);
+        }
+      });
+    }
+
     const supportCol = Array.from(footerNav.children).find((col) => {
       const heading = col.querySelector("h3");
       return heading && /support/i.test(heading.textContent || "");

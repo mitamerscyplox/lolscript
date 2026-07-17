@@ -391,12 +391,14 @@ function renderBlogs() {
   if (!mount) return;
   mount.innerHTML = (data.blogs || []).map((blog) => `
     <article class="blog-card" id="${escapeHtml(blog.slug)}">
-      <img src="${escapeHtml(blog.image)}" alt="${escapeHtml(blog.title)}">
-      <div>
-        <span>${escapeHtml(blog.date)}</span>
-        <h3>${escapeHtml(blog.title)}</h3>
-        <p>${escapeHtml(blog.excerpt)}</p>
-      </div>
+      <a href="/#${escapeHtml(blog.slug)}" class="blog-card-link">
+        <img src="${escapeHtml(blog.image)}" alt="${escapeHtml(blog.title)}">
+        <div>
+          <span>${escapeHtml(blog.date)}</span>
+          <h3>${escapeHtml(blog.title)}</h3>
+          <p>${escapeHtml(blog.excerpt)}</p>
+        </div>
+      </a>
     </article>
   `).join("");
 }
