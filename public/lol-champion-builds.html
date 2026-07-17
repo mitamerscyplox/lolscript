@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="AayyHamM6hf-tY6lBctEnvbSSvhV1_wvprnbKBUyLhE" />
+  <meta name="yandex-verification" content="b9ad98ab68040f84">
+  <title>Best LoL Champion Builds | League of Legends Item Builds | LOLScript</title>
+  <meta name="description" content="Find League of Legends champion item builds for burst combos, DPS, bruiser, tank, and support playstyles. Search a champion and build around current Riot Data Dragon item data.">
+  <meta name="keywords" content="lol builds, league of legends builds, best item builds lol, champion builds, katarina build, league item builds">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="LOLScript.store">
+  <meta property="og:title" content="Best LoL Champion Builds - League of Legends Item Builds">
+  <meta property="og:description" content="Search any League champion and get practical item build ideas for burst combos, DPS, bruiser, tank, and support playstyles.">
+  <meta property="og:url" content="https://lolscript.store/lol-champion-builds">
+  <meta property="og:image" content="https://lolscript.store/assets/og/home.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Best LoL Champion Builds">
+  <meta name="twitter:description" content="Practical League of Legends item builds for every playstyle.">
+  <meta name="twitter:image" content="https://lolscript.store/assets/og/home.png">
+  <link rel="canonical" href="https://lolscript.store/lol-champion-builds">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0b0712">
+  <link rel="apple-touch-icon" href="/assets/image/logo.png">
+  <link rel="stylesheet" href="/style.css?v=responsive-apple-20260618b">
+  <script src="/patch-status.js?v=patch-status-20260618" defer></script>
+  <script src="/site-header.js?v=responsive-apple-20260618b" defer></script>
+  <script src="/champion-builds-meta.js?v=champion-builds-meta-20260502"></script>
+  <script src="/tier-list-data.js?v=tier-list-20260502"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the best League of Legends item build?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The best item build depends on champion role, matchup, enemy defenses, and win condition. Burst champions often prioritize damage spikes, while tanks and bruisers need durability and sustained fight value."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can one LoL build work every game?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. A core build can work often, but strong players adjust boots, defensive items, penetration, anti-heal, and utility items based on the enemy team."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    .build-hero { position:relative; min-height:590px; padding:132px var(--page-x) 72px; overflow:hidden; background:#0b0712; }
+    .build-hero::before { content:""; position:absolute; inset:0; background:linear-gradient(90deg, rgba(11,7,18,.94), rgba(11,7,18,.62)), url("/assets/image/valorant-hero.webp") center/cover; opacity:.9; }
+    .build-inner { position:relative; z-index:1; width:min(1180px,100%); margin:0 auto; }
+    .build-hero-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(360px,.86fr); gap:34px; align-items:center; }
+    .build-copy h1 { max-width:820px; margin:14px 0 18px; font-size:clamp(42px,7vw,82px); line-height:.96; }
+    .build-copy .lead { max-width:720px; }
+    .build-tool { border:1px solid rgba(255,255,255,.13); border-radius:8px; background:rgba(27,21,48,.94); box-shadow:0 24px 70px rgba(0,0,0,.34); padding:22px; }
+    .build-form { display:grid; gap:14px; }
+    .build-form label { display:grid; gap:7px; color:var(--muted); font-size:13px; font-weight:800; }
+    .build-form input, .build-form select { min-height:46px; border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:10px 12px; color:#fff; background:#0e0a17; font:inherit; }
+    .build-summary { display:flex; gap:16px; align-items:center; margin-top:18px; padding:14px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); }
+    .build-summary img { width:74px; height:74px; border-radius:8px; object-fit:cover; background:#0e0a17; }
+    .build-summary h2 { margin:0 0 5px; font-size:26px; }
+    .meta-status-panel { display:grid; gap:12px; margin-top:18px; padding:14px; border:1px solid rgba(167,139,250,.32); border-radius:8px; background:rgba(167,139,250,.08); }
+    .meta-status-panel strong { color:#a78bfa; font-size:20px; }
+    .meta-status-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .meta-status-grid span { display:block; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; }
+    .meta-status-grid b { display:block; margin-top:3px; color:#fff; font-size:14px; }
+    .build-section { padding:var(--section-y) var(--page-x); background:#0c0816; }
+    .build-section.alt { background:#110b1d; }
+    .item-build { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; margin-top:24px; }
+    .item-card { display:grid; gap:9px; align-content:start; min-height:150px; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,.11); background:rgba(255,255,255,.035); }
+    .item-card img { width:54px; height:54px; border-radius:8px; background:#0e0a17; }
+    .item-card strong { font-size:14px; line-height:1.25; }
+    .item-card span { color:var(--muted); font-size:12px; }
+    .tips-grid, .content-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; margin-top:28px; }
+    .info-panel { border:1px solid rgba(255,255,255,.11); border-radius:8px; padding:22px; background:rgba(255,255,255,.035); }
+    .info-panel h3 { margin:0 0 10px; }
+    .info-panel p, .info-panel li { color:var(--muted); line-height:1.65; }
+    .info-panel ul { margin:12px 0 0; padding-left:20px; }
+    .spell-row { display:grid; gap:10px; }
+    .spell { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:center; }
+    .spell img { width:42px; height:42px; border-radius:8px; }
+    .spell strong { display:block; }
+    .spell span { color:var(--muted); font-size:13px; }
+    @media (max-width:980px) {
+      .build-hero-grid, .tips-grid, .content-grid, .meta-status-grid { grid-template-columns:1fr; }
+      .item-build { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .build-hero { padding-top:104px; }
+    }
+    @media (max-width:620px) {
+      .item-build { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .build-summary { align-items:flex-start; }
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://lolscript.store/" },
+      { "@type": "ListItem", "position": 2, "name": "LoL Champion Builds", "item": "https://lolscript.store/lol-champion-builds" }
+    ]
+  }
+  </script>
+</head>
+<body>
+    <header class="site-header scrolled" data-header>
+    <div class="header-shell">
+      <a class="logo" href="/" aria-label="LOLScript home">
+        <img src="/assets/image/logo.png" alt="LOLScript">
+      </a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav" data-nav>
+        <div class="nav-item has-dropdown">
+          <a href="/#products">Shop <span class="chevron" aria-hidden="true"></span></a>
+          <div class="shop-dropdown" aria-label="Shop menu">
+            <a href="/lol-script">LoL Script</a>
+            <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a>
+            <a href="/lol-perm-spoofer">LoL Perm Spoofer</a>
+          </div>
+        </div>
+        <a href="/lol-tier-list">LoL Tier List</a>
+        <a href="/setup-guide">Setup Guide</a>
+        <a href="/#faq">FAQ</a>
+      </nav>
+      <span class="patch-status">Working on LoL Patch 26.8</span>
+      <a class="cart-link" href="/#products" aria-label="Cart">
+        <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+        <span>0</span>
+      </a>
+      <label class="currency-picker" aria-label="Display currency">
+        <span>Currency</span>
+        <select data-currency-select></select>
+      </label>
+      <a class="header-cta" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="build-hero">
+      <div class="build-inner build-hero-grid">
+        <div class="build-copy">
+          <p class="badge">League of Legends item builds</p>
+          <h1>Best LoL builds for combos, burst damage, and carry games</h1>
+          <p class="lead">Search a champion and generate a practical item path for the way you want to play: knockout combo burst, DPS carry, bruiser fights, tank engage, or support utility.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#build-tool">Find Build</a>
+            <a class="button secondary" href="#build-guide">Build Guide</a>
+          </div>
+          <div class="meta-status-panel" aria-label="Current League of Legends meta status">
+            <strong data-meta-status-title>Current meta builds loading...</strong>
+            <div class="meta-status-grid">
+              <div><span>Patch</span><b data-meta-patch>Checking Riot Data Dragon</b></div>
+              <div><span>Meta source</span><b data-meta-source>Live champion and item data</b></div>
+              <div><span>Last refreshed</span><b data-meta-updated>Loading</b></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="build-tool" id="build-tool" aria-label="Best LoL item build finder">
+          <form class="build-form" data-build-form>
+            <label>Champion
+              <input name="champion" list="champion-list" placeholder="Katarina, Aatrox, Jinx..." autocomplete="off" value="Katarina">
+              <datalist id="champion-list" data-champion-list></datalist>
+            </label>
+            <label>Playstyle
+              <select name="style">
+                <option value="auto">Auto-detect from champion</option>
+                <option value="burst">Knockout combo / burst</option>
+                <option value="dps">DPS carry</option>
+                <option value="bruiser">Bruiser / skirmish</option>
+                <option value="tank">Tank / engage</option>
+                <option value="support">Support utility</option>
+              </select>
+            </label>
+            <button class="button primary" type="submit">Generate Item Build</button>
+          </form>
+          <div class="build-summary" data-champion-summary>
+            <img alt="" data-champion-image>
+            <div>
+              <h2 data-champion-name>Loading champions...</h2>
+              <p class="muted" data-champion-meta>Fetching Riot Data Dragon champion and item data.</p>
+            </div>
+          </div>
+          <aside class="tool-inline-upsell compact" aria-label="Custom ranked improvement offers">
+            <div class="tool-inline-copy">
+              <p class="badge">Undetected tools</p>
+              <h3>Your build is one part. Get the edge.</h3>
+              <p>Get undetected with the LoL Script, Vanguard Emulator, and Perm Spoofer, all with instant delivery and live pricing.</p>
+            </div>
+            <div class="tool-inline-options">
+              <a class="button primary" href="/#products">View LoL Products</a>
+              <a class="button secondary" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </section>
+
+    <section class="build-section">
+      <div class="build-inner">
+        <div class="section-heading">
+          <p class="eyebrow">Recommended item path</p>
+          <h2 data-build-title>Best Katarina item build</h2>
+          <p data-build-note>Generated from champion role tags and current Riot Data Dragon item data. Adjust defensive and penetration items based on the enemy team.</p>
+        </div>
+        <div class="item-build" data-item-build></div>
+      </div>
+    </section>
+
+    <section class="build-section alt">
+      <div class="build-inner">
+        <div class="section-heading">
+          <p class="eyebrow">Combos and priorities</p>
+          <h2>Build around the way the champion wins fights</h2>
+          <p>Great League of Legends item builds are not just six expensive items. They should support the champion's damage pattern, power spikes, and the job they need to do in a fight.</p>
+        </div>
+        <div class="tips-grid">
+          <article class="info-panel">
+            <h3 data-tip-title>Burst combo checklist</h3>
+            <ul data-build-tips>
+              <li>Prioritize early damage spikes before defensive luxury items.</li>
+              <li>Buy penetration when enemy carries start stacking resistances.</li>
+              <li>Keep one defensive slot open if shutdown gold matters.</li>
+            </ul>
+          </article>
+          <article class="info-panel">
+            <h3>Champion spell profile</h3>
+            <div class="spell-row" data-spell-row></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="build-section" id="build-guide">
+      <div class="build-inner">
+        <div class="content-grid">
+          <article class="info-panel">
+            <h3 data-guide-title>Champion build guide</h3>
+            <p data-guide-overview>Pick a champion above to generate a champion-specific item and playstyle guide.</p>
+            <ul data-guide-steps>
+              <li>Rush the first core item that matches the champion's damage pattern.</li>
+              <li>Choose boots based on lane pressure and enemy crowd control.</li>
+              <li>Adapt the last slots for enemy armor, magic resist, healing, shields, and burst.</li>
+            </ul>
+          </article>
+          <article class="info-panel">
+            <h3 data-guide-map-title>Roaming and fight plan</h3>
+            <p data-guide-map>Use the first spike to create pressure, then move with the wave, vision, and objective timers.</p>
+            <ul data-guide-priorities>
+              <li>Crash waves before roaming.</li>
+              <li>Track enemy summoner spells before forcing all-ins.</li>
+              <li>Spend gold before major objectives whenever possible.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <img src="/assets/image/logo.png" alt="LOLScript">
+      <p>LOLScript is the exact-match destination for LoL Script plans, instant key delivery, setup guidance, and Discord community support.</p>
+    </div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <div><h3>Tools</h3><a href="/lol-tier-list">LoL Tier List</a></div>
+      <div><h3>Products</h3><a href="/lol-script">LoL Script</a><a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a><a href="/lol-perm-spoofer">LoL Perm Spoofer</a></div>
+      <div><h3>Support</h3><a href="/contact">Contact</a><a href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a><a href="/#products">Start Checkout</a></div>
+    </nav>
+  </footer>
+
+  <script src="/currency.js?v=currency-20260428"></script>
+  <script src="/cart.js?v=conversion-20260513"></script>
+  <script src="/analytics.js?v=conversion-20260513" defer></script>
+  <script>
+    const form = document.querySelector("[data-build-form]");
+    const championList = document.querySelector("[data-champion-list]");
+    const championImage = document.querySelector("[data-champion-image]");
+    const championName = document.querySelector("[data-champion-name]");
+    const championMeta = document.querySelector("[data-champion-meta]");
+    const buildTitle = document.querySelector("[data-build-title]");
+    const buildNote = document.querySelector("[data-build-note]");
+    const itemBuild = document.querySelector("[data-item-build]");
+    const tipTitle = document.querySelector("[data-tip-title]");
+    const buildTips = document.querySelector("[data-build-tips]");
+    const spellRow = document.querySelector("[data-spell-row]");
+    const guideTitle = document.querySelector("[data-guide-title]");
+    const guideOverview = document.querySelector("[data-guide-overview]");
+    const guideSteps = document.querySelector("[data-guide-steps]");
+    const guideMapTitle = document.querySelector("[data-guide-map-title]");
+    const guideMap = document.querySelector("[data-guide-map]");
+    const guidePriorities = document.querySelector("[data-guide-priorities]");
+    const metaStatusTitle = document.querySelector("[data-meta-status-title]");
+    const metaPatch = document.querySelector("[data-meta-patch]");
+    const metaSource = document.querySelector("[data-meta-source]");
+    const metaUpdated = document.querySelector("[data-meta-updated]");
+    let ddragonVersion = "";
+    let champions = [];
+    let items = [];
+
+    const preferredItems = {
+      burst: ["Sorcerer's Shoes", "Stormsurge", "Shadowflame", "Lich Bane", "Rabadon's Deathcap", "Void Staff", "Zhonya's Hourglass", "Youmuu's Ghostblade", "Opportunity", "Profane Hydra", "Serylda's Grudge", "Edge of Night"],
+      dps: ["Berserker's Greaves", "Kraken Slayer", "Infinity Edge", "Runaan's Hurricane", "Lord Dominik's Regards", "Bloodthirster", "Phantom Dancer"],
+      bruiser: ["Plated Steelcaps", "Eclipse", "Sundered Sky", "Spear of Shojin", "Death's Dance", "Sterak's Gage", "Black Cleaver"],
+      tank: ["Plated Steelcaps", "Heartsteel", "Sunfire Aegis", "Jak'Sho, The Protean", "Thornmail", "Kaenic Rookern", "Randuin's Omen"],
+      support: ["Ionian Boots of Lucidity", "Locket of the Iron Solari", "Redemption", "Mikael's Blessing", "Ardent Censer", "Shurelya's Battlesong", "Knight's Vow"],
+    };
+
+    const fallbackTags = {
+      burst: ["SpellDamage", "MagicPenetration", "Damage", "CooldownReduction"],
+      dps: ["AttackSpeed", "CriticalStrike", "Damage", "LifeSteal"],
+      bruiser: ["Damage", "Health", "Armor", "CooldownReduction"],
+      tank: ["Health", "Armor", "SpellBlock", "Tenacity"],
+      support: ["ManaRegen", "CooldownReduction", "Health", "NonbootsMovement"],
+    };
+
+    function stripHtml(value = "") {
+      return String(value).replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+    }
+
+    function normalize(value = "") {
+      return String(value).toLowerCase().replace(/[^a-z0-9]/g, "");
+    }
+
+    function displayPatch(version = "") {
+      const match = String(version).match(/^(\d+)\.(\d+)/);
+      if (!match) return String(version || "current");
+      const major = Number(match[1]);
+      if (major < 20) return `26.${match[2]}`;
+      return `${match[1]}.${match[2]}`;
+    }
+
+    function formatMetaDate(value) {
+      const date = value ? new Date(value) : null;
+      return date && !Number.isNaN(date.getTime())
+        ? date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+        : "Live on page load";
+    }
+
+    function renderMetaStatus(meta = {}) {
+      const patch = displayPatch(meta.ddragonVersion || meta.patch || ddragonVersion);
+      const tierPatch = displayPatch(meta.metaPatch || window.LOLSCRIPT_TIER_LIST?.sourcePatch || window.LOLSCRIPT_TIER_LIST?.patch || patch);
+      if (metaStatusTitle) metaStatusTitle.textContent = `Current meta builds for LoL Patch ${patch}`;
+      if (metaPatch) metaPatch.textContent = tierPatch === patch ? `Patch ${patch}` : `Patch ${patch} / meta ${tierPatch}`;
+      if (metaSource) metaSource.textContent = meta.sourceName || window.LOLSCRIPT_TIER_LIST?.sourceName || "Riot Data Dragon live item/champion data";
+      if (metaUpdated) metaUpdated.textContent = formatMetaDate(meta.updatedAt || window.LOLSCRIPT_TIER_LIST?.updatedAt);
+    }
+
+    function detectStyle(champion) {
+      const tags = champion.tags || [];
+      if (tags.includes("Assassin") || (tags.includes("Mage") && tags.includes("Fighter"))) return "burst";
+      if (tags.includes("Marksman")) return "dps";
+      if (tags.includes("Tank")) return "tank";
+      if (tags.includes("Support")) return "support";
+      if (tags.includes("Fighter")) return "bruiser";
+      if (tags.includes("Mage")) return "burst";
+      return "bruiser";
+    }
+
+    function findChampion(input) {
+      const key = normalize(input);
+      return champions.find((champion) => normalize(champion.name) === key || normalize(champion.id) === key)
+        || champions.find((champion) => normalize(champion.name).includes(key))
+        || champions.find((champion) => champion.id === "Katarina")
+        || champions[0];
+    }
+
+    function itemImage(item) {
+      return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${item.image.full}`;
+    }
+
+    function championSquare(champion) {
+      return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champion.image.full}`;
+    }
+
+    function pickItems(style) {
+      const used = new Set();
+      const chosen = [];
+      const byName = new Map(items.map((item) => [item.name, item]));
+      (preferredItems[style] || []).forEach((name) => {
+        const item = byName.get(name);
+        if (item && !used.has(item.id)) {
+          used.add(item.id);
+          chosen.push(item);
+        }
+      });
+      const tags = fallbackTags[style] || [];
+      items
+        .filter((item) => item.gold?.purchasable && item.gold.total >= 1800 && !item.into && !used.has(item.id))
+        .filter((item) => tags.some((tag) => (item.tags || []).includes(tag)))
+        .sort((a, b) => b.gold.total - a.gold.total)
+        .forEach((item) => {
+          if (chosen.length < 6 && !used.has(item.id)) {
+            used.add(item.id);
+            chosen.push(item);
+          }
+        });
+      return chosen.slice(0, 6);
+    }
+
+    function championLane(champion, style) {
+      if ((champion.tags || []).includes("Marksman")) return "bot lane";
+      if (style === "support" || (champion.tags || []).includes("Support")) return "support";
+      if (style === "tank") return "top lane or engage role";
+      if (style === "bruiser") return "top lane or skirmish role";
+      if ((champion.tags || []).includes("Assassin") || (champion.tags || []).includes("Mage")) return "mid lane";
+      return "solo lane";
+    }
+
+    function buildGuide(champion, style, build) {
+      const names = build.map((item) => item.name);
+      const first = names[0] || "your first core item";
+      const second = names[1] || "your second core item";
+      const third = names[2] || "your third item";
+      const boots = build.find((item) => /boots|greaves|steelcaps|treads|shoes/i.test(item.name))?.name || "boots";
+      const lane = championLane(champion, style);
+      const plans = {
+        burst: {
+          overview: `${champion.name} wants fast kill pressure. Rush ${first}, finish ${boots} when movement or matchup pressure matters, then build ${second} and ${third} to make your combo threaten carries.`,
+          steps: [
+            `First recall: buy damage components toward ${first}; prioritize boots earlier if you need to dodge skillshots or roam.`,
+            `Core order: ${names.slice(0, 3).join(" -> ")}. This gives the first real knockout-combo window.`,
+            "After core: add penetration if carries buy resistances, or a defensive active if shutdown protection matters.",
+          ],
+          map: `Play ${champion.name} like a tempo champion in ${lane}. Push or trim the wave before roaming, then look for fog-of-war angles onto bot lane, jungle fights, or objective setups.`,
+          priorities: [
+            "Do not roam on a bad wave unless the kill is nearly guaranteed.",
+            "Hold key cooldowns until the enemy carry uses mobility or crowd control.",
+            "After a kill, convert the reset into dragon, Herald, plates, or deep vision instead of chasing low-value fights.",
+          ],
+        },
+        dps: {
+          overview: `${champion.name} needs uptime. Rush ${first}, complete ${boots} for attack timing and spacing, then build ${second} and ${third} so your damage scales through longer fights.`,
+          steps: [
+            `First item: ${first} is your first major DPS spike. Farm cleanly until it is finished.`,
+            `Core order: ${names.slice(0, 3).join(" -> ")}. Avoid delaying this curve for greedy defensive buys unless you are being hard focused.`,
+            "After core: choose armor penetration, lifesteal, or defense based on who can actually reach you.",
+          ],
+          map: `For ${champion.name}, the best roaming practice is usually controlled rotation rather than random movement. Move after crashing bot wave, then arrive first to dragon or mid pressure.`,
+          priorities: [
+            "Keep farming during dead time; DPS builds fall behind when gold income stops.",
+            "Stand behind frontline and hit the closest safe target instead of diving for carries.",
+            "Spend before major objectives so your next completed item is active during the fight.",
+          ],
+        },
+        bruiser: {
+          overview: `${champion.name} should mix damage and survival. Rush ${first}, then build ${second} and ${third} to stay alive long enough to finish extended skirmishes.`,
+          steps: [
+            `Rush ${first} when you can trade often; buy defensive components sooner if lane is volatile.`,
+            `Core order: ${names.slice(0, 3).join(" -> ")}. This balances threat, durability, and side-lane pressure.`,
+            "After core: adapt into armor, magic resist, anti-heal, or armor shred based on the enemy carry threat.",
+          ],
+          map: `Use ${champion.name}'s side-lane pressure to pull enemies away from objectives. Crash the wave, then decide whether to roam first or force someone to answer you.`,
+          priorities: [
+            "Trade around cooldowns, not just health bars.",
+            "Roam after pushing side wave so you do not lose free gold and XP.",
+            "Enter fights from an angle when possible so carries cannot kite you for free.",
+          ],
+        },
+        tank: {
+          overview: `${champion.name} should build for the enemy damage profile. Start with ${first}, then add ${second} and ${third} to survive the strongest threats and create reliable engages.`,
+          steps: [
+            `First item: ${first} if you need a general frontline spike; swap order if the enemy team is heavily physical or magical.`,
+            `Core order: ${names.slice(0, 3).join(" -> ")}. Your job is to start fights and stay alive long enough for carries to deal damage.`,
+            "After core: buy anti-heal, anti-crit, magic resist, or peel utility based on the fed enemy.",
+          ],
+          map: `With ${champion.name}, roam when your engage can create numbers advantage. Move first after wave crash, sweep vision, then threaten picks around river and objectives.`,
+          priorities: [
+            "Ping before engaging so carries are in range to follow.",
+            "Do not waste your engage on tanks if enemy carries are exposed.",
+            "Use fog of war and objective timers to force enemies into bad choke points.",
+          ],
+        },
+        support: {
+          overview: `${champion.name} should rush utility. Build ${first}, then ${second} and ${third} to protect carries, control fights, and make objective setups easier.`,
+          steps: [
+            `First item: ${first} gives your first real team utility spike.`,
+            `Core order: ${names.slice(0, 3).join(" -> ")}. Pair these with vision control instead of sitting in lane too long.`,
+            "After core: choose cleanse, shield, movement, or durability items depending on what stops your carry from playing.",
+          ],
+          map: `For ${champion.name}, roam when your lane is pushed, your carry is safe, or the enemy support is stuck bot. Move with jungle timers and place vision before objectives spawn.`,
+          priorities: [
+            "Roam on wave crashes, recalls, and objective timers.",
+            "Keep control wards for river, dragon, Baron, and jungle entrances.",
+            "In fights, decide early whether your job is engage, peel, or reset protection.",
+          ],
+        },
+      };
+      return plans[style] || plans.bruiser;
+    }
+
+    function renderBuild() {
+      if (!champions.length || !items.length) return;
+      const data = new FormData(form);
+      const champion = findChampion(data.get("champion") || "Katarina");
+      const selectedStyle = data.get("style") || "auto";
+      const style = selectedStyle === "auto" ? detectStyle(champion) : selectedStyle;
+      const build = pickItems(style);
+      const guide = buildGuide(champion, style, build);
+      championImage.src = championSquare(champion);
+      championImage.alt = `${champion.name} icon`;
+      championName.textContent = champion.name;
+      championMeta.textContent = `${champion.title} | ${champion.tags.join(" / ")} | ${ddragonVersion}`;
+      buildTitle.textContent = `Best ${champion.name} ${style === "burst" ? "burst combo" : style} build`;
+      buildNote.textContent = style === "burst"
+        ? `Current Patch ${displayPatch(ddragonVersion)} meta build using live Riot Data Dragon item data. Prioritize fast damage spikes for knockout combos, then adapt penetration or defense when the enemy team starts itemizing against you.`
+        : `Current Patch ${displayPatch(ddragonVersion)} meta build using live Riot Data Dragon item data. Use this as a practical core path, then change defensive, penetration, or utility slots based on the enemy composition.`;
+      tipTitle.textContent = style === "burst" ? "Knockout combo checklist" : `${style[0].toUpperCase()}${style.slice(1)} build checklist`;
+      const tips = {
+        burst: ["Look for item spikes that let you one-rotation carries.", "Buy magic or armor penetration when squishies build defenses.", "Consider one stasis or spell-shield item when shutdown gold matters."],
+        dps: ["Prioritize attack speed, critical strike, and reliable uptime.", "Buy penetration when frontline armor starts blocking damage.", "Defensive lifesteal can be stronger than one more pure damage item."],
+        bruiser: ["Blend damage with health or resistances so you survive extended fights.", "Buy anti-heal or armor shred when the enemy comp demands it.", "Do not skip boots if side-lane tempo matters."],
+        tank: ["Build against the enemy's strongest damage source first.", "Mix health with resistances instead of stacking only one stat.", "Utility items are strongest when they help your carries finish fights."],
+        support: ["Rush utility that matches your lane and teamfight job.", "Adjust between engage protection, healing, shields, or movement speed.", "Vision and cooldown uptime often matter more than raw stats."],
+      }[style] || [];
+      buildTips.innerHTML = tips.map((tip) => `<li>${tip}</li>`).join("");
+      guideTitle.textContent = `${champion.name} build guide`;
+      guideOverview.textContent = guide.overview;
+      guideSteps.innerHTML = guide.steps.map((step) => `<li>${step}</li>`).join("");
+      guideMapTitle.textContent = `${champion.name} roaming and fight plan`;
+      guideMap.textContent = guide.map;
+      guidePriorities.innerHTML = guide.priorities.map((priority) => `<li>${priority}</li>`).join("");
+      itemBuild.innerHTML = build.map((item, index) => `
+        <article class="item-card">
+          <img src="${itemImage(item)}" alt="${item.name}">
+          <strong>${index + 1}. ${item.name}</strong>
+          <span>${stripHtml(item.plaintext || item.description || "Core item")}</span>
+        </article>
+      `).join("");
+      spellRow.innerHTML = (champion.spells || []).map((spell, index) => `
+        <div class="spell">
+          <img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${spell.image.full}" alt="${spell.name}">
+          <div><strong>${["Q", "W", "E", "R"][index]} - ${spell.name}</strong><span>${stripHtml(spell.description).slice(0, 130)}${stripHtml(spell.description).length > 130 ? "..." : ""}</span></div>
+        </div>
+      `).join("");
+    }
+
+    async function loadData() {
+      const versions = await fetch("https://ddragon.leagueoflegends.com/api/versions.json").then((response) => response.json());
+      ddragonVersion = versions[0];
+      renderMetaStatus({ ...(window.LOLSCRIPT_CHAMPION_BUILDS_META || {}), ddragonVersion, patch: displayPatch(ddragonVersion), updatedAt: new Date().toISOString() });
+      const championIndex = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/en_US/champion.json`).then((response) => response.json());
+      champions = Object.values(championIndex.data).sort((a, b) => a.name.localeCompare(b.name));
+      championList.innerHTML = champions.map((champion) => `<option value="${champion.name}"></option>`).join("");
+      const defaultChampion = findChampion("Katarina");
+      const championDetail = await Promise.all(champions.map(async (champion) => {
+        if (champion.id !== defaultChampion.id) return champion;
+        const detail = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/en_US/champion/${champion.id}.json`).then((response) => response.json());
+        return detail.data[champion.id] || champion;
+      }));
+      champions = championDetail;
+      const itemIndex = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/en_US/item.json`).then((response) => response.json());
+      items = Object.entries(itemIndex.data).map(([id, item]) => ({ id, ...item }));
+      await loadChampionDetail(defaultChampion.id);
+      renderBuild();
+    }
+
+    async function loadChampionDetail(championId) {
+      const current = champions.find((champion) => champion.id === championId);
+      if (current?.spells) return;
+      const detail = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/en_US/champion/${championId}.json`).then((response) => response.json());
+      champions = champions.map((champion) => champion.id === championId ? (detail.data[championId] || champion) : champion);
+    }
+
+    if (form) {
+      renderMetaStatus(window.LOLSCRIPT_CHAMPION_BUILDS_META || {});
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const champion = findChampion(new FormData(form).get("champion"));
+        if (champion) await loadChampionDetail(champion.id);
+        renderBuild();
+      });
+      form.addEventListener("change", renderBuild);
+      form.querySelector('[name="champion"]').addEventListener("change", async () => {
+        const champion = findChampion(new FormData(form).get("champion"));
+        if (champion) await loadChampionDetail(champion.id);
+        renderBuild();
+      });
+      loadData().catch(() => {
+        championName.textContent = "Build data unavailable";
+        championMeta.textContent = "Riot Data Dragon could not be loaded. Refresh the page to try again.";
+      });
+    }
+  </script>
+</body>
+</html>
