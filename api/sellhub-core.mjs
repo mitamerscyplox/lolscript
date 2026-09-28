@@ -72,9 +72,15 @@ function buildFallback() {
 
 const FALLBACK = buildFallback();
 
+function normalizeStoreUrl(raw) {
+  const url = String(raw || "").trim().replace(/\/+$/, "");
+  if (!url) return "";
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+}
+
 function getConfig() {
   return {
-    storeUrl: (process.env.SELLHUB_STORE_URL || "").replace(/\/+$/, ""),
+    storeUrl: normalizeStoreUrl(process.env.SELLHUB_STORE_URL),
     apiUrl: (process.env.SELLHUB_API_URL || DEFAULT_API).replace(/\/+$/, ""),
     token: process.env.SELLHUB_API_TOKEN || "",
   };
