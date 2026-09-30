@@ -80,6 +80,3 @@ npx vercel dev
 - Checkout is handled entirely by Sellhub (no card/crypto logic in this repo).
 - Tools (MMR Checker, Tier List, Champion Builds) are 100% client-side and need no backend.
 - `robots.txt`, `sitemap.xml`, and canonical URLs use `https://www.lolscript.store`.
-
-
-

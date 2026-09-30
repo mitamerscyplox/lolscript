@@ -352,7 +352,15 @@ function normalizeCheckoutUrl(url, storeUrl, sessionId) {
   return url;
 }
 
-export async function createCheckout(payload) {
+async function readJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    return {};
+  }
+}
+
+async function createCheckoutSession(payload) {
   const { storeUrl } = getConfig();
   if (!storeUrl) return { error: "SELLHUB_STORE_URL not configured" };
 
@@ -392,12 +400,73 @@ export async function createCheckout(payload) {
     body: JSON.stringify(body),
   });
 
-  const data = await res.json();
+  const data = await readJson(res);
   if (!res.ok) {
     return { error: data?.message || data?.error || `Checkout failed: ${res.status}` };
   }
+  return { data, session: data?.session || data, storeUrl };
+}
 
-  const session = data?.session || data;
+export async function processCheckoutSession(sessionId, methodName) {
+  const { storeUrl } = getConfig();
+  const res = await fetch(`${storeUrl}/api/processCheckout`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: sessionId, methodName }),
+  });
+  const data = await readJson(res);
+  const invoiceId = data?.invoiceId || data?.data?.invoiceId || data?.invoice?.id;
+  if (!res.ok || !invoiceId) {
+    return { error: data?.message || data?.error || `processCheckout failed: ${res.status}` };
+  }
+  return { invoiceId: String(invoiceId) };
+}
+
+export async function getInvoice(invoiceId) {
+  const { apiUrl, token } = getConfig();
+  const res = await fetch(`${apiUrl}/invoices/${encodeURIComponent(invoiceId)}`, {
+    headers: sellhubAuthHeaders(token),
+    cache: "no-store",
+  });
+  const data = await readJson(res);
+  if (!res.ok) return { error: data?.message || data?.error || `Get invoice failed: ${res.status}` };
+  return { invoice: data?.data?.invoice || data?.invoice || data?.data || null };
+}
+
+export async function completeInvoice(invoiceId) {
+  const { apiUrl, token } = getConfig();
+  const res = await fetch(`${apiUrl}/invoices/${encodeURIComponent(invoiceId)}/complete`, {
+    method: "POST",
+    headers: sellhubAuthHeaders(token),
+  });
+  const data = await readJson(res);
+  if (!res.ok) return { error: data?.message || data?.error || `Complete invoice failed: ${res.status}` };
+  return { ok: true };
+}
+
+/** Creates a pending Sellhub invoice for a non-Sellhub payment method (e.g. Binance gift card). */
+export async function createPendingInvoice(payload, methodName) {
+  const created = await createCheckoutSession(payload);
+  if (created.error) return created;
+  const sessionId = created.session?.id;
+  if (!sessionId) return { error: "Sellhub did not return a checkout session." };
+  const processed = await processCheckoutSession(sessionId, methodName);
+  if (processed.error) return { ...processed, sessionId };
+  return { sessionId, invoiceId: processed.invoiceId };
+}
+
+export async function findLiveVariant(productId, variantId) {
+  const products = await fetchSellhubProducts();
+  const product = products.find((p) => p.id === productId);
+  const variant = product?.variants?.find((v) => String(v.id) === String(variantId));
+  if (!product || !variant) return null;
+  return { product, variant };
+}
+
+export async function createCheckout(payload) {
+  const created = await createCheckoutSession(payload);
+  if (created.error) return created;
+  const { data, session, storeUrl } = created;
   const sessionId = session?.id;
   let checkoutUrl =
     session?.paymentUrl ||

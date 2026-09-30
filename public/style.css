@@ -3016,18 +3016,22 @@ body.sellhub-checkout-open { overflow: hidden; }
 .sellhub-checkout-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(4, 3, 10, .82);
-  backdrop-filter: blur(8px);
+  background: rgba(4, 3, 10, .9);
 }
 .sellhub-checkout-panel {
   position: relative;
-  width: min(520px, 100%);
-  max-height: 90vh;
+  width: min(600px, 100%);
+  max-height: min(92vh, 900px);
   overflow: auto;
+  overscroll-behavior: contain;
+  contain: content;
+  transform: translateZ(0);
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.1);
   background: #0b0712;
   box-shadow: 0 24px 80px rgba(0,0,0,.45);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139,92,246,.45) transparent;
 }
 .sellhub-checkout-head {
   display: flex;
@@ -3075,6 +3079,253 @@ body.sellhub-checkout-open { overflow: hidden; }
   background: rgba(255,255,255,.04);
   color: #fff;
 }
+.sellhub-field input[name="coupon"] { text-transform: uppercase; letter-spacing: .06em; }
+.sellhub-field input[name="giftcode"] { letter-spacing: .04em; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.sellhub-checkout [hidden] { display: none !important; }
+.sellhub-field .sellhub-field-hint { color: var(--muted); font-size: 12px; font-weight: 500; opacity: .8; }
+.sellhub-field .sellhub-field-hint.is-error { color: #fca5a5; opacity: 1; }
+.sellhub-link-btn {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-soft, #c4b5fd);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.sellhub-checkout-head h2 { flex: 1; }
+.sellhub-checkout-back {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255,255,255,.05);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+.sellhub-checkout-back:hover, .sellhub-checkout-close:hover { background: rgba(255,255,255,.1); }
+.sellhub-steps {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 14px 20px 0;
+  list-style: none;
+}
+.sellhub-steps li {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 3px solid rgba(255,255,255,.08);
+  color: rgba(255,255,255,.4);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  transition: border-color .25s ease, color .25s ease;
+}
+.sellhub-steps li span {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  font-size: 11px;
+}
+.sellhub-steps li.active { border-color: #8b5cf6; color: #fff; }
+.sellhub-steps li.active span { background: #8b5cf6; color: #fff; }
+.sellhub-steps li.done { border-color: rgba(139,92,246,.55); color: #c4b5fd; }
+.sellhub-steps li.done span { background: rgba(139,92,246,.3); color: #fff; }
+.sellhub-checkout-panel > .sellhub-checkout-summary { margin: 16px 20px 0; }
+.sellhub-step { display: grid; gap: 12px; padding: 20px; }
+.sellhub-step-title { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.sellhub-method {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.03);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.sellhub-method:hover, .sellhub-method:focus-visible { border-color: rgba(167,139,250,.7); background: rgba(124,58,237,.12); transform: translateY(-1px); outline: none; }
+.sellhub-method:disabled { cursor: progress; opacity: .7; transform: none; }
+.sellhub-method-icon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(139,92,246,.18);
+  color: #c4b5fd;
+}
+.sellhub-method-icon.is-binance { background: rgba(240,185,11,.14); color: #f0b90b; }
+.sellhub-method-text { flex: 1; display: grid; gap: 4px; }
+.sellhub-method-text strong { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.sellhub-method-text small { color: var(--muted); font-size: 13px; line-height: 1.45; }
+.sellhub-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(34,197,94,.15);
+  color: #4ade80;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.sellhub-method-arrow { color: rgba(255,255,255,.4); font-size: 26px; line-height: 1; }
+.sellhub-method.loading .sellhub-method-arrow {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,.2);
+  border-top-color: #c4b5fd;
+  border-radius: 50%;
+  font-size: 0;
+  animation: sellhub-spin .8s linear infinite;
+}
+.sellhub-secure-note { margin: 4px 0 0; color: rgba(255,255,255,.45); font-size: 12px; text-align: center; }
+.sellhub-amount {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(240,185,11,.3);
+  background: linear-gradient(135deg, rgba(240,185,11,.1), rgba(240,185,11,.02));
+  text-align: center;
+}
+.sellhub-amount span { color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.sellhub-amount strong { color: #f0b90b; font-size: 30px; line-height: 1.1; }
+.sellhub-amount small { color: var(--muted); font-size: 12px; }
+.sellhub-amount-product { color: #fff; font-size: 13px; font-style: normal; font-weight: 700; }
+.sellhub-amount-product:empty { display: none; }
+.sellhub-howto { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; counter-reset: howto; }
+[data-step="giftcard"].sellhub-checkout-form { gap: 14px; padding-top: 16px; }
+.sellhub-important { grid-template-columns: 1fr; }
+@media (min-width: 621px) {
+  .sellhub-important { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px 14px; list-style: none; }
+  .sellhub-important li { padding-left: 12px; border-left: 2px solid rgba(248,113,113,.35); }
+}
+.sellhub-howto li {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding-left: 40px;
+  counter-increment: howto;
+}
+.sellhub-howto li::before {
+  content: counter(howto);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(139,92,246,.2);
+  color: #c4b5fd;
+  font-size: 13px;
+  font-weight: 900;
+}
+.sellhub-howto strong { font-size: 14px; }
+.sellhub-howto span { color: var(--muted); font-size: 13px; line-height: 1.45; }
+.sellhub-howto b { color: #fff; }
+.sellhub-shops { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.sellhub-shops a {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.sellhub-shops a:hover { border-color: rgba(240,185,11,.6); color: #f0b90b; }
+.sellhub-important {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 12px 14px 12px 30px;
+  border-radius: 12px;
+  background: rgba(248,113,113,.06);
+  border: 1px solid rgba(248,113,113,.18);
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.sellhub-processing { justify-items: center; padding: 36px 24px 32px; text-align: center; }
+.sellhub-processing h3 { margin: 6px 0 0; font-size: 20px; }
+.sellhub-processing p { margin: 0; color: var(--muted); font-size: 14px; }
+.sellhub-spinner {
+  width: 52px;
+  height: 52px;
+  border: 3px solid rgba(255,255,255,.1);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: sellhub-spin .9s linear infinite;
+}
+.sellhub-stages { display: grid; gap: 10px; width: min(280px, 100%); margin: 14px 0 0; padding: 0; list-style: none; text-align: left; }
+.sellhub-stages li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255,255,255,.35);
+  font-size: 14px;
+  font-weight: 700;
+  transition: color .25s ease;
+}
+.sellhub-stages li::before {
+  content: "";
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.15);
+  box-sizing: border-box;
+}
+.sellhub-stages li.active { color: #fff; }
+.sellhub-stages li.active::before { border-color: rgba(255,255,255,.15); border-top-color: #c4b5fd; animation: sellhub-spin .8s linear infinite; }
+.sellhub-stages li.done { color: #86efac; }
+.sellhub-stages li.done::before { border: 0; background: #22c55e url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 12px no-repeat; }
+.sellhub-success-icon.is-pending { background: rgba(240,185,11,.15); color: #f0b90b; }
+@keyframes sellhub-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .sellhub-spinner, .sellhub-stages li.active::before, .sellhub-method.loading .sellhub-method-arrow { animation-duration: 2.4s; }
+}
+.sellhub-checkout-success { display: grid; justify-items: center; gap: 10px; padding: 28px 22px 24px; text-align: center; }
+.sellhub-checkout-success h3 { margin: 0; font-size: 22px; }
+.sellhub-checkout-success p { margin: 0; color: var(--muted); line-height: 1.55; }
+.sellhub-success-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(34,197,94,.15);
+  color: #4ade80;
+  font-size: 28px;
+  font-weight: 900;
+}
+.sellhub-success-meta { font-size: 13px; }
+.sellhub-key { display: flex; width: 100%; border-radius: 10px; border: 1px dashed rgba(196,181,253,.5); background: rgba(139,92,246,.1); overflow: hidden; }
+.sellhub-key code { flex: 1; padding: 12px 14px; color: #fff; font-size: 14px; text-align: left; word-break: break-all; }
+.sellhub-key button { min-width: 78px; border: 0; border-left: 1px dashed rgba(196,181,253,.4); background: rgba(255,255,255,.05); color: #e9e3ff; font-weight: 800; cursor: pointer; }
+.sellhub-success-meta code { color: #fff; }
+.sellhub-coupon-note { color: #86efac; font-size: 13px; font-weight: 700; }
 .sellhub-terms {
   display: flex;
   align-items: flex-start;

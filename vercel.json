@@ -16,11 +16,6 @@
           "value": "lolscript.store"
         }
       ]
-    },
-    {
-      "source": "/discord",
-      "destination": "https://discord.gg/n2ng5mJjhm",
-      "permanent": false
     }
   ],
   "headers": [
