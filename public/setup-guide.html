@@ -26,7 +26,7 @@
   <link rel="manifest" href="/site.webmanifest">
   <meta name="theme-color" content="#0b0712">
   <link rel="apple-touch-icon" href="/assets/image/logo.png">
-  <link rel="stylesheet" href="/style.css?v=responsive-apple-20260618b">
+  <link rel="stylesheet" href="/style.css?v=seo-20260930">
   <script src="/patch-status.js?v=patch-status-20260618" defer></script>
   <script src="/site-header.js?v=responsive-apple-20260618b" defer></script>
   <script type="application/ld+json">
@@ -36,6 +36,19 @@
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.lolscript.store/" },
       { "@type": "ListItem", "position": 2, "name": "Setup Guides", "item": "https://www.lolscript.store/setup-guide" }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Which setup guide should I follow first?", "acceptedAnswer": { "@type": "Answer", "text": "If you bought the full stack, follow the LoL Perm Spoofer setup guide first, then the LoL Vanguard Emulator setup guide, and finish with the LoL Script setup guide. If you bought a single product, open only the guide for that product." } },
+      { "@type": "Question", "name": "Where do I get the loader after purchase?", "acceptedAnswer": { "@type": "Answer", "text": "Your license key is delivered instantly on-screen and to the email used at checkout. The current loader link and any update notes are shared in the LOLScript Discord." } },
+      { "@type": "Question", "name": "Do I need all three products?", "acceptedAnswer": { "@type": "Answer", "text": "No. The LoL Script, LoL Vanguard Emulator, and LoL Spoofer are sold separately, and each one has its own setup guide." } },
+      { "@type": "Question", "name": "What should I do after a League of Legends patch?", "acceptedAnswer": { "@type": "Answer", "text": "Open the loader and follow the update prompt. Updates are normally ready the same day. You can check current compatibility on the status page." } },
+      { "@type": "Question", "name": "Where can I get setup help?", "acceptedAnswer": { "@type": "Answer", "text": "Join the LOLScript Discord and open a support ticket with your order email and a short description of the step you are stuck on." } }
     ]
   }
   </script>
@@ -119,6 +132,20 @@
         <a class="button secondary" href="/#products">View Products</a>
       </div>
     </section>
+
+    <section class="section guide-section faq">
+      <div class="section-heading">
+        <p class="eyebrow">FAQ</p>
+        <h2>Setup guide questions</h2>
+      </div>
+      <div class="faq-list">
+        <details open><summary>Which setup guide should I follow first?</summary><p>If you bought the full stack, follow the <a href="/setup-guide-perm-spoofer">LoL Perm Spoofer setup guide</a> first, then the <a href="/setup-guide-vanguard-emulator">LoL Vanguard Emulator setup guide</a>, and finish with the <a href="/setup-guide-lol-script">LoL Script setup guide</a>. If you bought a single product, open only the guide for that product.</p></details>
+        <details><summary>Where do I get the loader after purchase?</summary><p>Your license key is delivered instantly on-screen and to the email used at checkout. The current loader link and any update notes are shared in the LOLScript Discord.</p></details>
+        <details><summary>Do I need all three products?</summary><p>No. The <a href="/lol-script">LoL Script</a>, <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a>, and <a href="/lol-perm-spoofer">LoL Spoofer</a> are sold separately, and each one has its own setup guide.</p></details>
+        <details><summary>What should I do after a League of Legends patch?</summary><p>Open the loader and follow the update prompt. Updates are normally ready the same day. You can check current compatibility on the <a href="/status">status page</a>.</p></details>
+        <details><summary>Where can I get setup help?</summary><p>Join the LOLScript Discord and open a support ticket with your order email and a short description of the step you are stuck on.</p></details>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -131,17 +158,27 @@
         <h3>Products</h3>
         <a href="/lol-script">LoL Script</a>
         <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a>
-        <a href="/lol-perm-spoofer">LoL Perm Spoofer</a>
+        <a href="/lol-perm-spoofer">LoL Spoofer</a>
+        <a href="/setup-guide">Setup Guides</a>
       </div>
       <div>
         <h3>Guides</h3>
-        <a href="/setup-guide-lol-script">LoL Script Setup</a>
-        <a href="/setup-guide-vanguard-emulator">Vanguard Emulator Setup</a>
-        <a href="/setup-guide-perm-spoofer">Perm Spoofer Setup</a>
+        <a href="/lol-orbwalker-script">LoL Orbwalker Script</a>
+        <a href="/lol-evade-script">LoL Evade Script</a>
+        <a href="/league-of-legends-scripting-after-vanguard">Scripting After Vanguard</a>
+        <a href="/league-of-legends-hwid-ban">LoL HWID Ban</a>
+      </div>
+      <div>
+        <h3>Free LoL Tools</h3>
+        <a href="/lol-tier-list">LoL Tier List</a>
+        <a href="/lol-champion-builds">LoL Champion Builds</a>
+        <a href="/lol-mmr-checker">LoL MMR Checker</a>
       </div>
       <div>
         <h3>Support</h3>
+        <a href="/status">Status</a>
         <a href="/contact">Contact</a>
+        <a href="/terms">Terms of Service</a>
         <a href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
       </div>
     </nav>
