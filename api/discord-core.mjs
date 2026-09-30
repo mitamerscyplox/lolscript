@@ -43,24 +43,40 @@ function inviteUrl(code) {
   return `https://discord.gg/${code}`;
 }
 
+function inviteExpiresAt(invite) {
+  if (invite.expires_at) return new Date(invite.expires_at).getTime();
+  if (invite.created_at && Number(invite.max_age) > 0) {
+    return new Date(invite.created_at).getTime() + Number(invite.max_age) * 1000;
+  }
+  return Number.MAX_SAFE_INTEGER;
+}
+
 function isInviteActive(invite) {
   if (!invite?.code) return false;
-  if (!invite.expires_at) return true;
-  return new Date(invite.expires_at).getTime() > Date.now();
+  if (Number(invite.max_uses) > 0 && Number(invite.uses) >= Number(invite.max_uses)) return false;
+  return inviteExpiresAt(invite) > Date.now() + 30_000;
 }
 
-function rankInvite(invite) {
-  const permanent = invite.max_age === 0 ? 0 : 1;
-  const expiresAt = invite.expires_at
-    ? new Date(invite.expires_at).getTime()
-    : Number.MAX_SAFE_INTEGER;
-  return permanent * 1_000_000_000_000 - expiresAt;
+function createdAt(invite) {
+  return invite.created_at ? new Date(invite.created_at).getTime() : 0;
 }
 
-function pickBestInvite(invites) {
+// The bot rotates its invite, so its newest active invite wins over older/permanent ones.
+function pickBestInvite(invites, botUserId) {
   const active = invites.filter(isInviteActive);
   if (!active.length) return null;
-  return [...active].sort((a, b) => rankInvite(a) - rankInvite(b))[0] ?? null;
+  const fromBot = botUserId ? active.filter((i) => i.inviter?.id === botUserId) : [];
+  const pool = fromBot.length ? fromBot : active;
+  return [...pool].sort((a, b) => createdAt(b) - createdAt(a))[0] ?? null;
+}
+
+async function fetchBotUserId(headers) {
+  const preferred = process.env.DISCORD_INVITE_INVITER_ID?.trim();
+  if (preferred) return preferred;
+  const res = await fetch(`${API}/users/@me`, { headers, cache: "no-store" });
+  if (!res.ok) return null;
+  const user = await res.json();
+  return user?.id ?? null;
 }
 
 async function fetchAllBotGuildIds(headers) {
@@ -123,6 +139,7 @@ async function collectGuildInvites(gid, headers) {
 
 async function resolveGuildScanOrder(headers) {
   const preferred = preferredGuildIds();
+  if (preferred.length) return preferred;
   const fromBot = await fetchAllBotGuildIds(headers);
   const ordered = [...preferred];
   for (const id of fromBot) {
@@ -139,13 +156,12 @@ async function resolveDiscordInviteFromApi() {
   const guildIds = await resolveGuildScanOrder(headers);
   if (!guildIds.length) return null;
 
-  const allInvites = [];
-  for (const gid of guildIds) {
-    const invites = await collectGuildInvites(gid, headers);
-    if (invites.length) allInvites.push(...invites);
-  }
+  const [botUserId, ...inviteLists] = await Promise.all([
+    fetchBotUserId(headers),
+    ...guildIds.map((gid) => collectGuildInvites(gid, headers)),
+  ]);
 
-  const best = pickBestInvite(allInvites);
+  const best = pickBestInvite(inviteLists.flat(), botUserId);
   return best?.code ? inviteUrl(best.code) : null;
 }
 
