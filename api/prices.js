@@ -3,7 +3,7 @@ import {
   fetchSellhubProducts,
   getConfig,
   mapProductsToStore,
-} from "./sellhub-core.mjs";
+} from "./_lib/sellhub-core.mjs";
 
 export default async function handler(req, res) {
   const { token, storeUrl } = getConfig();

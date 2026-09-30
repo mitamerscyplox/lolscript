@@ -1,4 +1,4 @@
-import { createCheckout } from "./sellhub-core.mjs";
+import { createCheckout } from "./_lib/sellhub-core.mjs";
 
 async function readBody(req) {
   if (req.body != null) {

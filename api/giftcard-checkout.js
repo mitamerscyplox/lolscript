@@ -1,8 +1,8 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
-import { binanceConfigured, maskCode, normalizeGiftCardCode, redeemGiftCard } from "./binance-giftcard.mjs";
-import { kvDel, kvGet, kvIncr, kvSet, kvSetNx } from "./kv-store.mjs";
-import { PAY_LOG_COLORS, postPayLog } from "./pay-log.mjs";
-import { completeInvoice, createPendingInvoice, findLiveVariant, getInvoice } from "./sellhub-core.mjs";
+import { binanceAccountId, binanceConfigured, maskCode, normalizeGiftCardCode, redeemGiftCard } from "./_lib/binance-giftcard.mjs";
+import { kvDel, kvGet, kvIncr, kvSet, kvSetNx } from "./_lib/kv-store.mjs";
+import { PAY_LOG_COLORS, postPayLog } from "./_lib/pay-log.mjs";
+import { completeInvoice, createPendingInvoice, findLiveVariant, getInvoice } from "./_lib/sellhub-core.mjs";
 
 const DAY = 24 * 60 * 60;
 const QUOTE_TTL_MS = 60 * 60 * 1000;
@@ -32,7 +32,7 @@ function config() {
   };
 }
 
-const BINANCE_COOLDOWN_KEY = "gc:binance:cooldown";
+const binanceCooldownKey = () => `gc:binance:${binanceAccountId()}:cooldown`;
 
 /** Counts a request for this IP; returns seconds to wait when the window budget is used up. */
 async function throttle(kind, ipKey, limit, windowSeconds) {
@@ -43,20 +43,20 @@ async function throttle(kind, ipKey, limit, windowSeconds) {
 }
 
 async function binanceCooldownLeft() {
-  const until = Number(await kvGet(BINANCE_COOLDOWN_KEY)) || 0;
+  const until = Number(await kvGet(binanceCooldownKey())) || 0;
   return Math.max(0, Math.ceil((until - Date.now()) / 1000));
 }
 
 async function tripBinanceCooldown(cfg, redeem) {
   const seconds = Math.max(redeem.retryAfter || 0, cfg.binanceCooldown * (redeem.banned ? 3 : 1));
-  await kvSet(BINANCE_COOLDOWN_KEY, Date.now() + seconds * 1000, seconds + 5);
+  await kvSet(binanceCooldownKey(), Date.now() + seconds * 1000, seconds + 5);
   return seconds;
 }
 
 /** Keeps signed Binance calls at least ~1s apart across all serverless instances. */
 async function waitBinanceSlot() {
   for (let i = 0; i < 4; i++) {
-    if (await kvSetNx("gc:binance:slot", "1", 1)) return true;
+    if (await kvSetNx(`gc:binance:${binanceAccountId()}:slot`, "1", 1)) return true;
     await new Promise((resolve) => setTimeout(resolve, 600));
   }
   return false;
@@ -129,7 +129,7 @@ function failKeys(ipKey, emailKey) {
     email: `gc:fail:email:${emailKey}`,
     blockIp: `gc:block:ip:${ipKey}`,
     blockEmail: `gc:block:email:${emailKey}`,
-    global: `gc:fail:global:${todayKey()}`,
+    global: `gc:fail:global:${binanceAccountId()}:${todayKey()}`,
   };
 }
 

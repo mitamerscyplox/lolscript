@@ -1,4 +1,4 @@
-import { getConfig } from "./sellhub-core.mjs";
+import { getConfig } from "./_lib/sellhub-core.mjs";
 
 function sanitizeTermsHtml(html) {
   return String(html || "")
