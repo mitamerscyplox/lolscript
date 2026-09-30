@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="AayyHamM6hf-tY6lBctEnvbSSvhV1_wvprnbKBUyLhE" />
+  <meta name="yandex-verification" content="b9ad98ab68040f84">
+  <title>Join Discord | LOLScript</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0b0712; color: #fff; font-family: system-ui, sans-serif; }
+    p { color: rgba(255,255,255,.65); }
+    a { color: #c4b5fd; }
+  </style>
+</head>
+<body>
+  <div style="text-align:center;padding:24px;">
+    <p>Redirecting to Discord…</p>
+    <p><a id="discord-fallback" href="https://discord.gg/n2ng5mJjhm">Click here if you are not redirected</a></p>
+  </div>
+  <script>
+    (async function () {
+      try {
+        const res = await fetch("/api/discord-invite", { cache: "no-store" });
+        const data = await res.json();
+        const url = data?.url || "https://discord.gg/n2ng5mJjhm";
+        document.getElementById("discord-fallback").href = url;
+        window.location.replace(url);
+      } catch (_) {
+        window.location.replace("https://discord.gg/n2ng5mJjhm");
+      }
+    })();
+  </script>
+</body>
+</html>

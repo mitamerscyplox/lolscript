@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="AayyHamM6hf-tY6lBctEnvbSSvhV1_wvprnbKBUyLhE" />
+  <meta name="yandex-verification" content="b9ad98ab68040f84">
+  <title>LoL Vanguard Emulator Setup Guide | LOLScript</title>
+  <meta name="description" content="Step-by-step LoL Vanguard Emulator setup: remove Riot Vanguard from your PC, authenticate the loader, inject options, and queue without anti-cheat.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="LOLScript.store">
+  <meta property="og:title" content="LoL Vanguard Emulator Setup Guide">
+  <meta property="og:description" content="Remove Riot Vanguard from your PC, authenticate the loader, and queue League of Legends without anti-cheat.">
+  <meta property="og:url" content="https://www.lolscript.store/setup-guide-vanguard-emulator">
+  <meta property="og:image" content="https://www.lolscript.store/assets/og/lol-vanguard-emulator.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LoL Vanguard Emulator Setup Guide">
+  <meta name="twitter:description" content="Remove Vanguard from your PC and queue League without anti-cheat.">
+  <meta name="twitter:image" content="https://www.lolscript.store/assets/og/lol-vanguard-emulator.png">
+  <link rel="canonical" href="https://www.lolscript.store/setup-guide-vanguard-emulator">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0b0712">
+  <link rel="apple-touch-icon" href="/assets/image/logo.png">
+  <link rel="stylesheet" href="/style.css?v=checkout-20260930e">
+  <script src="/patch-status.js?v=patch-status-20260618" defer></script>
+  <script src="/site-header.js?v=responsive-apple-20260618b" defer></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "HowTo",
+        "name": "How to set up the LoL Vanguard Emulator",
+        "description": "Remove Riot Vanguard from your PC, authenticate the loader, and queue League of Legends without anti-cheat.",
+        "image": "https://www.lolscript.store/assets/og/lol-vanguard-emulator.png",
+        "totalTime": "PT5M",
+        "step": [
+          { "@type": "HowToStep", "position": 1, "name": "Open Riot Client and log in", "text": "Open the Riot Client and log into your account before starting the loader." },
+          { "@type": "HowToStep", "position": 2, "name": "Run the loader as administrator", "text": "Right-click the loader and select Run as administrator." },
+          { "@type": "HowToStep", "position": 3, "name": "Approve the UAC prompt", "text": "Press Yes on the User Account Control window." },
+          { "@type": "HowToStep", "position": 4, "name": "Authenticate your key", "text": "Paste your key with Ctrl+V, then click AUTHENTICATE." },
+          { "@type": "HowToStep", "position": 5, "name": "Load the emulator", "text": "After authentication completes, click LOAD." },
+          { "@type": "HowToStep", "position": 6, "name": "Choose your inject option", "text": "Type 1 to inject the cheat + emulator, or type 2 to use only the emulator." },
+          { "@type": "HowToStep", "position": 7, "name": "Start League of Legends", "text": "Start the game. When the loader confirms Vanguard is removed, you can queue and play without anti-cheat." }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.lolscript.store/" },
+          { "@type": "ListItem", "position": 2, "name": "Setup Guides", "item": "https://www.lolscript.store/setup-guide" },
+          { "@type": "ListItem", "position": 3, "name": "Vanguard Emulator", "item": "https://www.lolscript.store/setup-guide-vanguard-emulator" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="guide-page">
+  <header class="site-header scrolled" data-header>
+    <div class="header-shell">
+      <a class="logo" href="/" aria-label="LOLScript home"><img src="/assets/image/logo.png" alt="LOLScript"></a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-label="Open menu"><span></span><span></span><span></span></button>
+      <nav class="nav" data-nav>
+        <div class="nav-item has-dropdown">
+          <a href="/#products">Shop <span class="chevron" aria-hidden="true"></span></a>
+          <div class="shop-dropdown" aria-label="Shop menu">
+            <a href="/lol-script">LoL Script</a>
+            <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a>
+            <a href="/lol-perm-spoofer">LoL Perm Spoofer</a>
+          </div>
+        </div>
+        <a href="/lol-tier-list">LoL Tier List</a>
+        <a href="/setup-guide">Setup Guide</a>
+        <a href="/#faq">FAQ</a>
+      </nav>
+      <span class="patch-status">Working on LoL Patch 26.8</span>
+      <a class="cart-link" href="/#products" aria-label="Cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i><span>0</span></a>
+      <label class="currency-picker" aria-label="Display currency"><span>Currency</span><select data-currency-select></select></label>
+      <a class="header-cta" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
+    </div>
+  </header>
+
+  <nav class="guide-breadcrumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a> / <a href="/setup-guide">Setup Guides</a> / <b>Vanguard Emulator</b>
+  </nav>
+
+  <main>
+    <section class="guide-hero compact-page">
+      <div class="hero-overlay"></div>
+      <div class="guide-hero-content">
+        <p class="badge">Vanguard Emulator setup</p>
+        <h1>LoL Vanguard Emulator installation guide</h1>
+        <p class="lead">Removes Riot Vanguard from your PC so you can play League without anti-cheat. Authenticate the loader, follow every step in order, and do not skip the warnings below.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="/lol-vanguard-emulator">Buy Vanguard Emulator</a>
+          <a class="button secondary" href="/setup-guide-perm-spoofer">Perm Spoofer Guide</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section guide-section">
+      <div class="section-heading">
+        <p class="eyebrow">Step by step</p>
+        <h2>How to set up the Vanguard Emulator</h2>
+        <p>Download the loader from official LOLScript Discord support after purchase. Run every step as administrator.</p>
+      </div>
+      <ol class="guide-steps">
+        <li>
+          <div>
+            <h3>Open Riot Client and log in</h3>
+            <p>Open the Riot Client and log into your account before starting the loader.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Run the loader as administrator</h3>
+            <p>Right-click the loader and select <strong>Run as administrator</strong>.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Approve the UAC prompt</h3>
+            <p>Press <strong>Yes</strong> on the User Account Control window.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Authenticate your key</h3>
+            <p>Paste your key with <strong>Ctrl+V</strong>, then click <strong>AUTHENTICATE</strong>.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Load the emulator</h3>
+            <p>After authentication completes, click <strong>LOAD</strong>.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Choose your inject option</h3>
+            <p>Type <strong>1</strong> to inject the cheat + emulator together, or type <strong>2</strong> to use only the emulator.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Start League of Legends</h3>
+            <p>Once setup is complete, start the game. If the loader says <strong>"Vanguard emulated, you can play now!"</strong>, Vanguard has been removed and you can queue without anti-cheat.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="guide-warning">
+        <strong>Important warnings</strong>
+        <ul>
+          <li>If the emulator says <strong>"Failed to emulate Vanguard :("</strong>, close League of Legends and the emulator, then repeat step 4. If you queue anyway, you may get blocked from matchmaking.</li>
+          <li><strong>Do not close the loader</strong> once Vanguard has been removed.</li>
+          <li>If the emulator says <strong>session failed</strong>, close both League of Legends and the emulator immediately and repeat step 4.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section guide-section">
+      <div class="section-heading">
+        <p class="eyebrow">Problems</p>
+        <h2>Troubleshooting</h2>
+        <p>Try these fixes before opening a Discord ticket.</p>
+      </div>
+      <div class="guide-problem-grid">
+        <article class="guide-problem-card">
+          <h3><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Missing dxgi.dll</h3>
+          <p><strong>Problem:</strong> "The program can't start because dxgi.dll is missing from your computer. Try reinstalling the program to fix this problem."</p>
+          <p class="solution"><strong>Solution:</strong> Install the latest DirectX runtime and Visual C++ redistributables, then restart your PC and run the loader again as administrator.</p>
+        </article>
+        <article class="guide-problem-card">
+          <h3><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Failed to emulate Vanguard</h3>
+          <p><strong>Problem:</strong> "Failed to emulate Vanguard :("</p>
+          <p class="solution"><strong>Solution:</strong> Disable firewall restrictions for the loader, or use a VPN such as Cloudflare WARP or ProtonVPN. Close League and the emulator, then repeat authentication from step 4.</p>
+        </article>
+      </div>
+      <div class="hero-actions" style="margin-top:28px;">
+        <a class="button primary" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Still need help? Open a Discord ticket</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand"><img src="/assets/image/logo.png" alt="LOLScript"><p>LoL Vanguard Emulator setup guide and troubleshooting.</p></div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <div>
+        <h3>Products</h3>
+        <a href="/lol-script">LoL Script</a>
+        <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a>
+        <a href="/lol-perm-spoofer">LoL Spoofer</a>
+        <a href="/setup-guide">Setup Guides</a>
+      </div>
+      <div>
+        <h3>Guides</h3>
+        <a href="/lol-orbwalker-script">LoL Orbwalker Script</a>
+        <a href="/lol-evade-script">LoL Evade Script</a>
+        <a href="/league-of-legends-scripting-after-vanguard">Scripting After Vanguard</a>
+        <a href="/league-of-legends-hwid-ban">LoL HWID Ban</a>
+      </div>
+      <div>
+        <h3>Free LoL Tools</h3>
+        <a href="/lol-tier-list">LoL Tier List</a>
+        <a href="/lol-champion-builds">LoL Champion Builds</a>
+        <a href="/lol-mmr-checker">LoL MMR Checker</a>
+      </div>
+      <div>
+        <h3>Support</h3>
+        <a href="/status">Status</a>
+        <a href="/contact">Contact</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
+      </div>
+    </nav>
+  </footer>
+  <script src="/currency.js?v=currency-20260428"></script>
+  <script src="/cart.js?v=conversion-20260513"></script>
+</body>
+</html>

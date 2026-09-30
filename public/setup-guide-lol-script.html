@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="AayyHamM6hf-tY6lBctEnvbSSvhV1_wvprnbKBUyLhE" />
+  <meta name="yandex-verification" content="b9ad98ab68040f84">
+  <title>LoL Script Setup Guide | Install League of Legends Script | LOLScript</title>
+  <meta name="description" content="Step-by-step LoL Script setup guide: loader access, USB boot checklist, champion profiles, hotkeys, and troubleshooting.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="LOLScript.store">
+  <meta property="og:title" content="LoL Script Setup Guide">
+  <meta property="og:description" content="Step-by-step LoL Script setup guide: loader access, USB boot checklist, champion profiles, hotkeys, and troubleshooting.">
+  <meta property="og:url" content="https://www.lolscript.store/setup-guide-lol-script">
+  <meta property="og:image" content="https://www.lolscript.store/assets/og/lol-script.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LoL Script Setup Guide">
+  <meta name="twitter:description" content="Install and configure the undetected LoL Script step by step.">
+  <meta name="twitter:image" content="https://www.lolscript.store/assets/og/lol-script.png">
+  <link rel="canonical" href="https://www.lolscript.store/setup-guide-lol-script">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0b0712">
+  <link rel="apple-touch-icon" href="/assets/image/logo.png">
+  <link rel="stylesheet" href="/style.css?v=checkout-20260930e">
+  <script src="/patch-status.js?v=patch-status-20260618" defer></script>
+  <script src="/site-header.js?v=responsive-apple-20260618b" defer></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "HowTo",
+        "name": "How to set up the LoL Script",
+        "description": "Install and configure the undetected LoL Script after purchase, from loader access to your first saved champion config.",
+        "image": "https://www.lolscript.store/assets/og/lol-script.png",
+        "totalTime": "PT15M",
+        "step": [
+          { "@type": "HowToStep", "position": 1, "name": "Check BIOS settings", "text": "Use UEFI boot mode. CSM should be disabled or set to UEFI-only." },
+          { "@type": "HowToStep", "position": 2, "name": "Update Windows", "text": "Use the latest Windows 10 or 11 build with all updates installed." },
+          { "@type": "HowToStep", "position": 3, "name": "Format your USB drive", "text": "Format your USB stick as FAT32 before copying loader files." },
+          { "@type": "HowToStep", "position": 4, "name": "Download the loader", "text": "Download lol_script.rar from official support, run Loader.bat, and enter your license key." },
+          { "@type": "HowToStep", "position": 5, "name": "Set USB boot order", "text": "Enter BIOS and set boot order: UEFI USB stick, then Windows Boot Manager." },
+          { "@type": "HowToStep", "position": 6, "name": "Start the game", "text": "Boot from the USB drive and start League of Legends. The script activates automatically." }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.lolscript.store/" },
+          { "@type": "ListItem", "position": 2, "name": "Setup Guides", "item": "https://www.lolscript.store/setup-guide" },
+          { "@type": "ListItem", "position": 3, "name": "LoL Script", "item": "https://www.lolscript.store/setup-guide-lol-script" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="guide-page">
+  <header class="site-header scrolled" data-header>
+    <div class="header-shell">
+      <a class="logo" href="/" aria-label="LOLScript home"><img src="/assets/image/logo.png" alt="LOLScript"></a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-label="Open menu"><span></span><span></span><span></span></button>
+      <nav class="nav" data-nav>
+        <div class="nav-item has-dropdown">
+          <a href="/#products">Shop <span class="chevron" aria-hidden="true"></span></a>
+          <div class="shop-dropdown" aria-label="Shop menu">
+            <a href="/lol-script">LoL Script</a>
+            <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a>
+            <a href="/lol-perm-spoofer">LoL Perm Spoofer</a>
+          </div>
+        </div>
+        <a href="/lol-tier-list">LoL Tier List</a>
+        <a href="/setup-guide">Setup Guide</a>
+        <a href="/#faq">FAQ</a>
+      </nav>
+      <span class="patch-status">Working on LoL Patch 26.8</span>
+      <a class="cart-link" href="/#products" aria-label="Cart"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i><span>0</span></a>
+      <label class="currency-picker" aria-label="Display currency"><span>Currency</span><select data-currency-select></select></label>
+      <a class="header-cta" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
+    </div>
+  </header>
+
+  <nav class="guide-breadcrumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a> / <a href="/setup-guide">Setup Guides</a> / <b>LoL Script</b>
+  </nav>
+
+  <main>
+    <section class="guide-hero compact-page">
+      <div class="hero-overlay"></div>
+      <div class="guide-hero-content">
+        <p class="badge">LoL Script setup</p>
+        <h1>LoL Script installation guide</h1>
+        <p class="lead">Prepare your PC, claim access, open the loader, and tune champion profiles. Get the current loader link from official LOLScript Discord support.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="/lol-script">Buy LoL Script</a>
+          <a class="button secondary" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Get Loader Link</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section guide-section">
+      <div class="section-heading">
+        <p class="eyebrow">Preparation</p>
+        <h2>Before you start</h2>
+        <p>Run the Perm Spoofer and Vanguard Emulator guides first if you bought the full stack. Use only the current loader from official LOLScript support.</p>
+      </div>
+      <ol class="guide-steps">
+        <li><div><h3>Confirm active access</h3><p>Keep your checkout email or Discord username handy so access can be matched quickly after purchase.</p></div></li>
+        <li><div><h3>Prepare your Windows PC</h3><p>Use a current Windows 10 or 11 build with League of Legends installed, updated, and opening normally through the Riot client.</p></div></li>
+        <li><div><h3>Update runtime dependencies</h3><p>Install the latest Visual C++ redistributables and .NET components when support requests them.</p></div></li>
+        <li><div><h3>Join official support</h3><p>Open Discord with your order email, Discord username, and plan length for fast verification and the current file link.</p></div></li>
+        <li><div><h3>Get the current files</h3><p>Use the official loader link from support only. Avoid old builds, reposted archives, or third-party mirrors.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section guide-section">
+      <div class="section-heading">
+        <p class="eyebrow">Installation</p>
+        <h2>Step-by-step installation guide</h2>
+        <p>Follow these steps in order after checkout. Ask support in Discord before changing BIOS or security settings you do not understand.</p>
+      </div>
+
+      <div class="guide-card-grid cols-2">
+        <article>
+          <span>Step 1</span>
+          <h3>BIOS settings</h3>
+          <p>Use UEFI boot mode. CSM should be disabled or set to UEFI-only.</p>
+        </article>
+        <article>
+          <span>Step 2</span>
+          <h3>Windows settings</h3>
+          <p>Use the latest Windows 10 or 11 build with all updates installed. Contact Discord support if Windows Security blocks setup.</p>
+        </article>
+        <article>
+          <span>Step 3</span>
+          <h3>Format your USB drive</h3>
+          <p>Format your USB stick as FAT32 before copying loader files. Use a clean drive with no old boot folders.</p>
+        </article>
+        <article>
+          <span>Step 4</span>
+          <h3>Download loader</h3>
+          <p>Download <strong>lol_script.rar</strong> from the official support link. Archive password: <strong>123</strong>. Run <strong>Loader.bat</strong> and enter your license key.</p>
+        </article>
+        <article>
+          <span>Step 5</span>
+          <h3>Set USB boot order</h3>
+          <p>Enter BIOS (DEL, F2, or F8). Set boot order: 1. UEFI USB stick, 2. Windows Boot Manager, 3. other devices.</p>
+        </article>
+        <article>
+          <span>Step 6</span>
+          <h3>Start the game</h3>
+          <p>Boot from the prepared USB drive, then start League of Legends normally. The script activates when USB boot setup loads correctly.</p>
+        </article>
+      </div>
+
+      <div class="guide-warning">
+        <strong>Before your first game</strong>
+        <ul>
+          <li>Only use the loader link sent through official LOLScript Discord support.</li>
+          <li>Start with default settings, then tune one feature at a time.</li>
+          <li>Test in practice tool, a custom game, or normals before ranked.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section guide-section">
+      <div class="section-heading">
+        <p class="eyebrow">Configuration</p>
+        <h2>Loader setup after installation</h2>
+        <p>After USB boot setup, sign in to the loader and save your first champion profile before jumping into ranked.</p>
+      </div>
+      <ol class="guide-steps">
+        <li><div><h3>Open the loader and sign in</h3><p>Launch the loader, sign in with your access details, and let it verify your license before starting League.</p></div></li>
+        <li><div><h3>Create your first config</h3><p>Select a champion preset, check hotkeys, tune core features, then save the profile.</p></div></li>
+        <li><div><h3>Test in a low-pressure mode</h3><p>Use practice tool, a custom game, or normals first before ranked.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section guide-section">
+      <div class="section-heading">
+        <p class="eyebrow">Hotkeys</p>
+        <h2>Learn the controls before serious games</h2>
+      </div>
+      <div class="guide-card-grid cols-2">
+        <article><span>Space</span><h3>Combo mode</h3><p>All-in logic and champion sequences.</p></article>
+        <article><span>V</span><h3>Lane clear</h3><p>Minion wave clear and fast farming.</p></article>
+        <article><span>C</span><h3>Harass</h3><p>Last hit and enemy harass behavior.</p></article>
+        <article><span>X</span><h3>Last hit only</h3><p>Minion last hit without harass.</p></article>
+        <article><span>K</span><h3>Evade toggle</h3><p>Turn evade dodge ON/OFF.</p></article>
+      </div>
+    </section>
+
+    <section class="section faq">
+      <div class="section-heading"><p class="eyebrow">Support</p><h2>Need help?</h2></div>
+      <div class="faq-list">
+        <details open><summary>Where do I get the current files?</summary><p>Use the official support flow after access is confirmed. Do not use unofficial mirrors or old archives.</p></details>
+        <details><summary>What if access is not showing?</summary><p>Send support your order email, plan length, and Discord username.</p></details>
+        <details><summary>Should I use default settings?</summary><p>Yes. Save a copy before changing values, then tune one feature at a time.</p></details>
+        <details><summary>What order should I run all three products?</summary><p>Perm Spoofer first, then Vanguard Emulator, then LoL Script.</p></details>
+      </div>
+      <div class="hero-actions guide-cta-row">
+        <a class="button primary" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord for support</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand"><img src="/assets/image/logo.png" alt="LOLScript"><p>LoL Script setup guide for access, configuration, and Discord support.</p></div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <div>
+        <h3>Products</h3>
+        <a href="/lol-script">LoL Script</a>
+        <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a>
+        <a href="/lol-perm-spoofer">LoL Spoofer</a>
+        <a href="/setup-guide">Setup Guides</a>
+      </div>
+      <div>
+        <h3>Guides</h3>
+        <a href="/lol-orbwalker-script">LoL Orbwalker Script</a>
+        <a href="/lol-evade-script">LoL Evade Script</a>
+        <a href="/league-of-legends-scripting-after-vanguard">Scripting After Vanguard</a>
+        <a href="/league-of-legends-hwid-ban">LoL HWID Ban</a>
+      </div>
+      <div>
+        <h3>Free LoL Tools</h3>
+        <a href="/lol-tier-list">LoL Tier List</a>
+        <a href="/lol-champion-builds">LoL Champion Builds</a>
+        <a href="/lol-mmr-checker">LoL MMR Checker</a>
+      </div>
+      <div>
+        <h3>Support</h3>
+        <a href="/status">Status</a>
+        <a href="/contact">Contact</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
+      </div>
+    </nav>
+  </footer>
+  <script src="/currency.js?v=currency-20260428"></script>
+  <script src="/cart.js?v=conversion-20260513"></script>
+</body>
+</html>
