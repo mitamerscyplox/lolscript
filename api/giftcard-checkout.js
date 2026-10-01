@@ -286,6 +286,15 @@ async function handleQuote(req, res, body, cfg) {
   if (!Number.isFinite(total) || total <= 0) {
     return res.status(502).json({ error: "Could not confirm the order total. Please try again." });
   }
+  // Sellhub silently ignores unknown or expired coupons, so an unchanged total means the code was not applied.
+  if (coupon && total >= Number(live.variant.price) - 0.005) {
+    await postPayLog({
+      title: "Gift card coupon not applied",
+      color: PAY_LOG_COLORS.warning,
+      fields: [["Product", `${live.product.name} — ${live.variant.name}`], ["Email", email], ["Coupon", coupon], ["Invoice", pending.invoiceId]],
+    });
+    return res.status(400).json({ error: `The discount code ${coupon} is not valid.`, field: "coupon" });
+  }
 
   const quote = signQuote({
     i: pending.invoiceId,
@@ -423,6 +432,19 @@ async function handlePay(req, res, body, cfg) {
   const redeem = await redeemGiftCard(code, emailKey);
 
   if (!redeem.ok) {
+    if (redeem.inFlight) {
+      await postPayLog({
+        title: "Gift card UNCONFIRMED — Discord bot took the code but did not report back",
+        color: PAY_LOG_COLORS.urgent,
+        alert: true,
+        fields: [...baseFields, ["Action", "Check the Binance funding wallet; if credited, complete the invoice manually"]],
+      });
+      return res.status(202).json({
+        status: "processing",
+        invoiceId,
+        message: "Your code is still being verified. If your key does not arrive within a few minutes, contact us on Discord.",
+      });
+    }
     if (redeem.rateLimited) {
       const seconds = await tripBinanceCooldown(cfg, redeem);
       await postPayLog({
@@ -452,6 +474,7 @@ async function handlePay(req, res, body, cfg) {
       fields: [
         ...baseFields,
         ["Reason", `${redeem.kind}: ${redeem.message}`],
+        ["Binance region", redeem.region],
         [
           "Attempts",
           limit?.blockedFor

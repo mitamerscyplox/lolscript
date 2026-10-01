@@ -4,6 +4,9 @@
   "buildCommand": null,
   "outputDirectory": "public",
   "cleanUrls": true,
+  "functions": {
+    "api/giftcard-checkout.js": { "maxDuration": 60 }
+  },
   "trailingSlash": false,
   "redirects": [
     {

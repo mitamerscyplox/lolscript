@@ -5,6 +5,7 @@
  */
 
 import { createHash, createHmac } from "node:crypto";
+import { redeemViaBot } from "./giftcard-bot.mjs";
 
 const API = "https://api.binance.com";
 
@@ -50,11 +51,17 @@ async function serverTime() {
  *  { ok: true, amount, token, referenceNo }
  *  { ok: false, kind: "invalid" | "used" | "config" | "unavailable", message, apiCode }
  * Only "invalid" counts toward Binance's 5-wrong-codes daily lock.
+ * On Vercel (US servers, rejected by Binance) the Discord bot redeems the code instead.
  */
 export async function redeemGiftCard(code, externalUid) {
   if (!binanceConfigured()) {
     return { ok: false, kind: "config", message: "Binance API is not configured." };
   }
+  if (process.env.VERCEL) return redeemViaBot(code, externalUid);
+  return { ...(await redeemGiftCardDirect(code, externalUid)), region: "local" };
+}
+
+async function redeemGiftCardDirect(code, externalUid) {
 
   const params = new URLSearchParams({ code, recvWindow: "10000", timestamp: String(await serverTime()) });
   if (externalUid) params.set("externalUid", externalUid);
@@ -90,7 +97,13 @@ export async function redeemGiftCard(code, externalUid) {
   if (lower.includes("already") || lower.includes("redeemed")) {
     return { ok: false, kind: "used", message, apiCode };
   }
-  if ([-1021, -1022, -2008, -2014, -2015].includes(Number(apiCode)) || res.status === 401 || res.status === 403) {
+  if (
+    res.status === 451 ||
+    lower.includes("restricted location") ||
+    [-1021, -1022, -2008, -2014, -2015].includes(Number(apiCode)) ||
+    res.status === 401 ||
+    res.status === 403
+  ) {
     return { ok: false, kind: "config", message, apiCode };
   }
   if (res.status === 429 || res.status === 418 || Number(apiCode) === -1003) {
