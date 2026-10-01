@@ -8,27 +8,56 @@ export const PAY_LOG_COLORS = {
   urgent: 0xff0055,
 };
 
-export async function postPayLog({ title, color = PAY_LOG_COLORS.warning, fields = [], alert = false }) {
+/**
+ * `payment` marks money that actually reached us: it pings @everyone with the amount as a big
+ * heading and a full embed. Everything else is posted as a compact message in small text.
+ */
+export async function postPayLog({ title, color = PAY_LOG_COLORS.warning, fields = [], alert = false, payment }) {
   const token = process.env.DISCORD_BOT_TOKEN?.trim();
   const channelId = process.env.PAY_LOG_CHANNEL_ID?.trim();
   if (!token || !channelId) return false;
 
-  const roleId = process.env.PAY_LOG_ALERT_ROLE_ID?.trim();
-  const body = {
-    content: alert && roleId ? `<@&${roleId}>` : undefined,
-    allowed_mentions: roleId ? { roles: [roleId] } : { parse: [] },
-    embeds: [
-      {
-        title,
-        color,
-        fields: fields
-          .filter(([, value]) => value != null && value !== "")
-          .map(([name, value]) => ({ name, value: String(value).slice(0, 1024), inline: String(value).length < 40 })),
-        footer: { text: "lolscript.store · Binance Gift Card" },
-        timestamp: new Date().toISOString(),
-      },
-    ],
-  };
+  const source = "Binance Gift Card";
+  const roleId = process.env.PAY_LOG_ALERT_ROLE_ID?.trim() || "";
+  const rolePing = alert && roleId ? `<@&${roleId}>` : "";
+  const footer = { text: `lolscript.store · ${source}` };
+  const timestamp = new Date().toISOString();
+  const shown = fields.filter(([, value]) => value != null && value !== "");
+
+  const body = payment
+    ? {
+        content: [`@everyone ${rolePing}`.trim(), `# 💰 ${payment.amount}`, `**${title}** · ${source}`].join("\n"),
+        allowed_mentions: { parse: ["everyone"], roles: rolePing ? [roleId] : [] },
+        embeds: [
+          {
+            title,
+            color,
+            fields: shown.map(([name, value]) => ({
+              name,
+              value: String(value).slice(0, 1024),
+              inline: String(value).length < 40,
+            })),
+            footer,
+            timestamp,
+          },
+        ],
+      }
+    : {
+        content: rolePing || undefined,
+        allowed_mentions: rolePing ? { roles: [roleId] } : { parse: [] },
+        embeds: [
+          {
+            author: { name: title.slice(0, 256) },
+            color,
+            description: shown
+              .map(([name, value]) => `-# **${name}:** ${String(value).replace(/\s*\n\s*/g, ", ")}`)
+              .join("\n")
+              .slice(0, 4096) || undefined,
+            footer,
+            timestamp,
+          },
+        ],
+      };
 
   try {
     const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {

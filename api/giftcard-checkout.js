@@ -516,12 +516,14 @@ async function handlePay(req, res, body, cfg) {
     ["Binance ref", redeem.referenceNo],
   ];
 
+  const payment = { amount: `${redeem.amount} ${redeem.token}` };
   const tokenOk = cfg.tokens.includes(redeem.token);
   if (!tokenOk || redeem.amount + 0.009 < total) {
     await postPayLog({
       title: "Gift card REDEEMED but not enough — manual action needed",
       color: PAY_LOG_COLORS.urgent,
       alert: true,
+      payment,
       fields: [...paidFields, ["Problem", tokenOk ? "Card value is below the order total" : `Unsupported token ${redeem.token}`]],
     });
     return res.status(402).json({
@@ -538,6 +540,7 @@ async function handlePay(req, res, body, cfg) {
       title: "Gift card PAID but Sellhub delivery failed — complete invoice manually",
       color: PAY_LOG_COLORS.urgent,
       alert: true,
+      payment,
       fields: [...paidFields, ["Sellhub error", completed.error]],
     });
     return res.status(200).json({
@@ -551,6 +554,7 @@ async function handlePay(req, res, body, cfg) {
   await postPayLog({
     title: "Gift card payment — delivered",
     color: PAY_LOG_COLORS.success,
+    payment,
     fields: [...paidFields, ["Keys delivered", result.keys?.length || "sent by Sellhub email"]],
   });
   return res.status(200).json(result);
