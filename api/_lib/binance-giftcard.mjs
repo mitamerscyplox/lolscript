@@ -1,7 +1,8 @@
 /**
  * Binance Gift Card redemption (POST /sapi/v1/giftcard/redeemCode).
  * Redeemed funds land in the funding wallet of the account behind BINANCE_API_KEY.
- * Binance blocks all redemptions for 24h after 5 wrong codes, so callers must rate limit.
+ * Binance rejects US servers, so on Vercel the Discord bot redeems the code (giftcard-bot.mjs);
+ * locally the call goes straight to Binance.
  */
 
 import { createHash, createHmac } from "node:crypto";
@@ -15,10 +16,7 @@ export function binanceConfigured() {
   return key.length >= 20 && secret.length >= 20;
 }
 
-/**
- * Short, non-reversible id of the Binance account. Sites sharing one account (and one KV store)
- * share the daily wrong-code counter, because Binance's 5-wrong-codes lock is per account.
- */
+/** Short, non-reversible id of the Binance account, used to key its rate-limit cooldown. */
 export function binanceAccountId() {
   const key = binanceConfigured() ? process.env.BINANCE_API_KEY.trim() : "none";
   return createHash("sha256").update(key).digest("hex").slice(0, 12);
@@ -50,7 +48,6 @@ async function serverTime() {
  * Returns one of:
  *  { ok: true, amount, token, referenceNo }
  *  { ok: false, kind: "invalid" | "used" | "config" | "unavailable", message, apiCode }
- * Only "invalid" counts toward Binance's 5-wrong-codes daily lock.
  * On Vercel (US servers, rejected by Binance) the Discord bot redeems the code instead.
  */
 export async function redeemGiftCard(code, externalUid) {

@@ -7,11 +7,6 @@ import { completeInvoice, createPendingInvoice, findLiveVariant, getInvoice } fr
 const DAY = 24 * 60 * 60;
 const QUOTE_TTL_MS = 60 * 60 * 1000;
 
-function envInt(key, fallback) {
-  const n = Number(process.env[key]);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
-}
-
 function config() {
   return {
     // Sellhub needs a method name to open an invoice; customerBalance leaves it pending for us to complete.
@@ -20,15 +15,13 @@ function config() {
       .split(/[,\s]+/)
       .map((t) => t.trim().toUpperCase())
       .filter(Boolean),
-    failLimit: envInt("GIFTCARD_FAIL_LIMIT", 3),
-    blockSeconds: envInt("GIFTCARD_BLOCK_SECONDS", 60),
-    failWindowSeconds: envInt("GIFTCARD_FAIL_WINDOW_SECONDS", 3600),
-    // Binance locks the whole account after 5 wrong codes per day; stay below it.
-    globalFailLimit: envInt("GIFTCARD_GLOBAL_FAIL_LIMIT", 4),
-    payPerWindow: envInt("GIFTCARD_IP_PAY_LIMIT", 12),
-    quotePerWindow: envInt("GIFTCARD_IP_QUOTE_LIMIT", 15),
-    windowSeconds: envInt("GIFTCARD_IP_WINDOW_SECONDS", 600),
-    binanceCooldown: envInt("BINANCE_API_COOLDOWN_SECONDS", 90),
+    failLimit: 3,
+    blockSeconds: 300,
+    failWindowSeconds: 3600,
+    payPerWindow: 12,
+    quotePerWindow: 15,
+    windowSeconds: 600,
+    binanceCooldown: 90,
   };
 }
 
@@ -89,10 +82,6 @@ function hash(value) {
   return createHash("sha256").update(String(value)).digest("hex").slice(0, 32);
 }
 
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function money(n) {
   return `$${Number(n).toFixed(2)}`;
 }
@@ -129,26 +118,15 @@ function failKeys(ipKey, emailKey) {
     email: `gc:fail:email:${emailKey}`,
     blockIp: `gc:block:ip:${ipKey}`,
     blockEmail: `gc:block:email:${emailKey}`,
-    global: `gc:fail:global:${binanceAccountId()}:${todayKey()}`,
   };
 }
 
-async function failureCounts(ipKey, emailKey) {
-  const keys = failKeys(ipKey, emailKey);
-  const [ip, email, global] = await Promise.all([kvGet(keys.ip), kvGet(keys.email), kvGet(keys.global)]);
-  return { ip: Number(ip || 0), email: Number(email || 0), global: Number(global || 0) };
-}
-
-/**
- * Same model as the Discord bot: after `failLimit` failed codes the customer waits `blockSeconds`,
- * then gets a fresh set of attempts. Only real Binance wrong codes count toward the store-wide daily cap.
- */
-async function recordFailure(cfg, ipKey, emailKey, { countGlobal }) {
+/** After `failLimit` failed codes the customer waits `blockSeconds`, then gets a fresh set of attempts. */
+async function recordFailure(cfg, ipKey, emailKey) {
   const keys = failKeys(ipKey, emailKey);
   const [ip, email] = await Promise.all([
     kvIncr(keys.ip, cfg.failWindowSeconds),
     kvIncr(keys.email, cfg.failWindowSeconds),
-    countGlobal ? kvIncr(keys.global, DAY + 3600) : null,
   ]);
   const used = Math.max(ip, email);
   if (used < cfg.failLimit) return { attemptsLeft: cfg.failLimit - used, blockedFor: 0 };
@@ -168,13 +146,10 @@ async function resetFailures(ipKey, emailKey) {
   await Promise.all([kvDel(keys.ip), kvDel(keys.email)]);
 }
 
-/** Returns { error, retryAfter } when the customer or the store is currently blocked. */
+/** Returns { error, retryAfter } when the customer is currently blocked. */
 async function limitError(cfg, ipKey, emailKey) {
   const keys = failKeys(ipKey, emailKey);
-  const [global, blockIp, blockEmail] = await Promise.all([kvGet(keys.global), kvGet(keys.blockIp), kvGet(keys.blockEmail)]);
-  if (Number(global || 0) >= cfg.globalFailLimit) {
-    return { error: "Gift card payments are paused for today. Please use Card / Crypto or contact support on Discord." };
-  }
+  const [blockIp, blockEmail] = await Promise.all([kvGet(keys.blockIp), kvGet(keys.blockEmail)]);
   const until = Math.max(Number(blockIp) || 0, Number(blockEmail) || 0);
   const retryAfter = Math.ceil((until - Date.now()) / 1000);
   if (retryAfter > 0) {
@@ -456,7 +431,7 @@ async function handlePay(req, res, body, cfg) {
     }
     const counted = redeem.kind === "invalid" || redeem.kind === "used";
     const limit = counted
-      ? await recordFailure(cfg, ipKey, emailKey, { countGlobal: redeem.kind === "invalid" })
+      ? await recordFailure(cfg, ipKey, emailKey)
       : null;
     if (redeem.kind === "used") await kvDel(invoiceLockKey);
     else await releaseLocks();
@@ -466,7 +441,6 @@ async function handlePay(req, res, body, cfg) {
       config: "Gift card FAILED — Binance API problem (check keys / IP whitelist)",
       unavailable: "Gift card FAILED — Binance not responding",
     };
-    const counts = await failureCounts(ipKey, emailKey);
     await postPayLog({
       title: titles[redeem.kind] || "Gift card FAILED",
       color: PAY_LOG_COLORS.fail,
@@ -483,7 +457,6 @@ async function handlePay(req, res, body, cfg) {
               ? `${limit.attemptsLeft} left before ${waitText(cfg.blockSeconds)} block`
               : "not counted",
         ],
-        ["Store wrong codes today", `${counts.global}/${cfg.globalFailLimit}`],
       ],
     });
     const messages = {

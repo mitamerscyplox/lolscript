@@ -1,8 +1,8 @@
 window.SITE_DATA = {
   "site": {
     "title": "LoL Script, Vanguard Emulator & LoL Spoofer | LOLScript.store",
-    "description": "LoL Script, LoL Vanguard Emulator, and LoL Spoofer for League of Legends. Undetected tools with instant key delivery, secure checkout, setup guidance, and live Discord support.",
-    "keywords": "undetected lol script, lol script, lol vanguard emulator, lol perm spoofer, league of legends hwid spoofer, league script",
+    "description": "Safe, undetected LoL Script for League of Legends: evade, prediction, orbwalker, and combos, plus Vanguard Emulator and LoL Spoofer. Instant delivery from $3.99.",
+    "keywords": "undetected lol script, lol script, lol vanguard emulator, lol perm spoofer, league of legends hwid spoofer, league script, lol script no ban, ban free lol script",
     "canonicalPath": "/",
     "slug": "home",
     "robots": "index,follow",
@@ -16,7 +16,7 @@ window.SITE_DATA = {
     "trustText": "Instant key delivery, secure checkout, setup guidance, and live Discord community proof",
     "productsEyebrow": "LoL Products",
     "productsTitle": "Buy LoL Script, Vanguard Emulator & Perm Spoofer",
-    "productsText": "Three undetected League of Legends Products: a full-featured LoL Script, a Vanguard Emulator that removes Riot Vanguard from your PC so you can play without anti-cheat, and a permanent HWID Perm Spoofer. Live prices update automatically.",
+    "productsText": "Unlike outdated LoL scripts that stopped working after Vanguard, these three League of Legends products are maintained every patch: a full-featured LoL Script, a Vanguard Emulator that removes Riot Vanguard from your PC so you can play without anti-cheat, and a permanent HWID Perm Spoofer. Live prices update automatically.",
     "blogsEyebrow": "League scripting guide",
     "blogsTitle": "Learn before you buy",
     "blogsText": "Helpful notes about the LoL Script, the Vanguard Emulator, the Perm Spoofer, setup expectations, and staying undetected.",

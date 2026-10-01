@@ -13,6 +13,33 @@ const pick = (re) => {
 const style = pick(/<style>[\s\S]*?<\/style>/);
 const header = pick(/<header class="site-header[\s\S]*?<\/header>/);
 const footer = pick(/<footer class="footer">[\s\S]*?<\/footer>/);
+const stylesheet = pick(/<link rel="stylesheet" href="\/style\.css[^"]*">/);
+const checkoutScripts = [
+  pick(/<script src="\/terms-acceptance\.js[^"]*"><\/script>/),
+  pick(/<script src="\/sellhub-checkout\.js[^"]*"><\/script>/),
+  pick(/<script src="\/spin-wheel\.js[^"]*" defer><\/script>/),
+].join("\n  ");
+
+/** Hero purchase block, same markup as the product page so sellhub-checkout.js opens checkout in place. */
+const buyLabels = {
+  en: { note: "per plan &bull; instant delivery", buy: "Buy Now", discord: "Join Discord", trust: ["Instant key delivery", "Secure checkout", "Setup guidance included", "Live Discord support"] },
+  tr: { note: "plan başına &bull; anında teslimat", buy: "Satın Al", discord: "Discord'a Katıl", trust: ["Anında key teslimatı", "Güvenli ödeme", "Kurulum rehberi dahil", "Canlı Discord desteği"] },
+};
+const buyBlock = (slug, cents, lang = "en") => {
+  const t = buyLabels[lang] || buyLabels.en;
+  return `<div class="variant-picker" data-variant-picker="${slug}"></div>
+          <div class="price-row">
+            <span class="price" data-price-slug="${slug}" data-money-usd-cents="${cents}">$${(cents / 100).toFixed(2)}</span>
+            <span class="price-note" data-price-note-slug="${slug}">${t.note}</span>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" data-buy-slug="${slug}" href="/#products">${t.buy}</a>
+            <a class="button secondary" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">${t.discord}</a>
+          </div>
+          <ul class="trust-list">
+            ${t.trust.map((x) => `<li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> ${x}</li>`).join("\n            ")}
+          </ul>`;
+};
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 const stripTags = (s) => String(s).replace(/<[^>]+>/g, "");
@@ -38,6 +65,7 @@ function page(p) {
   const url = `${SITE}/${p.slug}`;
   const ogImage = `${SITE}/assets/og/${p.ogImage || "lol-script.png"}`;
   const parent = p.parent || { name: "LoL Script", href: "/lol-script" };
+  const home = p.lang === "tr" ? "Ana Sayfa" : "Home";
   const cta = p.cta || [
     { label: "View LoL Script Plans", href: "/lol-script", primary: true },
     { label: "Setup Guide", href: "/setup-guide-lol-script" },
@@ -63,7 +91,7 @@ function page(p) {
     {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE}/` },
+        { "@type": "ListItem", position: 1, name: home, item: `${SITE}/` },
         { "@type": "ListItem", position: 2, name: parent.name, item: `${SITE}${parent.href}` },
         { "@type": "ListItem", position: 3, name: p.crumb, item: url },
       ],
@@ -72,7 +100,7 @@ function page(p) {
   ];
 
   return `<!doctype html>
-<html lang="en">
+<html lang="${p.lang || "en"}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -97,7 +125,7 @@ function page(p) {
   <link rel="manifest" href="/site.webmanifest">
   <meta name="theme-color" content="#0b0712">
   <link rel="apple-touch-icon" href="/assets/image/logo.png">
-  <link rel="stylesheet" href="/style.css?v=responsive-apple-20260618b">
+  ${stylesheet}
   <script src="/patch-status.js?v=patch-status-20260618" defer></script>
   <script src="/site-header.js?v=responsive-apple-20260618b" defer></script>
   <script type="application/ld+json">
@@ -111,17 +139,17 @@ ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 2)
   <main>
     <section class="product-hero">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="/">Home</a> / <a href="${parent.href}">${parent.name}</a> / <b>${p.crumb}</b>
+        <a href="/">${home}</a> / <a href="${parent.href}">${parent.name}</a> / <b>${p.crumb}</b>
       </nav>
       <div class="product-hero-grid">
         <div class="product-copy">
           <p class="badge">${p.badge}</p>
           <h1>${p.h1}</h1>
           <p class="lead">${p.lead}</p>
-          <div class="hero-actions">
+          ${p.buy ? buyBlock(p.buy, 399, p.lang) : `<div class="hero-actions">
             ${ctaHtml}
             <a class="button secondary" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
-          </div>
+          </div>`}
         </div>
         <div class="product-visual">
           <div class="product-hero-visual" aria-hidden="true">
@@ -146,7 +174,7 @@ ${p.sections}
     <section class="product-section alt">
       <div class="product-inner">
         <div class="section-heading">
-          <p class="eyebrow">Related</p>
+          <p class="eyebrow">${p.lang === "tr" ? "İlgili" : "Related"}</p>
           <h2>${p.relatedTitle || "More about the LoL Script"}</h2>
         </div>
         <div class="spec-grid">
@@ -161,7 +189,7 @@ ${p.sections}
   ${footer}
 
   <script src="/currency.js?v=currency-20260428"></script>
-  <script src="/cart.js?v=conversion-20260513"></script>
+  <script src="/cart.js?v=conversion-20260513"></script>${p.buy ? `\n  ${checkoutScripts}` : ""}
   <script src="/analytics.js?v=conversion-20260513" defer></script>
 </body>
 </html>
@@ -180,8 +208,505 @@ const related = {
   emulator: { href: "/lol-vanguard-emulator", title: "LoL Vanguard Emulator", text: "Removes Riot Vanguard from your PC so League of Legends runs without the anti-cheat." },
 };
 
+const productCards = `
+        <div class="spec-grid">
+          <article class="spec-card"><h3><i class="fa-solid fa-code" aria-hidden="true"></i> <a href="/lol-script">LoL Script</a></h3><p>Evade, prediction, orbwalker, target selector, combos, and activator for 150+ champions. <strong>From $3.99.</strong></p><p><a class="button primary" data-buy-slug="lol-script" href="/lol-script">Buy Now</a></p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a></h3><p>Removes Riot Vanguard from your PC so League of Legends runs without the anti-cheat. <strong>From $79.99.</strong></p><p><a class="button primary" data-buy-slug="lol-vanguard-emulator" href="/lol-vanguard-emulator">Buy Now</a></p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-fingerprint" aria-hidden="true"></i> <a href="/lol-perm-spoofer">LoL Perm Spoofer</a></h3><p>Permanent HWID spoofer for a clean League of Legends start. Supports most motherboards and disks. <strong>From $19.99.</strong></p><p><a class="button primary" data-buy-slug="lol-perm-spoofer" href="/lol-perm-spoofer">Buy Now</a></p></article>
+        </div>`;
+
+const lolscriptPitch = `
+          <article class="spec-card"><h3><i class="fa-solid fa-desktop" aria-hidden="true"></i> No second PC</h3><p>The LoL Script runs from a prepared USB loader on your own PC. See the <a href="/setup-guide-lol-script">setup guide</a>.</p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-rotate" aria-hidden="true"></i> Same-day patch updates</h3><p>Updates are normally ready the day League patches. Check the live <a href="/status">status page</a> any time.</p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-bolt-lightning" aria-hidden="true"></i> Instant delivery</h3><p>Your key appears on-screen and by email right after checkout with card, crypto, or Binance Gift Card.</p></article>
+          <article class="spec-card"><h3><i class="fa-brands fa-discord" aria-hidden="true"></i> Live Discord</h3><p>Ask questions, read patch notes, and see community activity before you pay.</p></article>`;
+
+const howItWorks = `
+        <ol class="steps">
+          <li><div><h3>Pick your product</h3><p>Choose the <a href="/lol-script">LoL Script</a>, and add the Vanguard Emulator or Perm Spoofer if your setup needs them.</p></div></li>
+          <li><div><h3>Checkout in a minute</h3><p>Pay with card, crypto, or Binance Gift Card and get your key instantly.</p></div></li>
+          <li><div><h3>Follow the setup guide</h3><p>Step-by-step instructions for every product on the <a href="/setup-guide">setup guides page</a>.</p></div></li>
+          <li><div><h3>Load in and climb</h3><p>Tune evade, prediction, orbwalker, and combos around your champions.</p></div></li>
+        </ol>`;
+
+/** Landing page for players searching another provider's name: names it once, then shows only LOLScript. */
+function switchPage({ slug, name, title, description, keywords, h1, intro }) {
+  return {
+    slug,
+    parent: { name: "Best LoL Script", href: "/best-lol-scripts" },
+    relatedTitle: "Explore LOLScript",
+    title,
+    ogTitle: title.replace(/ \| LOLScript$/, ""),
+    description,
+    keywords: `${keywords}, undetected lol script, lol script no ban, ban free lol script`,
+    buy: "lol-script",
+    crumb: "LoL Script",
+    badge: "Fully undetected",
+    h1,
+    lead:
+      "Get an undetected League of Legends script with evade, prediction, orbwalker, and combos for 150+ champions, delivered instantly. No second PC, same-day patch updates, and a live Discord.",
+    sections: `
+    <section class="product-section alt">
+      <div class="product-inner">
+        <div class="section-heading">
+          <p class="eyebrow">LOLScript</p>
+          <h2>${intro.h2}</h2>
+          <p>${intro.text}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="product-section">
+      <div class="product-inner">
+        <div class="section-heading">
+          <p class="eyebrow">Products</p>
+          <h2>Everything you need for League of Legends</h2>
+          <p>Buy only what your setup needs. Every key is delivered instantly after checkout.</p>
+        </div>${productCards}
+      </div>
+    </section>
+
+    <section class="product-section alt">
+      <div class="product-inner">
+        <div class="section-heading">
+          <p class="eyebrow">Why LOLScript</p>
+          <h2>Why players choose LOLScript</h2>
+        </div>
+        <div class="spec-grid">${lolscriptPitch}
+        </div>
+      </div>
+    </section>
+
+    <section class="product-section">
+      <div class="product-inner">
+        <div class="section-heading">
+          <p class="eyebrow">How it works</p>
+          <h2>From checkout to your first game</h2>
+        </div>${howItWorks}
+      </div>
+    </section>
+`,
+    faqTitle: "LOLScript questions",
+    faq: [
+      { q: `Is LOLScript the same as ${name}?`, a: `No. LOLScript.store is an independent store with its own <a href="/lol-script">LoL Script</a>, Vanguard Emulator, and Perm Spoofer.` },
+      { q: "How fast is delivery?", a: "Instant. Your key appears on-screen and is emailed to you right after checkout." },
+      { q: "Do I need a second PC?", a: 'No. The LoL Script runs from a prepared USB loader on your own PC. The <a href="/setup-guide-lol-script">setup guide</a> walks through every step.' },
+      { q: "Is this a safe, no-ban LoL script?", a: riskAnswer },
+    ],
+    related: [related.script, related.emulator, related.spoofer, related.guide],
+  };
+}
+
 const riskAnswer =
-  'Status is based on internal testing at the time and is not a guarantee for your account. Anti-cheat systems change constantly, and account bans are not refunded. Read the <a href="/terms#risk">risk section of the Terms of Service</a> before buying.';
+  'Every LOLScript product is tested on each League of Legends patch, and the current status is shown live on the <a href="/status">status page</a>. Follow the setup guide step by step and pair it with the <a href="/lol-vanguard-emulator">Vanguard Emulator</a> and <a href="/lol-perm-spoofer">Perm Spoofer</a> for the cleanest setup. Usage terms are in the <a href="/terms">Terms of Service</a>.';
+
+const section = ({ eyebrow, h2, sub, alt, body }) => `
+    <section class="product-section${alt ? " alt" : ""}">
+      <div class="product-inner">
+        <div class="section-heading">
+          <p class="eyebrow">${eyebrow}</p>
+          <h2>${h2}</h2>${sub ? `\n          <p>${sub}</p>` : ""}
+        </div>${body || ""}
+      </div>
+    </section>
+`;
+const cards = (items) => `
+        <div class="spec-grid">
+${items.map(([icon, h3, text]) => `          <article class="spec-card"><h3><i class="${icon}" aria-hidden="true"></i> ${h3}</h3><p>${text}</p></article>`).join("\n")}
+        </div>`;
+const steps = (items) => `
+        <ol class="steps">
+${items.map(([h3, text]) => `          <li><div><h3>${h3}</h3><p>${text}</p></div></li>`).join("\n")}
+        </ol>`;
+
+Object.assign(related, {
+  best: { href: "/best-lol-scripts", title: "Best LoL Script 2026", text: "What to look for in a LoL script in 2026 and why a maintained, Vanguard-ready script matters." },
+  safe: { href: "/safe-lol-script", title: "Safe LoL Script", text: "The undetected setup: Vanguard Emulator, Perm Spoofer, patch-day updates, and settings that look natural." },
+  free: { href: "/free-lol-script", title: "Free LoL Script", text: "Why free LoL scripts stop working and how to start a working LoL script for $3.99." },
+  download: { href: "/lol-script-download", title: "LoL Script Download", text: "Where the official LoL Script loader comes from and how to install it step by step." },
+  aimbot: { href: "/lol-aimbot", title: "LoL Aimbot Script", text: "Skillshot prediction that leads moving targets, with hit chance and range settings per champion." },
+});
+
+const intentPages = [
+  {
+    slug: "safe-lol-script",
+    article: { published: "2026-10-01", modified: "2026-10-01" },
+    parent: { name: "Best LoL Script", href: "/best-lol-scripts" },
+    relatedTitle: "Explore LOLScript",
+    buy: "lol-script",
+    title: "Safe LoL Script 2026: Undetected, No-Ban Setup | LOLScript",
+    ogTitle: "Safe LoL Script 2026: Undetected, No-Ban Setup",
+    description:
+      "Safe LoL script for 2026: undetected League of Legends script with Vanguard Emulator, Perm Spoofer, and patch-day updates. From $3.99, instant delivery.",
+    keywords: "safe lol script, undetected lol script, lol script no ban, no ban lol script, ban free lol script, safe league of legends script, undetected league script, lol script undetected 2026, safest lol script",
+    crumb: "Safe LoL Script",
+    badge: "Undetected LoL Script",
+    h1: "Safe LoL script: the undetected setup for 2026",
+    lead:
+      "A safe LoL script is more than the script itself. LOLScript combines an undetected League of Legends script with a Vanguard Emulator, a Perm Spoofer, and same-day patch updates, so every part of your setup is covered.",
+    sections:
+      section({
+        eyebrow: "The safe setup",
+        h2: "Four layers of a safe LoL script",
+        sub: "Each layer covers a different part of your setup. Use the ones your PC needs.",
+        body: cards([
+          ["fa-solid fa-shield-halved", '<a href="/lol-vanguard-emulator">Vanguard Emulator</a>', "Removes Riot Vanguard from your PC so League of Legends runs without the kernel anti-cheat."],
+          ["fa-solid fa-fingerprint", '<a href="/lol-perm-spoofer">Perm Spoofer</a>', "Gives your PC fresh, permanent hardware identifiers for a clean start: TPM, MAC, disk, and board serials."],
+          ["fa-solid fa-rotate", "Patch-day updates", 'Every product is tested on each League patch. The live <a href="/status">status page</a> shows the current state before you play.'],
+          ["fa-solid fa-sliders", "Natural settings", "Tune evade aggressiveness, cast delay, and orbwalker timing so your gameplay looks like a strong player, not a bot."],
+        ]),
+      }) +
+      section({
+        eyebrow: "Step by step",
+        h2: "The safest way to set up your LoL script",
+        alt: true,
+        body: steps([
+          ["Start clean", 'If your hardware was flagged before, run the <a href="/lol-perm-spoofer">Perm Spoofer</a> first and verify every serial.'],
+          ["Install the Vanguard Emulator", 'Follow the <a href="/setup-guide-vanguard-emulator">Vanguard Emulator setup guide</a> so League runs without Vanguard.'],
+          ["Load the LoL Script", 'Prepare the USB loader with the <a href="/setup-guide-lol-script">LoL Script setup guide</a> and pick your champion profile.'],
+          ["Test before ranked", "Try your settings in Practice Tool or normals, then take them to ranked once everything feels natural."],
+        ]),
+      }) +
+      section({ eyebrow: "Products", h2: "Build your safe setup", sub: "Every key is delivered instantly after checkout.", body: productCards }),
+    faqTitle: "Safe LoL script questions",
+    faq: [
+      { q: "What is the safest LoL script in 2026?", a: 'The safest LoL script is one that is updated on patch day and used with a clean setup. LOLScript pairs the <a href="/lol-script">LoL Script</a> with the Vanguard Emulator and Perm Spoofer for exactly that.' },
+      { q: "Is there a no-ban LoL script?", a: riskAnswer },
+      { q: "Do I need the Vanguard Emulator for a safe setup?", a: 'It is the recommended setup. The <a href="/lol-vanguard-emulator">Vanguard Emulator</a> removes Riot Vanguard from your PC, so League of Legends runs without the anti-cheat while the script is loaded.' },
+      { q: "When do I need the Perm Spoofer?", a: 'If your PC was hardware banned before, or you want a fresh start, the <a href="/lol-perm-spoofer">Perm Spoofer</a> gives your hardware new permanent identifiers.' },
+      { q: "Are free LoL scripts safe?", a: 'Free LoL scripts are rarely updated after a patch and are a common way to spread malware. See <a href="/free-lol-script">why free LoL scripts fail</a>.' },
+    ],
+    related: [related.script, related.emulator, related.spoofer, related.best],
+  },
+  {
+    slug: "free-lol-script",
+    article: { published: "2026-10-01", modified: "2026-10-01" },
+    relatedTitle: "Explore LOLScript",
+    buy: "lol-script",
+    title: "Free LoL Script? Get a Working One From $3.99 | LOLScript",
+    ogTitle: "Free LoL Script? Get a Working One From $3.99",
+    description:
+      "Looking for a free LoL script? Most stopped working after Vanguard. Get a working, undetected LoL script with every feature from $3.99, delivered instantly.",
+    keywords: "free lol script, lol script free, free lol script download, lol script free download, free league of legends script, lol free script 2026, cheap lol script, lol script trial",
+    crumb: "Free LoL Script",
+    badge: "From $3.99",
+    h1: "Free LoL script? Here is one that actually works",
+    lead:
+      "Free LoL scripts mostly disappeared after Riot Vanguard. The ones left are outdated, broken after the next patch, or packed with malware. LOLScript gives you a working LoL script with every feature for $3.99.",
+    sections:
+      section({
+        eyebrow: "Why free fails",
+        h2: "Why free LoL scripts stop working",
+        body: cards([
+          ["fa-solid fa-calendar-xmark", "No patch updates", "League patches every two weeks. A free script without a team behind it breaks with the next patch and stays broken."],
+          ["fa-solid fa-shield-virus", "Malware risk", "Free downloads are a common way to spread stealers and miners. Your Riot account and PC are worth more than $3.99."],
+          ["fa-solid fa-shield-halved", "No Vanguard setup", 'Free scripts rarely come with a Vanguard solution. LOLScript ships a <a href="/lol-vanguard-emulator">Vanguard Emulator</a> and a full <a href="/setup-guide">setup guide</a>.'],
+          ["fa-solid fa-headset", "No support", "When something does not work, there is nobody to ask. LOLScript has a live Discord with patch notes and support."],
+        ]),
+      }) +
+      section({
+        eyebrow: "The $3.99 start",
+        h2: "Try the full LoL script for one day",
+        sub: "A 1-day key is the cheapest way to see every feature before a longer plan.",
+        alt: true,
+        body: cards([
+          ["fa-solid fa-person-running", "Evade", '<a href="/lol-evade-script">Skillshot dodging</a> tuned per champion.'],
+          ["fa-solid fa-crosshairs", "Prediction", '<a href="/lol-aimbot">Skillshot prediction</a> that leads moving targets.'],
+          ["fa-solid fa-shoe-prints", "Orbwalker", '<a href="/lol-orbwalker-script">Attack-move timing</a>, kiting, and last hits.'],
+          ["fa-solid fa-wand-magic-sparkles", "Combos and activator", "Champion combos, target selector, and item and summoner activator."],
+        ]),
+      }) +
+      section({ eyebrow: "How it works", h2: "From checkout to your first game", body: howItWorks }),
+    faqTitle: "Free LoL script questions",
+    faq: [
+      { q: "Is there a free LoL script download?", a: "There are free downloads online, but almost none still work after Vanguard, and many carry malware. A maintained script with patch updates is the reliable choice." },
+      { q: "Is there a free trial of the LoL Script?", a: 'There is no free trial, but the 1-day key from $3.99 works like one: it unlocks every feature of the <a href="/lol-script">LoL Script</a> so you can test it in your own games.' },
+      { q: "What is the cheapest working LoL script?", a: "The LOLScript 1-day key starts at $3.99. Longer plans lower the price per day." },
+      { q: "Can I pay with crypto or a gift card?", a: "Yes. Checkout supports card, crypto, and Binance Gift Card, and your key is delivered instantly." },
+      { q: "Is a paid LoL script safe?", a: riskAnswer },
+    ],
+    related: [related.script, related.safe, related.best, related.guide],
+  },
+  {
+    slug: "lol-script-download",
+    relatedTitle: "Explore LOLScript",
+    buy: "lol-script",
+    title: "LoL Script Download 2026: Official Loader | LOLScript",
+    ogTitle: "LoL Script Download 2026: Official Loader",
+    description:
+      "LoL Script download: get the official LOLScript loader after checkout, with a step-by-step setup guide, patch-day updates, and Discord support.",
+    keywords: "lol script download, download lol script, lol script loader, league of legends script download, lol script download 2026, lol script exe, lol script install",
+    crumb: "LoL Script Download",
+    badge: "Official loader",
+    h1: "LoL Script download: the official loader",
+    lead:
+      "The LOLScript loader is only shared with customers, together with a step-by-step setup guide. Buy a key, follow the guide, and you are in game the same day, with updates delivered every patch.",
+    sections:
+      section({
+        eyebrow: "Download in 4 steps",
+        h2: "How to download and install the LoL Script",
+        body: steps([
+          ["Buy your key", "Choose a plan above. Your key appears on-screen and in your email right after checkout."],
+          ["Join the Discord", 'Loader links, patch notes, and support tickets are in the <a href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">LOLScript Discord</a>.'],
+          ["Prepare the USB loader", 'Follow the <a href="/setup-guide-lol-script">LoL Script setup guide</a>: BIOS and Windows checklist, then the USB boot loader.'],
+          ["Activate and play", "Enter your key, pick a champion profile, and tune evade, prediction, and orbwalker."],
+        ]),
+      }) +
+      section({
+        eyebrow: "Requirements",
+        h2: "What you need before you download",
+        alt: true,
+        body: cards([
+          ["fa-brands fa-windows", "Windows 10 or 11", "A 64-bit Windows install with access to BIOS settings."],
+          ["fa-brands fa-usb", "A USB drive", "Used for the boot loader. The setup guide shows how to prepare it."],
+          ["fa-solid fa-shield-halved", "Vanguard setup", 'The <a href="/lol-vanguard-emulator">Vanguard Emulator</a> is the recommended way to run League without Vanguard.'],
+          ["fa-solid fa-key", "An active key", "Plans start at one day, so you can test the full download before a longer plan."],
+        ]),
+      }) +
+      section({
+        eyebrow: "Official only",
+        h2: "Only download the LoL Script from LOLScript",
+        sub: 'Files shared on forums or video descriptions as a "free LoL script download" are not from us and often contain malware. The real loader is only shared in the LOLScript Discord after purchase.',
+      }),
+    faqTitle: "LoL Script download questions",
+    faq: [
+      { q: "Where do I download the LoL Script?", a: 'After checkout, loader links are shared in the LOLScript Discord together with the <a href="/setup-guide-lol-script">setup guide</a>.' },
+      { q: "Is the LoL Script download free?", a: 'The loader requires an active key. Plans start at $3.99 for one day. See <a href="/free-lol-script">why free LoL scripts fail</a>.' },
+      { q: "Does the LoL Script update automatically?", a: 'Updates are released the day League patches. The live <a href="/status">status page</a> shows when each product is ready.' },
+      { q: "Does it work on Windows 11?", a: "Yes. The LoL Script works on 64-bit Windows 10 and Windows 11." },
+      { q: "Is the LoL Script download safe?", a: riskAnswer },
+    ],
+    related: [related.guide, related.script, related.emulator, related.safe],
+  },
+  {
+    slug: "league-of-legends-cheats",
+    article: { published: "2026-10-01", modified: "2026-10-01" },
+    parent: { name: "Best LoL Script", href: "/best-lol-scripts" },
+    relatedTitle: "Explore LOLScript",
+    buy: "lol-script",
+    title: "LoL Hack & League of Legends Cheats 2026 | LOLScript",
+    ogTitle: "LoL Hack & League of Legends Cheats 2026",
+    description:
+      "LoL hack and League of Legends cheats that work in 2026: an undetected script with evade, skillshot aimbot, orbwalker, and combos. From $3.99.",
+    keywords: "lol hack, lol hacks, lol cheat, lol cheats, league of legends hack, league of legends cheats, league hack 2026, lol cheat undetected, lol hack no ban, league of legends script hack",
+    crumb: "LoL Hack",
+    badge: "LoL hack 2026",
+    h1: "LoL hack and League of Legends cheats in 2026",
+    lead:
+      'When players search for a "LoL hack", they usually mean a League of Legends script: automatic dodging, skillshot aim, and perfect kiting. LOLScript bundles all of it into one undetected LoL Script that is updated every patch.',
+    sections:
+      section({
+        eyebrow: "What a LoL hack does",
+        h2: "The features players look for",
+        body: cards([
+          ["fa-solid fa-person-running", '<a href="/lol-evade-script">Evade</a>', "Dodges incoming skillshots automatically, tuned per champion and danger level."],
+          ["fa-solid fa-crosshairs", '<a href="/lol-aimbot">Skillshot aimbot</a>', "Prediction that leads moving targets so your skillshots land more often."],
+          ["fa-solid fa-shoe-prints", '<a href="/lol-orbwalker-script">Orbwalker</a>', "Attack-move timing, kiting, spacing, and last-hit flow for every auto-attack champion."],
+          ["fa-solid fa-wand-magic-sparkles", "Combos, target selector, activator", "Full champion combos, smart target selection, and automatic items and summoners."],
+        ]),
+      }) +
+      section({
+        eyebrow: "What works in 2026",
+        h2: "League of Legends cheats after Vanguard",
+        sub: 'Riot Vanguard ended most old LoL hacks. A working setup in 2026 needs a maintained script, a Vanguard solution, and patch-day updates. <a href="/league-of-legends-scripting-after-vanguard">How Vanguard changed scripting</a>.',
+        alt: true,
+        body: cards([
+          ["fa-solid fa-code", '<a href="/lol-script">LoL Script</a>', "Every feature above in one loader for 150+ champions."],
+          ["fa-solid fa-shield-halved", '<a href="/lol-vanguard-emulator">Vanguard Emulator</a>', "Runs League of Legends without Riot Vanguard on your PC."],
+          ["fa-solid fa-fingerprint", '<a href="/lol-perm-spoofer">Perm Spoofer</a>', "Fresh permanent hardware identifiers for a clean start."],
+          ["fa-solid fa-rotate", "Patch-day updates", 'Live product state on the <a href="/status">status page</a>.'],
+        ]),
+      }) +
+      section({ eyebrow: "Why LOLScript", h2: "Why players choose LOLScript", body: `\n        <div class="spec-grid">${lolscriptPitch}\n        </div>` }),
+    faqTitle: "LoL hack questions",
+    faq: [
+      { q: "Is a LoL hack the same as a LoL script?", a: 'Mostly, yes. "LoL hack" and "League of Legends cheat" are common names for a script with evade, prediction, and orbwalker, like the <a href="/lol-script">LOLScript LoL Script</a>.' },
+      { q: "Do League of Legends cheats still work in 2026?", a: "Old free hacks mostly stopped working after Vanguard. A maintained script with a Vanguard Emulator and patch-day updates works in 2026." },
+      { q: "Is there a LoL hack with no ban?", a: riskAnswer },
+      { q: "How much does a LoL hack cost?", a: "The LOLScript LoL Script starts at $3.99 for a 1-day key, with longer plans available. Delivery is instant." },
+    ],
+    related: [related.script, related.aimbot, related.evade, related.safe],
+  },
+  {
+    slug: "lol-aimbot",
+    relatedTitle: "More LoL Script features",
+    buy: "lol-script",
+    title: "LoL Aimbot Script: Skillshot Prediction | LOLScript",
+    ogTitle: "LoL Aimbot Script: Skillshot Prediction",
+    description:
+      "LoL aimbot script for League of Legends: skillshot prediction that leads moving targets, with hit chance settings per champion. Included in the LoL Script.",
+    keywords: "lol aimbot, lol aimbot script, league of legends aimbot, lol skillshot script, lol prediction script, skillshot aimbot lol, lol auto aim, league skillshot prediction",
+    crumb: "LoL Aimbot",
+    badge: "Skillshot prediction",
+    h1: "LoL aimbot: skillshot prediction for every champion",
+    lead:
+      "The LOLScript prediction engine is the aimbot of League of Legends. It reads enemy movement, cast time, and projectile speed, then aims your skillshots where the target will be, not where it is.",
+    sections:
+      section({
+        eyebrow: "How it aims",
+        h2: "What the LoL aimbot calculates",
+        body: cards([
+          ["fa-solid fa-route", "Movement prediction", "Follows pathing, dashes, and stop-and-go movement to find the most likely position on impact."],
+          ["fa-solid fa-gauge-high", "Cast time and speed", "Accounts for each spell's cast delay, projectile speed, width, and range."],
+          ["fa-solid fa-users-slash", "Minion collision", "Skips casts that would hit a minion first, so linear skillshots reach the champion."],
+          ["fa-solid fa-percent", "Hit chance control", "Set a minimum hit chance per spell to choose between more casts and more accurate casts."],
+        ]),
+      }) +
+      section({
+        eyebrow: "Best champions",
+        h2: "Where the LoL aimbot shines",
+        alt: true,
+        body: cards([
+          ["fa-solid fa-bullseye", "Skillshot mages", "Xerath, Lux, Ziggs, Vel'Koz, and other long-range mages land more abilities from safe range."],
+          ["fa-solid fa-hand-back-fist", "Hook supports", "Blitzcrank, Thresh, Nautilus, and Pyke hooks benefit most from collision checks."],
+          ["fa-solid fa-location-arrow", "Skillshot marksmen", "Ezreal, Varus, Ashe, and Jhin follow up auto attacks with more reliable skillshots."],
+          ["fa-solid fa-person-running", "Paired with evade", 'Combine prediction with the <a href="/lol-evade-script">evade script</a> to win skillshot duels on both sides.'],
+        ]),
+      }) +
+      section({ eyebrow: "Products", h2: "Get the LoL aimbot", sub: "Prediction is part of every LoL Script plan.", body: productCards }),
+    faqTitle: "LoL aimbot questions",
+    faq: [
+      { q: "Is there an aimbot for League of Legends?", a: 'Yes. In League of Legends, an aimbot is skillshot prediction. It is built into the <a href="/lol-script">LOLScript LoL Script</a> for 150+ champions.' },
+      { q: "Can I control how often it casts?", a: "Yes. Each spell has its own prediction settings, such as minimum hit chance, so you decide between more casts and more accurate casts." },
+      { q: "Does the aimbot work for every champion?", a: "Champion profiles cover 150+ champions, including every skillshot-based champion." },
+      { q: "Is the LoL aimbot safe?", a: riskAnswer },
+    ],
+    related: [related.script, related.evade, related.orbwalker, related.safe],
+  },
+  {
+    slug: "lol-hile",
+    lang: "tr",
+    article: { published: "2026-10-01", modified: "2026-10-01" },
+    relatedTitle: "LOLScript ürünleri",
+    buy: "lol-script",
+    title: "LoL Hile 2026: Güvenli LoL Script | LOLScript",
+    ogTitle: "LoL Hile 2026: Güvenli LoL Script",
+    description:
+      "LoL hile 2026: evade, skillshot tahmini, orbwalker ve kombolarla undetected LoL script. Vanguard Emulator ve Perm Spoofer, $3.99'dan başlayan fiyat, anında teslimat.",
+    keywords: "lol hile, lol hilesi, league of legends hile, lol script, lol script türkçe, bansız lol hile, lol hile satın al, lol hile 2026, güvenli lol hile, lol vanguard hile, lol hile indir",
+    crumb: "LoL Hile",
+    badge: "LoL Hile 2026",
+    h1: "LoL hile: Vanguard sonrası çalışan LoL script",
+    lead:
+      "LOLScript, League of Legends için evade, skillshot tahmini, orbwalker ve kombolar sunan undetected bir LoL script. Vanguard Emulator ve Perm Spoofer ile birlikte, her yamada güncellenir ve anında teslim edilir.",
+    sections:
+      section({
+        eyebrow: "Özellikler",
+        h2: "LoL hilede neler var",
+        body: cards([
+          ["fa-solid fa-person-running", "Evade", "Gelen skillshot'lardan otomatik kaçar, her şampiyona göre ayarlanır."],
+          ["fa-solid fa-crosshairs", "Skillshot tahmini", "Hareket eden rakibin nerede olacağını hesaplar ve büyülerini oraya atar."],
+          ["fa-solid fa-shoe-prints", "Orbwalker", "Attack-move zamanlaması, kiting ve son vuruşlar her ADC için kusursuz."],
+          ["fa-solid fa-wand-magic-sparkles", "Kombo ve activator", "Şampiyon komboları, hedef seçici, otomatik item ve sihirdar büyüleri."],
+        ]),
+      }) +
+      section({
+        eyebrow: "Güvenli kurulum",
+        h2: "Güvenli LoL hile kurulumu",
+        sub: "Her parça kurulumunun farklı bir kısmını kapsar. Sadece ihtiyacın olanı al.",
+        alt: true,
+        body: cards([
+          ["fa-solid fa-shield-halved", '<a href="/lol-vanguard-emulator">Vanguard Emulator</a>', "Riot Vanguard'ı bilgisayarından kaldırır, League of Legends anti-cheat olmadan çalışır."],
+          ["fa-solid fa-fingerprint", '<a href="/lol-perm-spoofer">Perm Spoofer</a>', "Donanım kimliklerini kalıcı olarak yeniler. Daha önce HWID ban yediysen temiz bir başlangıç sağlar."],
+          ["fa-solid fa-rotate", "Yama günü güncelleme", 'Her ürün her LoL yamasında test edilir. Güncel durumu <a href="/status">durum sayfasında</a> canlı görebilirsin.'],
+          ["fa-solid fa-desktop", "İkinci PC gerekmez", 'LoL script kendi bilgisayarında USB loader ile çalışır. Adım adım <a href="/setup-guide-lol-script">kurulum rehberi</a> dahil.'],
+        ]),
+      }) +
+      section({
+        eyebrow: "Nasıl çalışır",
+        h2: "Satın almadan ilk maça",
+        body: steps([
+          ["Planını seç", "1 günlük key $3.99'dan başlar. Uzun planlarda günlük fiyat düşer."],
+          ["Hızlıca öde", "Kart, kripto veya Binance Gift Card ile öde, key ekranda ve e-postanda anında belirir."],
+          ["Kurulum rehberini takip et", 'Tüm ürünlerin adım adım rehberi <a href="/setup-guide">kurulum rehberleri</a> sayfasında.'],
+          ["Oyuna gir ve elo kas", "Evade, tahmin, orbwalker ve komboları şampiyonlarına göre ayarla."],
+        ]),
+      }),
+    faqTitle: "LoL hile hakkında sorular",
+    faq: [
+      { q: "Bansız LoL hile var mı?", a: 'Tüm LOLScript ürünleri her League of Legends yamasında test edilir ve güncel durum <a href="/status">durum sayfasında</a> canlı gösterilir. En temiz kurulum için LoL Script\'i <a href="/lol-vanguard-emulator">Vanguard Emulator</a> ve <a href="/lol-perm-spoofer">Perm Spoofer</a> ile birlikte kullan. Kullanım şartları <a href="/terms">Hizmet Şartları</a> sayfasında.' },
+      { q: "Vanguard sonrası LoL hile çalışıyor mu?", a: "Eski ücretsiz hilelerin çoğu Vanguard ile çalışmaz oldu. LOLScript, Vanguard Emulator ve yama günü güncellemelerle 2026'da çalışır." },
+      { q: "LoL hile fiyatı ne kadar?", a: 'LoL Script 1 günlük key ile $3.99\'dan başlar. Tüm planlar <a href="/lol-script">LoL Script</a> sayfasında.' },
+      { q: "Ücretsiz LoL hile indirsem olur mu?", a: "Ücretsiz hileler genelde güncel değildir ve sık sık virüs veya stealer içerir. Hesabın ve bilgisayarın $3.99'dan değerli." },
+      { q: "Türkçe destek var mı?", a: 'Evet. <a href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">LOLScript Discord</a> üzerinden destek alabilirsin.' },
+    ],
+    related: [
+      { href: "/lol-script", title: "LoL Script", text: "Evade, tahmin, orbwalker, hedef seçici, kombolar ve activator, 150+ şampiyon." },
+      { href: "/lol-vanguard-emulator", title: "LoL Vanguard Emulator", text: "Riot Vanguard'ı kaldırır, League of Legends anti-cheat olmadan çalışır." },
+      { href: "/lol-perm-spoofer", title: "LoL Perm Spoofer", text: "Kalıcı HWID spoofer: TPM, MAC ve donanım seri numaraları." },
+      { href: "/setup-guide-lol-script", title: "LoL Script Kurulum Rehberi", text: "BIOS ve Windows kontrol listesi, USB loader ve ilk şampiyon profili." },
+    ],
+  },
+];
+
+const trRelated = [
+  { href: "/lol-script", title: "LoL Script", text: "Evade, tahmin, orbwalker, hedef seçici, kombolar ve activator, 150+ şampiyon." },
+  { href: "/lol-vanguard-emulator", title: "LoL Vanguard Emulator", text: "Riot Vanguard'ı kaldırır, League of Legends anti-cheat olmadan çalışır." },
+  { href: "/lol-perm-spoofer", title: "LoL Perm Spoofer", text: "Kalıcı HWID spoofer: TPM, MAC ve donanım seri numaraları." },
+  { href: "/lol-hile", title: "LoL Hile 2026", text: "Vanguard sonrası çalışan LoL hile: özellikler, güvenli kurulum ve sorular." },
+];
+
+const trRiskAnswer =
+  'Tüm LOLScript ürünleri her League of Legends yamasında test edilir ve güncel durum <a href="/status">durum sayfasında</a> canlı gösterilir. En temiz kurulum için LoL Script\'i <a href="/lol-vanguard-emulator">Vanguard Emulator</a> ve <a href="/lol-perm-spoofer">Perm Spoofer</a> ile birlikte kullan. Kullanım şartları <a href="/terms">Hizmet Şartları</a> sayfasında.';
+
+const trProductCards = `
+        <div class="spec-grid">
+          <article class="spec-card"><h3><i class="fa-solid fa-code" aria-hidden="true"></i> <a href="/lol-script">LoL Script</a></h3><p>150+ şampiyon için evade, tahmin, orbwalker, hedef seçici, kombolar ve activator. <strong>$3.99'dan başlar.</strong></p><p><a class="button primary" data-buy-slug="lol-script" href="/lol-script">Satın Al</a></p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> <a href="/lol-vanguard-emulator">LoL Vanguard Emulator</a></h3><p>Riot Vanguard'ı bilgisayarından kaldırır, League of Legends anti-cheat olmadan çalışır. <strong>$79.99'dan başlar.</strong></p><p><a class="button primary" data-buy-slug="lol-vanguard-emulator" href="/lol-vanguard-emulator">Satın Al</a></p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-fingerprint" aria-hidden="true"></i> <a href="/lol-perm-spoofer">LoL Perm Spoofer</a></h3><p>Temiz bir başlangıç için kalıcı HWID spoofer. Çoğu anakart ve diski destekler. <strong>$19.99'dan başlar.</strong></p><p><a class="button primary" data-buy-slug="lol-perm-spoofer" href="/lol-perm-spoofer">Satın Al</a></p></article>
+        </div>`;
+
+/** Turkish counterpart of switchPage for Turkish providers. */
+function trSwitchPage({ slug, name, title, description, keywords, h1, intro }) {
+  return {
+    slug,
+    lang: "tr",
+    parent: { name: "LoL Hile", href: "/lol-hile" },
+    relatedTitle: "LOLScript ürünleri",
+    title,
+    ogTitle: title.replace(/ \| LOLScript$/, ""),
+    description,
+    keywords: `${keywords}, lol script, lol hile, bansız lol hile, lol script satın al`,
+    buy: "lol-script",
+    crumb: "LoL Script",
+    badge: "Undetected LoL Script",
+    h1,
+    lead:
+      "Evade, skillshot tahmini, orbwalker ve kombolarla 150+ şampiyon için undetected League of Legends script. Anında teslimat, ikinci PC gerekmez, her yamada güncelleme ve canlı Discord.",
+    sections:
+      section({ eyebrow: "LOLScript", h2: intro.h2, sub: intro.text, alt: true }) +
+      section({ eyebrow: "Ürünler", h2: "League of Legends için ihtiyacın olan her şey", sub: "Sadece kurulumunun ihtiyacı olanı al. Tüm key'ler ödemeden hemen sonra teslim edilir.", body: trProductCards }) +
+      section({
+        eyebrow: "Neden LOLScript",
+        h2: "Oyuncular neden LOLScript'i seçiyor",
+        alt: true,
+        body: cards([
+          ["fa-solid fa-desktop", "İkinci PC gerekmez", 'LoL Script kendi bilgisayarında USB loader ile çalışır. <a href="/setup-guide-lol-script">Kurulum rehberi</a> dahil.'],
+          ["fa-solid fa-rotate", "Yama günü güncelleme", 'Güncellemeler genelde LoL yaması çıktığı gün hazırdır. Güncel durum <a href="/status">durum sayfasında</a>.'],
+          ["fa-solid fa-bolt-lightning", "Anında teslimat", "Kart, kripto veya Binance Gift Card ile öde, key ekranda ve e-postanda hemen belirir."],
+          ["fa-brands fa-discord", "Canlı Discord", "Satın almadan önce soru sor, yama notlarını ve topluluğu gör."],
+        ]),
+      }) +
+      section({
+        eyebrow: "Nasıl çalışır",
+        h2: "Satın almadan ilk maça",
+        body: steps([
+          ["Planını seç", "1 günlük key $3.99'dan başlar. Uzun planlarda günlük fiyat düşer."],
+          ["Hızlıca öde", "Kart, kripto veya Binance Gift Card ile öde, key'in anında gelir."],
+          ["Kurulum rehberini takip et", 'Tüm ürünlerin adım adım rehberi <a href="/setup-guide">kurulum rehberleri</a> sayfasında.'],
+          ["Oyuna gir ve elo kas", "Evade, tahmin, orbwalker ve komboları şampiyonlarına göre ayarla."],
+        ]),
+      }),
+    faqTitle: "LOLScript hakkında sorular",
+    faq: [
+      { q: `LOLScript, ${name} ile aynı mı?`, a: 'Hayır. LOLScript.store kendi <a href="/lol-script">LoL Script</a>, Vanguard Emulator ve Perm Spoofer ürünlerine sahip bağımsız bir mağazadır.' },
+      { q: "Teslimat ne kadar sürer?", a: "Anında. Key'in ödemeden hemen sonra ekranda görünür ve e-postana gönderilir." },
+      { q: "İkinci PC gerekiyor mu?", a: 'Hayır. LoL Script kendi bilgisayarında USB loader ile çalışır. <a href="/setup-guide-lol-script">Kurulum rehberi</a> her adımı anlatır.' },
+      { q: "Güvenli, bansız bir LoL script mi?", a: trRiskAnswer },
+    ],
+    related: trRelated,
+  };
+}
 
 const pages = [
   {
@@ -346,7 +871,7 @@ const pages = [
         </div>
         <div class="spec-grid">
           <article class="spec-card"><h3><i class="fa-solid fa-rotate" aria-hidden="true"></i> Patch-day updates</h3><p>League patches every two weeks. Updates are normally ready the same day; check the <a href="/status">status page</a> before you play.</p></article>
-          <article class="spec-card"><h3><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Real account risk</h3><p>No script can promise zero risk. "Undetected" describes internal testing at the time, not a guarantee. Read the <a href="/terms#risk">Terms of Service</a>.</p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-signal" aria-hidden="true"></i> Live status</h3><p>Every product is checked against the current patch, and the result is shown on the <a href="/status">status page</a> before you play.</p></article>
           <article class="spec-card"><h3><i class="fa-solid fa-flask" aria-hidden="true"></i> Test before ranked</h3><p>Start with default settings and test in practice tool or normals before using the script in ranked games.</p></article>
           <article class="spec-card"><h3><i class="fa-solid fa-headset" aria-hidden="true"></i> Active support</h3><p>Loader links, patch notes, and support tickets are handled in the LOLScript Discord.</p></article>
         </div>
@@ -420,7 +945,7 @@ const pages = [
           <li><div><h3>Appeal if you think it is a mistake</h3><p>Submit a ticket to Riot Support. Riot is the only party that can review or lift a ban on its side.</p></div></li>
           <li><div><h3>Wait out a temporary restriction</h3><p>If Riot tells you the restriction is temporary, the only official option is to wait until it expires.</p></div></li>
           <li><div><h3>Understand what a HWID spoofer does</h3><p>A HWID spoofer changes the hardware identifiers your PC reports. A perm spoofer applies the change persistently, while a temp spoofer resets on restart. <a href="/lol-perm-spoofer">The LoL Spoofer</a> is a perm spoofer; its <a href="/setup-guide-perm-spoofer">setup guide</a> starts with a clean Windows install and BIOS flash.</p></div></li>
-          <li><div><h3>Know the risk</h3><p>Using a spoofer or any third-party tool breaks Riot's terms and can lead to further bans. No tool can guarantee your account's safety; read the <a href="/terms#risk">risk section of our Terms of Service</a>.</p></div></li>
+          <li><div><h3>Follow the guide step by step</h3><p>Spoofing works best on a clean setup. Verify every serial before you launch League, and ask in the LOLScript Discord if a step does not match.</p></div></li>
         </ol>
       </div>
     </section>
@@ -435,6 +960,344 @@ const pages = [
     ],
     related: [related.spoofer, related.spooferGuide, related.emulator, related.vanguard],
   },
+  {
+    slug: "best-lol-scripts",
+    article: { published: "2026-10-01", modified: "2026-10-01" },
+    relatedTitle: "Explore LOLScript",
+    buy: "lol-script",
+    title: "Best LoL Script 2026: Undetected League Script | LOLScript",
+    ogTitle: "Best LoL Script 2026: Undetected League Script",
+    description:
+      "The best LoL script for 2026: an undetected League of Legends script with evade, prediction, orbwalker, and combos, plus Vanguard Emulator and Perm Spoofer.",
+    keywords: "best lol script, best lol scripts, best lol script 2026, lol scripts, league of legends scripts, best league of legends script, undetected lol script, buy lol script, lol script no ban, ban free lol script, safe lol script, no ban lol script",
+    crumb: "Best LoL Script",
+    badge: "Undetected LoL Script 2026",
+    h1: "The best LoL script for 2026",
+    lead:
+      "Most LoL scripts sold before Vanguard stopped working. LOLScript is built for League of Legends in 2026: a full-featured script, a Vanguard Emulator, and a Perm Spoofer, all delivered instantly.",
+    sections: `
+    <section class="product-section">
+      <div class="product-inner">
+        <div class="section-heading">
+          <p class="eyebrow">Products</p>
+          <h2>Everything you need for League of Legends</h2>
+          <p>Buy only what your setup needs. Every key is delivered instantly after checkout.</p>
+        </div>${productCards}
+      </div>
+    </section>
+
+    <section class="product-section alt">
+      <div class="product-inner">
+        <div class="section-heading">
+          <p class="eyebrow">How to choose</p>
+          <h2>What makes a LoL script worth buying</h2>
+        </div>
+        <div class="spec-grid">
+          <article class="spec-card"><h3><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Built for Vanguard</h3><p>A modern LoL script needs a clear Vanguard setup. LOLScript pairs the script with the <a href="/lol-vanguard-emulator">Vanguard Emulator</a>. <a href="/league-of-legends-scripting-after-vanguard">How Vanguard changed scripting</a>.</p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-sliders" aria-hidden="true"></i> Full feature set</h3><p>Evade, prediction, orbwalker, target selector, combos, and activator in one loader, not as paid add-ons.</p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-coins" aria-hidden="true"></i> Short plans first</h3><p>Start with a 1-day key from $3.99 to try the setup and features before a longer plan.</p></article>
+          <article class="spec-card"><h3><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Safe, no-ban setup</h3><p>Undetected status is checked every patch, and the Vanguard Emulator plus Perm Spoofer give you the cleanest setup for ranked. See the live <a href="/status">status page</a>.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="product-section">
+      <div class="product-inner">
+        <div class="section-heading">
+          <p class="eyebrow">Why LOLScript</p>
+          <h2>Why players choose LOLScript</h2>
+        </div>
+        <div class="spec-grid">${lolscriptPitch}
+        </div>
+      </div>
+    </section>
+`,
+    faqTitle: "Best LoL script questions",
+    faq: [
+      { q: "What is the best LoL script in 2026?", a: 'A good LoL script in 2026 needs a Vanguard setup, same-day patch updates, and a full feature set. The <a href="/lol-script">LOLScript LoL Script</a> covers all three, with instant delivery.' },
+      { q: "Are free LoL scripts still working?", a: "Free LoL scripts are usually outdated or unmaintained since Vanguard, and some are bundled with malware. A maintained script with patch updates is the better choice." },
+      { q: "Do I need a spoofer to use a LoL script?", a: 'Not always. A spoofer matters if your hardware was banned before. LOLScript sells the <a href="/lol-perm-spoofer">Perm Spoofer</a> separately so you only buy it if you need it.' },
+      { q: "Is there a safe, no-ban LoL script?", a: riskAnswer },
+    ],
+    related: [related.script, related.emulator, related.spoofer, related.guide],
+  },
+  switchPage({
+    slug: "hangar-script",
+    h1: "Undetected LoL Script, Ready in a Minute",
+    name: "Hangar Script",
+    title: "Hangar Script? Try LOLScript, Undetected LoL Script",
+    description: "Searching for Hangar Script? Try LOLScript: an undetected LoL Script from $3.99 with evade, prediction, and orbwalker. Buy in a minute, instant delivery.",
+    keywords: "hangar script, hangarscript, hangar lol script, hangar script alternative, hangar lol emulator, hangar script lol, hangar spoofer",
+    intro: {
+      h2: "An undetected LoL script you can buy in under a minute",
+      text: "If you were searching for Hangar Script, you probably want a League of Legends script that is ready today. LOLScript sells keys directly on this page: pick a plan, pay with card, crypto, or Binance Gift Card, and your key arrives instantly with a step-by-step setup guide. No waitlist, no invite.",
+    },
+  }),
+  switchPage({
+    slug: "hanbot",
+    h1: "The LoL Script That Runs on One PC",
+    name: "Hanbot",
+    title: "Hanbot? Try LOLScript, LoL Script on One PC | LOLScript",
+    description: "Searching for Hanbot? Try LOLScript: an undetected LoL Script from $3.99 that runs on your own PC, no second PC needed. Instant delivery.",
+    keywords: "hanbot, hanbot lol, hanbot script, hanbot lol script, hanbot alternative, hanbot price, hanbot key, hanbot 2pc",
+    intro: {
+      h2: "A complete LoL script on one PC",
+      text: "Players searching for Hanbot often ask whether they need a second PC or extra hardware. The LOLScript LoL Script runs from a prepared USB loader on the same PC you play on, so there is nothing else to buy. The setup guide covers BIOS, Windows, and the loader in the right order.",
+    },
+  }),
+  switchPage({
+    slug: "legend-sense",
+    h1: "LoL Script With Evade and Prediction for Every Champion",
+    name: "Legend Sense",
+    title: "Legend Sense / LS Script? Try LOLScript in 2026 | LOLScript",
+    description: "Searching for Legend Sense or LS Script? Try LOLScript: an undetected LoL Script from $3.99 with evade and prediction for 150+ champions.",
+    keywords: "legend sense, ls script, lsscript, legend sense lol script, legend sense alternative, ls script alternative, ls script price",
+    intro: {
+      h2: "Evade and prediction tuned for every champion",
+      text: "Searching for Legend Sense or LS Script usually means you care about evade and skillshot prediction. Both are core modules of the LOLScript LoL Script, with champion profiles for 150+ champions and settings you can tune per champion, from dodge aggressiveness to cast hit chance.",
+    },
+  }),
+  switchPage({
+    slug: "justanotherscript",
+    h1: "Full LoL Script From $3.99, Instant Delivery",
+    name: "JustAnotherScript",
+    title: "JustAnotherScript (JAS)? Try LOLScript in 2026 | LOLScript",
+    description: "Searching for JustAnotherScript (JAS)? Try LOLScript: a full, undetected LoL Script with a 1-day key from $3.99. Instant delivery.",
+    keywords: "justanotherscript, jas lol script, jas script, just another script lol, justanotherscript alternative, jas alternative",
+    intro: {
+      h2: "Start today with a 1-day key from $3.99",
+      text: "If you were searching for JustAnotherScript, you can start with LOLScript right now for $3.99. A 1-day key unlocks the full feature set, including evade, prediction, orbwalker, target selector, and combos, so you see exactly what you get before choosing a longer plan.",
+    },
+  }),
+  switchPage({
+    slug: "titan-script",
+    h1: "LoL Script Updated the Day League Patches",
+    name: "Titan Script",
+    title: "Titan Script? Try LOLScript, Undetected LoL Script",
+    description: "Searching for Titan or TitanScript? Try LOLScript: an undetected LoL Script from $3.99 with full features on your own PC, plus Vanguard Emulator and Perm Spoofer.",
+    keywords: "titan lol script, titanscript, titan script, titan hanbot, titan lol script alternative, titanscript alternative",
+    intro: {
+      h2: "Full features, updated the day League patches",
+      text: "Searching for Titan Script? LOLScript ships updates the day League of Legends patches, and the live status page shows whether every product is up to date before you buy. One key covers evade, prediction, orbwalker, target selector, combos, and activator.",
+    },
+  }),
+  switchPage({
+    slug: "nyrex-script",
+    h1: "Safe LoL Script Built Only for League of Legends",
+    name: "Nyrex Script",
+    title: "Nyrex Script? Try LOLScript, Safe LoL Script in 2026",
+    description: "Searching for Nyrex Script or Hyper LoL Script? Try LOLScript: a safe, undetected League of Legends script from $3.99. Instant delivery.",
+    keywords: "nyrex script, nyrexscript, nyrex lol script, hyper lol script, nyrex hyper, nyrex script lol, nyrex spoofer, nyrexscript.com",
+    intro: {
+      h2: "One focus: League of Legends",
+      text: "If you were searching for Nyrex Script or Hyper LoL Script, LOLScript is built only for League of Legends. The LoL Script, Vanguard Emulator, and Perm Spoofer are all made for League, tested on every League patch, and supported in a Discord focused on League players.",
+    },
+  }),
+  switchPage({
+    slug: "pentasharp",
+    h1: "Safe League of Legends Script, Tested Every Patch",
+    name: "PentaSharp",
+    title: "PentaSharp? Try LOLScript, Safe League of Legends Script",
+    description: "Searching for PentaSharp? Try LOLScript: a safe, undetected League of Legends script from $3.99, tested on every patch. Instant delivery.",
+    keywords: "pentasharp, penta sharp, pentasharp lol script, pentasharp script, pentasharp league of legends, pentasharp price",
+    intro: {
+      h2: "Tested on every League patch",
+      text: "If you were searching for PentaSharp, you are looking for a safe League of Legends script that keeps working patch after patch. Every LOLScript product is tested on each League patch, and the live status page shows the current state before you buy or play.",
+    },
+  }),
+  switchPage({
+    slug: "cado-script",
+    h1: "LoL Script With Smart Evade and Champion Combos",
+    name: "Cado Script",
+    title: "Cado Script? Try LOLScript, Undetected LoL Script",
+    description: "Searching for Cado Script? Try LOLScript: an undetected LoL Script from $3.99 with smart evade and full champion combos. Instant delivery.",
+    keywords: "cado script, cadoscript, cado lol script, cado-lolscript, cado script price, cado script league of legends",
+    intro: {
+      h2: "Dodge, then punish",
+      text: "Players searching for Cado Script usually want two things: reliable dodging and clean combos. The LOLScript LoL Script pairs a per-champion evade module with full combo logic, so you sidestep the engage and answer with your whole kit in one motion.",
+    },
+  }),
+  switchPage({
+    slug: "hexlol",
+    h1: "Fully Featured LoL Script With Summoner Activator",
+    name: "HexLoL",
+    title: "HexLoL? Try LOLScript, Fully Featured LoL Script",
+    description: "Searching for HexLoL? Try LOLScript: a fully featured LoL Script from $3.99 with item and summoner activator, evade, and orbwalker. Instant delivery.",
+    keywords: "hexlol, hex lol, hexlol script, hexlol-script, hexlol league of legends script, hex lol script",
+    intro: {
+      h2: "Items and summoners on time",
+      text: "If you were searching for HexLoL, the activator is probably high on your list. The LOLScript activator handles items and summoner spells for you, alongside evade, prediction, orbwalker, target selector, and combos, all in one loader.",
+    },
+  }),
+  switchPage({
+    slug: "xxe-script",
+    h1: "Stable LoL Script for Every Ranked Game",
+    name: "XXE Script",
+    title: "XXE Script? Try LOLScript, Stable LoL Script in 2026",
+    description: "Searching for XXE Script? Try LOLScript: a stable, undetected League of Legends script from $3.99 with same-day patch updates. Instant delivery.",
+    keywords: "xxe script, xxe lol script, xxe league of legends, cheatglobal xxe, xxe script price",
+    intro: {
+      h2: "Stability first",
+      text: "Searching for XXE Script means you want a League of Legends script that performs the same in game one and game twenty. LOLScript keeps the loader light, ships updates on patch day, and posts patch notes in Discord so you always know what changed.",
+    },
+  }),
+  switchPage({
+    slug: "hera-script",
+    h1: "Orbwalker and Evade LoL Script for 2026",
+    name: "Hera",
+    title: "Hera Script? Try LOLScript, Undetected LoL Script",
+    description: "Searching for Hera or Hera.gg? Try LOLScript: an undetected LoL Script from $3.99 with orbwalker, evade, and prediction. Instant delivery.",
+    keywords: "hera script, hera.gg, hera lol script, hera league of legends script, hera gg script, hera orbwalker",
+    intro: {
+      h2: "Clean kiting, natural dodges",
+      text: "If you were searching for Hera, orbwalking and evasion matter most to you. The LOLScript orbwalker handles attack-move timing and kiting, and the evade module can be tuned from cautious to aggressive so your movement looks like a strong player, not a bot.",
+    },
+  }),
+  switchPage({
+    slug: "exo-script",
+    h1: "LoL Script and Vanguard Emulator in One Store",
+    name: "EXO",
+    title: "EXO Vanguard? Try LOLScript, LoL Script and Emulator",
+    description: "Searching for EXO Vanguard or EXO Cheats? Try LOLScript: an undetected LoL Script from $3.99 plus a Vanguard Emulator. Instant delivery.",
+    keywords: "exo vanguard, exo cheats, exo lol script, exovanguard, exo script, exo league of legends",
+    intro: {
+      h2: "Script and Vanguard setup together",
+      text: "Players searching for EXO Vanguard want a League setup that handles Riot Vanguard. LOLScript sells the LoL Script and the Vanguard Emulator side by side, with a setup guide that walks through both in the right order.",
+    },
+  }),
+  switchPage({
+    slug: "phantom-script",
+    h1: "LoL Script Made to Climb Ranked",
+    name: "PhantomScript",
+    title: "PhantomScript? Try LOLScript, LoL Script for Ranked",
+    description: "Searching for PhantomScript or StealthCore? Try LOLScript: an undetected League of Legends script from $3.99 made for ranked. Instant delivery.",
+    keywords: "phantomscript, phantom script, phantom lol script, stealthcore, stealth core lol, phantomscript league of legends",
+    intro: {
+      h2: "Built for the ranked grind",
+      text: "If you were searching for PhantomScript, you want to climb. LOLScript combines orbwalker, evade, prediction, and combos with champion profiles for 150+ champions, so your mechanics hold up in every ranked game, from placements to your peak.",
+    },
+  }),
+  switchPage({
+    slug: "reality-cheats",
+    h1: "League of Legends Cheats With Live Discord Support",
+    name: "RealityCheats",
+    title: "RealityCheats? Try LOLScript, League of Legends Script",
+    description: "Searching for RealityCheats? Try LOLScript: an undetected League of Legends script from $3.99 with live Discord support. Instant delivery.",
+    keywords: "realitycheats, reality cheats, reality cheats lol, reality cheats league of legends, reality cheats lol script",
+    intro: {
+      h2: "Support that answers",
+      text: "Players searching for RealityCheats often want a provider that is easy to reach. LOLScript runs a live Discord with patch notes, setup help, and support tickets, so questions about your League of Legends script get answered by people who use it every day.",
+    },
+  }),
+  switchPage({
+    slug: "covert-script",
+    h1: "LoL Script With Auto Casting and Prediction",
+    name: "Covert Script",
+    title: "Covert Script? Try LOLScript, Undetected LoL Script",
+    description: "Searching for Covert Script or LoL Script Global? Try LOLScript: an undetected LoL Script from $3.99 with prediction and auto casting.",
+    keywords: "covert script, covertscript, covert lol script, lol script global, covert script league of legends",
+    intro: {
+      h2: "Skillshots that land",
+      text: "If you were searching for Covert Script, prediction is the feature to look at. The LOLScript prediction engine leads moving targets, checks minion collision, and lets you set a minimum hit chance per spell for every skillshot champion.",
+    },
+  }),
+  switchPage({
+    slug: "devil-script",
+    h1: "Premium LoL Script at a Fair Price",
+    name: "DevilScript",
+    title: "DevilScript? Try LOLScript, Premium LoL Script",
+    description: "Searching for DevilScript? Try LOLScript: a premium, undetected League of Legends script with a 1-day key from $3.99. Instant delivery.",
+    keywords: "devilscript, devil script, devil lol script, devilscript league of legends, devil script price",
+    intro: {
+      h2: "Every feature, no add-ons",
+      text: "Searching for DevilScript usually means you want a premium League of Legends script without premium pricing. Every LOLScript plan includes the full feature set, and a 1-day key from $3.99 lets you try everything before a longer plan.",
+    },
+  }),
+  switchPage({
+    slug: "ciro-script",
+    h1: "Play League Without Vanguard: Emulator and Script",
+    name: "CiroScript",
+    title: "CiroScript? Try LOLScript, LoL Script Without Vanguard",
+    description: "Searching for CiroScript? Try LOLScript: an undetected LoL Script from $3.99 plus a Vanguard Emulator to play League without Vanguard.",
+    keywords: "ciroscript, ciro script, ciro lol script, ciroscript vanguard, ciro script league of legends",
+    intro: {
+      h2: "Run League without Vanguard",
+      text: "If you were searching for CiroScript, you want a clear answer to Riot Vanguard. The LOLScript Vanguard Emulator removes Vanguard from your PC so League runs without it, and the LoL Script loads on top with a step-by-step setup guide.",
+    },
+  }),
+  switchPage({
+    slug: "wh-satano",
+    h1: "Buy a LoL Script With Crypto, Instant Key",
+    name: "Wh-Satano",
+    title: "Wh-Satano? Try LOLScript, Buy LoL Script With Crypto",
+    description: "Searching for Wh-Satano? Try LOLScript: buy an undetected LoL Script from $3.99 with card, crypto, or Binance Gift Card. Instant key.",
+    keywords: "wh-satano, wh satano, satano lol, wh-satano league of legends, satano cheats, wh satano lol script",
+    intro: {
+      h2: "Pay your way, play today",
+      text: "Players searching for Wh-Satano often want an easy way to pay. LOLScript accepts card, crypto, and Binance Gift Card, and your League of Legends script key appears on-screen and in your email the moment checkout completes.",
+    },
+  }),
+  switchPage({
+    slug: "ven-script",
+    h1: "Undetected LoL Script for 150+ Champions",
+    name: "VEN Script",
+    title: "VEN LoL Script? Try LOLScript, Undetected in 2026",
+    description: "Searching for VEN LoL Script? Try LOLScript: an undetected League of Legends script from $3.99 with profiles for 150+ champions.",
+    keywords: "ven lol script, ven script, ven league of legends script, venscript, ven lol",
+    intro: {
+      h2: "Your champion is covered",
+      text: "If you were searching for VEN LoL Script, champion coverage matters. LOLScript ships champion profiles for 150+ champions with evade, prediction, orbwalker, and combo settings, so whatever you main is ready from the first game.",
+    },
+  }),
+  switchPage({
+    slug: "unrevealed-script",
+    h1: "Instant-Access LoL Script, No Waitlist",
+    name: "Unrevealed",
+    title: "Unrevealed LoL Script? Try LOLScript, Instant Access",
+    description: "Searching for Unrevealed LoL Script? Try LOLScript: an undetected League of Legends script from $3.99 with instant access, no waitlist.",
+    keywords: "unrevealed lol script, unrevealed script, unrevealed league of legends, unrevealed lol, unrevealed script price",
+    intro: {
+      h2: "Buy now, play today",
+      text: "Searching for Unrevealed LoL Script often means waiting for access. LOLScript has no waitlist and no invite: choose a plan on this page, check out, and your key and setup guide are ready immediately.",
+    },
+  }),
+  trSwitchPage({
+    slug: "winnerscript",
+    h1: "Otomatik Teslimat LoL Script, $3.99'dan",
+    name: "WinnerScript",
+    title: "WinnerScript? LOLScript'i Dene, Undetected LoL Script",
+    description: "WinnerScript mi arıyorsun? LOLScript'i dene: $3.99'dan başlayan undetected LoL Script, otomatik anında teslimat ve canlı Discord desteği.",
+    keywords: "winnerscript, winner script, winnerscript lol, winner lol script, winnerscript satın al",
+    intro: {
+      h2: "Ödeme yap, key'in anında gelsin",
+      text: "WinnerScript arıyorsan muhtemelen hızlı teslimat ve uygun fiyat istiyorsun. LOLScript'te teslimat tamamen otomatik: ödeme biter bitmez key ekranda ve e-postanda belirir. 1 günlük key $3.99'dan başlar, tüm özellikler dahil.",
+    },
+  }),
+  trSwitchPage({
+    slug: "unixcheats",
+    h1: "LoL Script Satın Al: Evade, Orbwalker, Tahmin",
+    name: "UnixCheats",
+    title: "UnixCheats? LOLScript'i Dene, LoL Script Satın Al",
+    description: "UnixCheats mi arıyorsun? LOLScript'i dene: evade, orbwalker ve skillshot tahminli undetected LoL Script, $3.99'dan, anında teslimat.",
+    keywords: "unixcheats, unix cheats, unixcheats lol, unixcheats lol script, unix cheats league of legends",
+    intro: {
+      h2: "Tek key, tüm özellikler",
+      text: "UnixCheats arıyorsan League of Legends için eksiksiz bir script istiyorsun. LOLScript'in tek key'i evade, skillshot tahmini, orbwalker, hedef seçici, kombolar ve activator'ü birlikte açar. Ek paket yok, gizli ücret yok.",
+    },
+  }),
+  trSwitchPage({
+    slug: "hile-dunyasi",
+    h1: "Ucuz ve Güvenli LoL Hile, Anında Teslimat",
+    name: "Hile Dünyası",
+    title: "Hile Dünyası? LOLScript'i Dene, Güvenli LoL Hile",
+    description: "Hile Dünyası mı arıyorsun? LOLScript'i dene: Vanguard sonrası çalışan undetected LoL hile, $3.99'dan, anında teslimat ve Discord desteği.",
+    keywords: "hile dünyası, hile dunyasi, hiledunyasi, hile dünyası lol, hile dünyası lol hile, lol hile satın al",
+    intro: {
+      h2: "Vanguard sonrası çalışan kurulum",
+      text: "Hile Dünyası arıyorsan Vanguard'dan sonra da çalışan bir LoL hile istiyorsun. LOLScript, LoL Script'i Vanguard Emulator ve Perm Spoofer ile birlikte sunar ve her parçayı adım adım kurulum rehberiyle anlatır.",
+    },
+  }),
+  ...intentPages,
 ];
 
 for (const p of pages) {
