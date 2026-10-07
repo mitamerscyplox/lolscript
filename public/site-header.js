@@ -92,6 +92,95 @@
     item.addEventListener("focusout", close);
   });
 
+  const shell = header && header.querySelector(".header-shell");
+  if (shell && !shell.querySelector("[data-account-menu]")) {
+    const esc = (s) =>
+      String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+    window.lsAuthSession = fetch("/api/auth/me", { credentials: "same-origin", cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => (data && data.user) || null)
+      .catch(() => null);
+
+    const menu = document.createElement("div");
+    menu.className = "account-menu";
+    menu.dataset.accountMenu = "";
+    const cta = shell.querySelector(".header-cta");
+    if (cta) cta.before(menu);
+    else shell.appendChild(menu);
+    shell.classList.add("has-account");
+
+    const navLink = document.createElement("a");
+    navLink.className = "nav-account-link";
+    if (nav) nav.appendChild(navLink);
+
+    const renderSignedOut = () => {
+      const next = location.pathname === "/" ? "" : `?next=${encodeURIComponent(location.pathname + location.search)}`;
+      const isAuthPage = /^\/(login|register|forgot-password|reset-password)/.test(location.pathname);
+      const href = isAuthPage ? "/login" : `/login${next}`;
+      menu.innerHTML = `<a class="account-link" href="${esc(href)}" aria-label="Sign in" title="Sign in"><i class="fa-solid fa-user" aria-hidden="true"></i></a>`;
+      navLink.href = href;
+      navLink.textContent = "Sign in";
+    };
+
+    const renderSignedIn = (user) => {
+      const label = user.name || user.email || "";
+      const initial = esc((label.trim()[0] || "?").toUpperCase());
+      menu.innerHTML = `<button class="account-link is-user" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Account menu" data-account-toggle>${initial}${
+        user.emailVerified ? "" : '<span class="account-dot" aria-hidden="true"></span>'
+      }</button>
+      <div class="account-dropdown" role="menu" hidden data-account-dropdown>
+        <div class="account-dropdown-head">
+          <strong>${esc(user.name || "Account")}</strong>
+          <small>${esc(user.email)}</small>
+          ${user.emailVerified ? "" : '<a href="/account"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i>Verify your email</a>'}
+        </div>
+        <div class="account-dropdown-list">
+          <a href="/account" role="menuitem"><i class="fa-solid fa-gauge" aria-hidden="true"></i>Overview</a>
+          <a href="/account?tab=orders" role="menuitem"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>Orders</a>
+          <a href="/account?tab=licenses" role="menuitem"><i class="fa-solid fa-key" aria-hidden="true"></i>License keys</a>
+          <a href="/account?tab=security" role="menuitem"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>Security</a>
+        </div>
+        <div class="account-dropdown-list">
+          <button type="button" role="menuitem" data-account-signout><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>Sign out</button>
+        </div>
+      </div>`;
+      navLink.href = "/account";
+      navLink.textContent = "My account";
+
+      const toggle = menu.querySelector("[data-account-toggle]");
+      const dropdown = menu.querySelector("[data-account-dropdown]");
+      const setOpen = (open) => {
+        dropdown.hidden = !open;
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      };
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setOpen(dropdown.hidden);
+      });
+      document.addEventListener("click", (event) => {
+        if (!menu.contains(event.target)) setOpen(false);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !dropdown.hidden) {
+          setOpen(false);
+          toggle.focus();
+        }
+      });
+      menu.querySelector("[data-account-signout]").addEventListener("click", async () => {
+        try {
+          await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+        } catch {}
+        location.href = "/";
+      });
+    };
+
+    renderSignedOut();
+    window.lsAuthSession.then((user) => {
+      if (user) renderSignedIn(user);
+    });
+  }
+
   if (!document.querySelector("script[data-discord-links]")) {
     const script = document.createElement("script");
     script.src = "/discord-links.js?v=discord-20260617";

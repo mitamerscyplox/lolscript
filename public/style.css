@@ -2990,24 +2990,50 @@ body.product-showcase-modal-open {
 /* Sellhub checkout + variant picker */
 .variant-picker { margin: 18px 0 4px; }
 .variant-label { margin: 0 0 10px; font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.variant-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+.variant-pills { display: flex; flex-direction: column; gap: 10px; max-width: 520px; }
 .variant-pill {
-  display: grid;
-  gap: 2px;
-  min-width: 108px;
-  padding: 12px 14px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 18px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.025);
   color: #fff;
+  font: inherit;
   text-align: left;
   cursor: pointer;
   transition: border-color .2s ease, background .2s ease, transform .2s ease;
 }
-.variant-pill span { font-size: 13px; color: var(--muted); font-weight: 700; }
-.variant-pill strong { font-size: 18px; font-weight: 900; }
 .variant-pill:hover { border-color: rgba(167,139,250,.45); transform: translateY(-1px); }
-.variant-pill.active { border-color: rgba(167,139,250,.75); background: rgba(124,58,237,.18); }
+.variant-pill.is-best { border-color: rgba(167,139,250,.35); background: rgba(124,58,237,.07); }
+.variant-pill.active { border-color: rgba(167,139,250,.85); background: rgba(124,58,237,.18); box-shadow: 0 0 0 1px rgba(167,139,250,.25) inset; }
+.variant-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.22); transition: background .2s, box-shadow .2s; }
+.variant-pill.active .variant-dot { background: var(--accent-soft); box-shadow: 0 0 0 4px rgba(167,139,250,.2); }
+.variant-info { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.variant-name { font-size: 15px; font-weight: 800; color: #fff; }
+.variant-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.variant-meta b { font-weight: 700; color: #d9d2ea; }
+.variant-meta em { font-style: normal; font-weight: 800; color: #6ee7b7; }
+.variant-pill > strong { flex: none; font-size: 19px; font-weight: 900; color: var(--accent-soft); font-variant-numeric: tabular-nums; }
+.variant-pill.active > strong { color: #fff; }
+.variant-best {
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), #c084fc);
+  color: #fff;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 16px rgba(124,58,237,.45);
+}
 
 body.sellhub-checkout-open { overflow: hidden; }
 .sellhub-checkout[hidden] { display: none !important; }
@@ -3203,6 +3229,132 @@ body.sellhub-checkout-open { overflow: hidden; }
   animation: sellhub-spin .8s linear infinite;
 }
 .sellhub-secure-note { margin: 4px 0 0; color: rgba(255,255,255,.45); font-size: 12px; text-align: center; }
+.sellhub-method-icon.is-crypto { background: rgba(247,147,26,.14); color: #f7931a; }
+.sellhub-method-icon.is-shopier { background: rgba(227,10,23,.14); color: #ff5a64; }
+.sellhub-amount.is-crypto { border-color: rgba(247,147,26,.3); background: linear-gradient(135deg, rgba(247,147,26,.1), rgba(247,147,26,.02)); }
+.sellhub-amount.is-crypto strong { color: #f7931a; }
+.sellhub-coins { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.sellhub-coin {
+  display: grid;
+  gap: 2px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.03);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+.sellhub-coin small { color: var(--muted); font-size: 11px; font-weight: 600; }
+.sellhub-coin:hover, .sellhub-coin:focus-visible { border-color: rgba(247,147,26,.55); outline: none; }
+.sellhub-coin.active { border-color: #f7931a; background: rgba(247,147,26,.12); }
+.sellhub-crypto-pay { display: grid; grid-template-columns: 148px 1fr; gap: 16px; align-items: center; }
+.sellhub-crypto-qr { width: 148px; height: 148px; padding: 6px; border-radius: 12px; background: #fff; }
+.sellhub-crypto-qr svg { display: block; width: 100%; height: 100%; }
+.sellhub-crypto-fields { display: grid; gap: 6px; min-width: 0; }
+.sellhub-crypto-fields > span { color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.sellhub-crypto-fields .sellhub-key code { font-size: 13px; }
+.sellhub-crypto-wait { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; color: #fde68a; font-size: 14px; font-weight: 700; text-align: center; }
+.sellhub-crypto-wait.is-error { color: #f87171; }
+.sellhub-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: currentColor; animation: sellhub-pulse 1.4s ease-in-out infinite; }
+@keyframes sellhub-pulse { 0%, 100% { opacity: .35; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.1); } }
+@media (max-width: 520px) {
+  .sellhub-coins { grid-template-columns: repeat(auto-fit, minmax(54px, 1fr)); gap: 6px; }
+  .sellhub-coin { padding: 10px 4px; font-size: 14px; }
+  .sellhub-coin small { display: none; }
+  .sellhub-crypto-pay { grid-template-columns: 1fr; justify-items: center; }
+  .sellhub-crypto-fields { width: 100%; }
+}
+.shopier-overlay[hidden] { display: none !important; }
+.shopier-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: #0b0712;
+  animation: shopier-in .18s ease-out;
+}
+@keyframes shopier-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.shopier-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 60px;
+  padding: 10px 12px 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: #0b0712;
+  color: #fff;
+}
+.shopier-bar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.shopier-bar-brand span:last-child { display: grid; gap: 1px; }
+.shopier-bar-brand strong { font-size: 14px; }
+.shopier-bar-brand small { color: var(--muted); font-size: 12px; }
+.shopier-bar-lock { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: rgba(34,197,94,.14); color: #4ade80; }
+.shopier-bar-order { display: grid; justify-items: end; gap: 1px; margin-left: auto; min-width: 0; text-align: right; }
+.shopier-bar-order span { max-width: 100%; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.shopier-bar-order strong { font-size: 16px; }
+.shopier-body { position: relative; flex: 1; min-height: 0; background: #fff; color-scheme: light; }
+.shopier-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.shopier-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+}
+.shopier-loading[hidden] { display: none; }
+.shopier-loading .sellhub-spinner { width: 22px; height: 22px; border-color: rgba(124,58,237,.2); border-top-color: #7c3aed; }
+.shopier-strip {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  background: #120b1e;
+  color: rgba(255,255,255,.75);
+  font-size: 12.5px;
+}
+.shopier-strip b { color: #fff; word-break: break-all; }
+.shopier-strip-wait { display: inline-flex; align-items: center; gap: 8px; color: #fde68a; font-weight: 800; }
+.shopier-strip-coupon { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.shopier-strip-coupon[hidden] { display: none; }
+.shopier-strip-coupon code { padding: 2px 8px; border-radius: 6px; border: 1px dashed rgba(196,181,253,.5); color: #fff; font-size: 12px; }
+.shopier-strip-coupon button { padding: 3px 9px; border: 0; border-radius: 6px; background: rgba(255,255,255,.08); color: #e9e3ff; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+.shopier-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+.shopier-close:hover { background: rgba(255,255,255,.12); }
+.sellhub-method-text .sellhub-badge { white-space: nowrap; }
+.sellhub-method-text strong { flex-wrap: wrap; }
+@media (max-width: 520px) {
+  .shopier-bar { gap: 10px; padding-left: 12px; }
+  .shopier-bar-brand small { display: none; }
+  .shopier-bar-order span { max-width: 140px; }
+  .shopier-strip { padding: 7px 12px; font-size: 12px; }
+  .shopier-strip-coupon { margin-left: 0; }
+}
 .sellhub-amount {
   display: grid;
   gap: 4px;
@@ -3428,10 +3580,8 @@ body.sellhub-checkout-open { overflow: hidden; }
 
 /* ===== Responsive polish: modals, pills, overlays on small screens ===== */
 @media (max-width: 620px) {
-  .variant-pill {
-    flex: 1 1 calc(50% - 10px);
-    min-width: 0;
-  }
+  .variant-pill { padding: 13px 14px; gap: 12px; }
+  .variant-pill > strong { font-size: 17px; }
 
   .sellhub-checkout,
   .product-showcase-modal {
@@ -3474,3 +3624,86 @@ body.sellhub-checkout-open { overflow: hidden; }
     min-height: 44px;
   }
 }
+
+/* ---------- header account menu ---------- */
+.account-menu { position: relative; display: inline-flex; }
+.account-link {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .04);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.account-link:hover { border-color: rgba(167, 139, 250, .5); background: rgba(139, 92, 246, .1); }
+.account-link.is-user { border-color: rgba(167, 139, 250, .55); }
+.account-link .account-dot { position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: #fbbf24; }
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 300;
+  width: 250px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #120d1d;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .5);
+}
+.account-dropdown[hidden] { display: none; }
+.account-dropdown-head { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.account-dropdown-head strong, .account-dropdown-head small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-dropdown-head strong { font-size: 14px; }
+.account-dropdown-head small { color: #8a7fa3; font-size: 12px; }
+.account-dropdown-head a { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; color: #fcd34d; font-size: 11.5px; font-weight: 700; text-decoration: none; }
+.account-dropdown-list { display: flex; flex-direction: column; padding: 6px; }
+.account-dropdown-list + .account-dropdown-list { border-top: 1px solid var(--line); }
+.account-dropdown-list a, .account-dropdown-list button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #d9d2ea;
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.account-dropdown-list a:hover, .account-dropdown-list button:hover { background: rgba(255, 255, 255, .05); color: #fff; }
+.account-dropdown-list i { width: 16px; text-align: center; font-size: 12px; }
+
+/* ---------- checkout account hint ---------- */
+.sellhub-account-hint { display: flex; align-items: flex-start; gap: 7px; margin: 6px 0 0; font-size: 12px; line-height: 1.5; }
+.sellhub-account-hint i { margin-top: 2px; font-size: 11px; }
+.sellhub-account-hint.is-linked { color: #6ee7b7; }
+.sellhub-account-hint.is-other { color: #fcd34d; }
+
+.header-shell.has-account { grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto auto auto auto auto; }
+@media (min-width: 981px) { .header-shell.has-account { grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto auto auto auto auto; } .nav .nav-account-link { display: none; } }
+@media (max-width: 980px) {
+  .account-menu { order: 2; }
+  .account-link { width: 42px; height: 42px; }
+  .currency-picker { overflow: hidden; }
+  .currency-picker select { min-width: 0; max-width: 100%; }
+}
+@media (min-width: 981px) and (max-width: 1560px) {
+  .currency-picker > span { display: none; }
+  .header-shell .nav { gap: 2px; font-size: 14px; }
+  .header-shell .nav > a, .header-shell .nav-item > a { padding: 0 9px; }
+}
+@media (min-width: 981px) and (max-width: 1280px) { .header-shell .patch-status { display: none; } }
+@media (min-width: 981px) and (max-width: 1120px) { .header-shell.has-account { gap: 8px; } .header-shell .nav > a::before, .header-shell .nav-item.has-dropdown > a::before { display: none; } }

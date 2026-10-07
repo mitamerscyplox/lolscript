@@ -39,8 +39,12 @@ function memGet(key) {
 }
 
 export async function kvGet(key) {
-  if (restConfig()) return redis(["GET", key]);
-  return memGet(key);
+  if (restConfig()) {
+    const value = await redis(["GET", key]);
+    return value == null ? null : String(value);
+  }
+  const value = memGet(key);
+  return value == null ? null : String(value);
 }
 
 export async function kvIncr(key, ttlSeconds) {
@@ -70,6 +74,21 @@ export async function kvSet(key, value, ttlSeconds) {
   if (restConfig()) return redis(["SET", key, String(value), "EX", ttlSeconds]);
   memory.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
   return "OK";
+}
+
+/** Persistent write (no TTL) — for records like user accounts. */
+export async function kvSetForever(key, value) {
+  if (restConfig()) return redis(["SET", key, String(value)]);
+  memory.set(key, { value: String(value), expiresAt: 0 });
+  return "OK";
+}
+
+/** Persistent set-if-absent. Returns true when the key was created. */
+export async function kvSetNxForever(key, value) {
+  if (restConfig()) return (await redis(["SET", key, String(value), "NX"])) === "OK";
+  if (memGet(key) != null) return false;
+  memory.set(key, { value: String(value), expiresAt: 0 });
+  return true;
 }
 
 export async function kvDel(key) {

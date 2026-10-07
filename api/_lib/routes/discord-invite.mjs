@@ -1,4 +1,4 @@
-import { fallbackUrl, getCachedDiscordInviteUrl, getDiscordInviteMeta } from "./_lib/discord-core.mjs";
+import { fallbackUrl, getCachedDiscordInviteUrl, getDiscordInviteMeta } from "../discord-core.mjs";
 
 export default async function handler(req, res) {
   try {

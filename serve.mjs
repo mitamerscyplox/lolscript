@@ -8,7 +8,7 @@
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
-import { extname, join, normalize } from "node:path";
+import { extname, join, normalize, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
@@ -53,6 +53,32 @@ async function readReqBody(req) {
   return Buffer.concat(chunks).toString("utf8");
 }
 
+// Mirrors the "rewrites" in vercel.json so /api/auth/login etc. reach the same function locally.
+const REWRITES = (() => {
+  try {
+    return (JSON.parse(readFileSync(join(BASE, "vercel.json"), "utf8")).rewrites || []).map(({ source, destination }) => {
+      const pattern = source
+        .replace(/:(\w+)\(([^)]+)\)/g, "(?<$1>$2)")
+        .replace(/:(\w+)\*/g, "(?<$1>.*)")
+        .replace(/:(\w+)/g, "(?<$1>[^/]+)");
+      return { re: new RegExp(`^${pattern}$`), destination };
+    });
+  } catch {
+    return [];
+  }
+})();
+
+function applyRewrite(url) {
+  for (const { re, destination } of REWRITES) {
+    const match = url.pathname.match(re);
+    if (!match) continue;
+    const target = new URL(destination.replace(/:(\w+)\*?/g, (_, name) => match.groups?.[name] ?? ""), url.origin);
+    url.searchParams.forEach((value, key) => { if (!target.searchParams.has(key)) target.searchParams.set(key, value); });
+    return target;
+  }
+  return url;
+}
+
 async function handleApi(pathname, req, res) {
   const name = pathname.replace(/^\/api\//, "").replace(/[^a-zA-Z0-9_-]/g, "");
   const file = join(API_DIR, `${name}.js`);
@@ -63,6 +89,24 @@ async function handleApi(pathname, req, res) {
   }
   try {
     const mod = await import(`${pathToHref(file)}?t=${Date.now()}`);
+    if (typeof mod.default !== "function") {
+      const fn = mod[req.method];
+      if (typeof fn !== "function") {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("Method not allowed");
+        return;
+      }
+      const raw = await readReqBody(req);
+      const request = new Request(`http://localhost:${PORT}${req.url}`, {
+        method: req.method,
+        headers: Object.entries(req.headers).filter(([, v]) => typeof v === "string"),
+        body: ["GET", "HEAD"].includes(req.method) ? undefined : raw,
+      });
+      const response = await fn(request);
+      res.writeHead(response.status, Object.fromEntries(response.headers));
+      res.end(Buffer.from(await response.arrayBuffer()));
+      return;
+    }
     decorateRes(res);
     const rawBody = await readReqBody(req);
     let body = rawBody;
@@ -127,7 +171,7 @@ async function resolveFile(pathname) {
     join(ROOT, p, "index.html"),
   ];
   for (const c of candidates) {
-    if (!c.startsWith(ROOT)) continue; // safety
+    if (!c.startsWith(ROOT + sep)) continue; // safety
     if (await exists(c)) return c;
   }
   return null;
@@ -138,7 +182,9 @@ const server = createServer(async (req, res) => {
     const url = new URL(req.url, `http://localhost:${PORT}`);
 
     if (url.pathname.startsWith("/api/")) {
-      await handleApi(url.pathname, req, res);
+      const target = applyRewrite(url);
+      if (target !== url) req.url = target.pathname + target.search;
+      await handleApi(target.pathname, req, res);
       return;
     }
 
@@ -167,7 +213,8 @@ server.on("error", (err) => {
   throw err;
 });
 
-server.listen(PORT, () => {
+// Loopback only: this dev server loads the real .env and trusts forwarded-IP headers.
+server.listen(PORT, "127.0.0.1", () => {
   console.log(`LOLScript mirror serving at  http://localhost:${PORT}`);
   console.log(`Root: ${ROOT}`);
 });

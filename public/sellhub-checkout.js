@@ -24,9 +24,12 @@
     { name: "Dundle", url: "https://dundle.com/binance/" },
     { name: "Eneba", url: "https://www.eneba.com/" },
   ];
-  const STEP_ORDER = { details: 0, method: 1, giftcard: 2, processing: 2, success: 3 };
-  const STEP_BACK = { method: "details", giftcard: "method" };
+  const STEP_ORDER = { details: 0, method: 1, giftcard: 2, crypto: 2, processing: 2, success: 3 };
+  const STEP_BACK = { method: "details", giftcard: "method", crypto: "method" };
+  const CRYPTO_POLL_MS = 6000;
+  const SHOPIER_POLL_MS = 4000;
   let giftCardEnabled = false;
+  let shopierLinks = {};
   let pausedVideos = [];
 
   function ensureModal() {
@@ -74,13 +77,33 @@
 
         <div class="sellhub-step" data-step="method" hidden>
           <p class="sellhub-step-title">Choose a payment method</p>
+          <button type="button" class="sellhub-method" data-choose-method="crypto">
+            <span class="sellhub-method-icon is-crypto" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h5.5a2.5 2.5 0 0 1 0 5H9zM9 12h6a2.5 2.5 0 0 1 0 5H9zM9 5v14M11 5V3.5M11 20.5V19M13.5 5V3.5M13.5 20.5V19M7 7h2M7 17h2"/></svg>
+            </span>
+            <span class="sellhub-method-text">
+              <strong>Crypto <em class="sellhub-badge">Auto delivery</em></strong>
+              <small>Bitcoin, Ethereum, Litecoin, Tron or Bitcoin Cash. Pay right here, your key is delivered once the payment confirms.</small>
+            </span>
+            <span class="sellhub-method-arrow" aria-hidden="true">&#8250;</span>
+          </button>
+          <button type="button" class="sellhub-method" data-choose-method="shopier" hidden>
+            <span class="sellhub-method-icon is-shopier" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg>
+            </span>
+            <span class="sellhub-method-text">
+              <strong>Turkish Card <em class="sellhub-badge" data-shopier-price>Shopier · TL</em></strong>
+              <small>Pay in Turkish lira with any Turkish debit or credit card. Your key is delivered automatically.</small>
+            </span>
+            <span class="sellhub-method-arrow" aria-hidden="true">&#8250;</span>
+          </button>
           <button type="button" class="sellhub-method" data-choose-method="card">
             <span class="sellhub-method-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg>
             </span>
             <span class="sellhub-method-text">
-              <strong>Card / Crypto</strong>
-              <small>Visa, Mastercard, Apple Pay, Google Pay and crypto through secure Sellhub checkout.</small>
+              <strong>Card <em class="sellhub-badge">International</em></strong>
+              <small>Visa, Mastercard, Apple Pay and Google Pay through secure Sellhub checkout.</small>
             </span>
             <span class="sellhub-method-arrow" aria-hidden="true">&#8250;</span>
           </button>
@@ -138,6 +161,24 @@
           <button type="submit" class="button primary sellhub-checkout-submit" data-gift-submit>Pay with Gift Card</button>
         </form>
 
+        <div class="sellhub-step" data-step="crypto" hidden>
+          <div class="sellhub-amount is-crypto">
+            <span>Order total</span>
+            <strong data-crypto-total>$0.00</strong>
+            <em class="sellhub-amount-product" data-crypto-product></em>
+          </div>
+          <p class="sellhub-step-title">Choose a coin</p>
+          <div class="sellhub-coins" role="tablist" data-crypto-coins></div>
+          <div class="sellhub-crypto-pay" data-crypto-pay></div>
+          <ul class="sellhub-important">
+            <li>Send the exact amount shown in one transaction. Network fees are paid by you.</li>
+            <li>Only send the selected coin on its own network, other coins are lost.</li>
+            <li>Your key is shown here and emailed once the payment confirms, usually within a few minutes.</li>
+          </ul>
+          <p class="sellhub-crypto-wait" data-crypto-wait aria-live="polite"><span class="sellhub-dot" aria-hidden="true"></span>Waiting for your payment…</p>
+          <p class="sellhub-checkout-error" data-crypto-error hidden></p>
+        </div>
+
         <div class="sellhub-step sellhub-processing" data-step="processing" hidden aria-live="polite">
           <div class="sellhub-spinner" aria-hidden="true"></div>
           <h3>Processing your payment</h3>
@@ -164,16 +205,15 @@
       if (method) chooseMethod(modal, method);
       if (event.target.closest("[data-remove-coupon]")) removeCouponAndRetry(modal);
       const copyBtn = event.target.closest("[data-copy-key]");
-      if (copyBtn) {
-        navigator.clipboard?.writeText(copyBtn.dataset.copyKey).then(() => {
-          copyBtn.textContent = "Copied!";
-          setTimeout(() => { copyBtn.textContent = "Copy"; }, 1600);
-        }).catch(() => {});
-      }
+      if (copyBtn) copyText(copyBtn, copyBtn.dataset.copyKey);
+      const coinBtn = event.target.closest("[data-coin]");
+      if (coinBtn) renderCoin(modal, coinBtn.dataset.coin);
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !modal.hidden) closeCheckout();
+      if (event.key !== "Escape") return;
+      if (document.querySelector("[data-shopier-overlay]:not([hidden])")) closeShopier();
+      else if (!modal.hidden) closeCheckout();
     });
 
     modal.querySelector('[data-step="details"]').addEventListener("submit", submitDetails);
@@ -187,11 +227,39 @@
       }
     });
     loadGiftCardAvailability(modal);
+    loadShopierLinks(modal);
     window.LOLScriptTerms?.bindCheckbox?.(modal.querySelector("[data-checkout-terms]"));
+    bindAccountEmail(modal);
     return modal;
   }
 
+  function bindAccountEmail(modal) {
+    const session = window.lsAuthSession || fetch("/api/auth/me", { credentials: "same-origin", cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => (data && data.user) || null)
+      .catch(() => null);
+    session.then((user) => {
+      if (!user || !user.email) return;
+      const input = modal.querySelector('input[name="email"]');
+      if (!input) return;
+      if (!input.value.trim()) input.value = user.email;
+      const hint = document.createElement("small");
+      hint.className = "sellhub-account-hint";
+      input.closest(".sellhub-field").appendChild(hint);
+      const update = () => {
+        const linked = input.value.trim().toLowerCase() === String(user.email).toLowerCase();
+        hint.className = `sellhub-account-hint ${linked ? "is-linked" : "is-other"}`;
+        hint.innerHTML = linked
+          ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>This order will appear in your account automatically.</span>'
+          : '<i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>This email differs from your account, so the order won\'t show in your account.</span>';
+      };
+      input.addEventListener("input", update);
+      update();
+    });
+  }
+
   function showStep(modal, step) {
+    if (step !== "crypto") stopCryptoPoll(modal);
     modal.dataset.step = step;
     modal.querySelectorAll("[data-step]").forEach((el) => {
       el.hidden = el.dataset.step !== step;
@@ -203,7 +271,7 @@
       dot.classList.toggle("done", i < index);
     });
     modal.querySelector("[data-checkout-steps]").hidden = step === "success";
-    modal.querySelector("[data-checkout-summary]").hidden = ["success", "processing", "giftcard"].includes(step);
+    modal.querySelector("[data-checkout-summary]").hidden = ["success", "processing", "giftcard", "crypto"].includes(step);
     modal.querySelector(".sellhub-checkout-panel").scrollTop = 0;
     modal.querySelector("[data-checkout-back]").hidden = !STEP_BACK[step];
     modal.querySelector(".sellhub-checkout-close").hidden = step === "processing";
@@ -337,6 +405,7 @@
     updateDetailsButton(modal);
 
     modal.dataset.payload = JSON.stringify(items);
+    updateShopierButton(modal);
     delete modal.dataset.busy;
     modal.hidden = false;
     document.body.classList.add("sellhub-checkout-open");
@@ -357,12 +426,43 @@
       giftCardEnabled = false;
     }
     modal.querySelector('[data-choose-method="giftcard"]').hidden = !giftCardEnabled;
-    updateDetailsButton(modal);
+  }
+
+  async function loadShopierLinks(modal) {
+    try {
+      const res = await fetch("/api/shopier-links");
+      const data = await res.json();
+      shopierLinks = data?.links && typeof data.links === "object" ? data.links : {};
+    } catch (_) {
+      shopierLinks = {};
+    }
+    updateShopierButton(modal);
+  }
+
+  function shopierFor(modal) {
+    const items = readItems(modal);
+    if (items.length !== 1 || Number(items[0].quantity || 1) !== 1) return null;
+    const link = shopierLinks[items[0].variantId];
+    return link && typeof link.url === "string" && /^https:\/\/(www\.)?shopier\.com\//.test(link.url) ? link : null;
+  }
+
+  function lira(link) {
+    if (!link?.price) return "";
+    const symbol = { TRY: "₺", USD: "$", EUR: "€" }[link.currency] || "";
+    const amount = Number(link.price).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return symbol ? `${symbol}${amount}` : `${amount} ${link.currency}`;
+  }
+
+  function updateShopierButton(modal) {
+    const link = shopierFor(modal);
+    const button = modal.querySelector('[data-choose-method="shopier"]');
+    button.hidden = !link;
+    button.querySelector("[data-shopier-price]").textContent = link?.price ? `Shopier · ${lira(link)}` : "Shopier · TL";
   }
 
   function updateDetailsButton(modal) {
     const button = modal.querySelector("[data-details-submit]");
-    if (button && !button.disabled) button.textContent = giftCardEnabled ? "Continue" : "Continue to Payment";
+    if (button && !button.disabled) button.textContent = "Continue to Payment";
   }
 
   function submitDetails(event) {
@@ -377,12 +477,7 @@
     window.LOLScriptTerms?.setAccepted?.(true);
     modal.dataset.email = email;
     modal.dataset.coupon = form.querySelector('input[name="coupon"]').value.trim().toUpperCase();
-
-    if (giftCardEnabled) {
-      showStep(modal, "method");
-      return;
-    }
-    startCardCheckout(modal, form.querySelector("[data-details-submit]"), form.querySelector("[data-checkout-error]"));
+    showStep(modal, "method");
   }
 
   function showDetailsError(modal, message, field) {
@@ -417,8 +512,16 @@
     modal.querySelector("[data-method-error]").hidden = true;
     modal.querySelector("[data-remove-coupon]").hidden = true;
 
-    if (method !== "giftcard") {
+    if (method === "card") {
       startCardCheckout(modal, button, modal.querySelector("[data-method-error]"));
+      return;
+    }
+    if (method === "crypto") {
+      startCrypto(modal, button);
+      return;
+    }
+    if (method === "shopier") {
+      openShopier(modal);
       return;
     }
 
@@ -467,6 +570,7 @@
       returnUrl: `${window.location.origin}/?checkout=success`,
       items: readItems(modal),
       coupon,
+      method: "card",
     });
 
     if (result.ok && result.data.url) {
@@ -591,6 +695,276 @@
     modal._cooldownTimer = setInterval(tick, 1000);
   }
 
+  function copyText(button, value) {
+    navigator.clipboard?.writeText(value).then(() => {
+      button.textContent = "Copied!";
+      setTimeout(() => { button.textContent = "Copy"; }, 1600);
+    }).catch(() => {});
+  }
+
+  async function startCrypto(modal, button) {
+    if (modal._crypto?.key === quoteKey(modal) && !modal._crypto.ended) {
+      renderCrypto(modal);
+      showStep(modal, "crypto");
+      pollCrypto(modal);
+      return;
+    }
+
+    const item = readItems(modal)[0];
+    modal.dataset.busy = "1";
+    button.disabled = true;
+    button.classList.add("loading");
+    const result = await postJson("/api/crypto-checkout", {
+      action: "create",
+      email: modal.dataset.email,
+      acceptedTerms: true,
+      productId: item?.productId,
+      variantId: item?.variantId,
+      coupon: modal.dataset.coupon || "",
+    });
+    button.disabled = false;
+    button.classList.remove("loading");
+    delete modal.dataset.busy;
+
+    const data = result.data;
+    if (!result.ok || !data.token || !Array.isArray(data.coins) || !data.coins.length) {
+      const message = result.network
+        ? "Connection problem. Please check your internet and try again."
+        : data.error || "Could not prepare the crypto payment. Please try again.";
+      if (data.field === "email" || data.field === "terms") showDetailsError(modal, message, data.field);
+      else showMethodError(modal, message, data.field === "coupon");
+      return;
+    }
+
+    modal._crypto = {
+      key: quoteKey(modal),
+      token: data.token,
+      total: Number(data.total),
+      product: data.product || "",
+      coins: data.coins,
+      coupon: modal.dataset.coupon || "",
+      selected: data.coins[0].symbol,
+    };
+    renderCrypto(modal);
+    showStep(modal, "crypto");
+    pollCrypto(modal);
+  }
+
+  function renderCrypto(modal) {
+    const crypto = modal._crypto;
+    modal.querySelector("[data-crypto-total]").textContent = `$${crypto.total.toFixed(2)} USD`;
+    modal.querySelector("[data-crypto-product]").textContent = crypto.product;
+    modal.querySelector("[data-crypto-coins]").innerHTML = crypto.coins
+      .map((coin) => `<button type="button" class="sellhub-coin" role="tab" data-coin="${escapeHtml(coin.symbol)}">${escapeHtml(coin.symbol)}<small>${escapeHtml(coin.name)}</small></button>`)
+      .join("");
+    const wait = modal.querySelector("[data-crypto-wait]");
+    wait.classList.remove("is-error");
+    wait.innerHTML = '<span class="sellhub-dot" aria-hidden="true"></span>Waiting for your payment…';
+    renderCoin(modal, crypto.selected);
+  }
+
+  function renderCoin(modal, symbol) {
+    const crypto = modal._crypto;
+    if (!crypto) return;
+    const coin = crypto.coins.find((c) => c.symbol === symbol) || crypto.coins[0];
+    crypto.selected = coin.symbol;
+    modal.querySelectorAll("[data-coin]").forEach((btn) => {
+      const active = btn.dataset.coin === coin.symbol;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    modal.querySelector("[data-crypto-pay]").innerHTML = `
+      <div class="sellhub-crypto-qr" aria-label="${escapeHtml(coin.name)} address QR code">${coin.qr}</div>
+      <div class="sellhub-crypto-fields">
+        <span>Send exactly</span>
+        <div class="sellhub-key"><code>${escapeHtml(coin.amount)} ${escapeHtml(coin.symbol)}</code><button type="button" data-copy-key="${escapeHtml(coin.amount)}">Copy</button></div>
+        <span>To this ${escapeHtml(coin.name)} address</span>
+        <div class="sellhub-key"><code>${escapeHtml(coin.address)}</code><button type="button" data-copy-key="${escapeHtml(coin.address)}">Copy</button></div>
+      </div>`;
+  }
+
+  function stopCryptoPoll(modal) {
+    clearTimeout(modal._cryptoTimer);
+    modal._cryptoTimer = null;
+  }
+
+  function pollCrypto(modal) {
+    stopCryptoPoll(modal);
+    const crypto = modal._crypto;
+    const active = () => !modal.hidden && modal.dataset.step === "crypto" && modal._crypto === crypto;
+    const tick = async () => {
+      if (!active()) return;
+      let data = null;
+      try {
+        const res = await fetch(`/api/crypto-checkout?token=${encodeURIComponent(crypto.token)}`, { cache: "no-store" });
+        data = await res.json();
+      } catch (_) {}
+      if (!active()) return;
+      if (data?.status === "delivered") {
+        crypto.ended = true;
+        markCouponUsed(crypto.coupon);
+        const keys = Array.isArray(data.keys) ? data.keys : [];
+        showCheckoutSuccess(modal, {
+          status: "delivered",
+          invoiceId: data.invoiceId,
+          keys,
+          message: keys.length
+            ? "Payment confirmed. Your key is below and was also sent to your email."
+            : "Payment confirmed. Your key has been sent to your email.",
+        });
+        return;
+      }
+      if (data?.status === "expired") {
+        crypto.ended = true;
+        const wait = modal.querySelector("[data-crypto-wait]");
+        wait.classList.add("is-error");
+        wait.textContent = "This payment window expired. Go back and choose Crypto again to get fresh addresses.";
+        return;
+      }
+      modal._cryptoTimer = setTimeout(tick, CRYPTO_POLL_MS);
+    };
+    modal._cryptoTimer = setTimeout(tick, CRYPTO_POLL_MS);
+  }
+
+  function ensureShopierOverlay() {
+    let overlay = document.querySelector("[data-shopier-overlay]");
+    if (overlay) return overlay;
+    overlay = document.createElement("div");
+    overlay.className = "shopier-overlay";
+    overlay.setAttribute("data-shopier-overlay", "");
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "Shopier secure payment");
+    overlay.hidden = true;
+    overlay.innerHTML = `
+      <div class="shopier-bar">
+        <div class="shopier-bar-brand">
+          <span class="shopier-bar-lock" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+          </span>
+          <span>
+            <strong>Secure payment</strong>
+            <small>Turkish card via Shopier</small>
+          </span>
+        </div>
+        <div class="shopier-bar-order">
+          <span data-shopier-product></span>
+          <strong data-shopier-total></strong>
+        </div>
+        <button type="button" class="shopier-close" data-shopier-close aria-label="Close">&times;</button>
+      </div>
+      <div class="shopier-strip">
+        <span class="shopier-strip-wait"><span class="sellhub-dot" aria-hidden="true"></span>Waiting for payment</span>
+        <span class="shopier-strip-text">Use <b data-shopier-email></b> on Shopier, your key is delivered automatically.</span>
+        <span class="shopier-strip-coupon" data-shopier-coupon hidden>Code <code></code><button type="button" data-copy-key="">Copy</button></span>
+      </div>
+      <div class="shopier-body">
+        <div class="shopier-loading" data-shopier-loading><span class="sellhub-spinner" aria-hidden="true"></span>Loading secure payment…</div>
+        <iframe class="shopier-frame" title="Shopier secure payment" data-shopier-frame
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.querySelector("[data-shopier-frame]").addEventListener("load", (event) => {
+      if (event.target.src !== "about:blank") overlay.querySelector("[data-shopier-loading]").hidden = true;
+    });
+    overlay.addEventListener("click", (event) => {
+      if (event.target.closest("[data-shopier-close]")) closeShopier();
+      const copyBtn = event.target.closest("[data-copy-key]");
+      if (copyBtn) copyText(copyBtn, copyBtn.dataset.copyKey);
+    });
+    return overlay;
+  }
+
+  function openShopier(modal) {
+    const link = shopierFor(modal);
+    if (!link) return;
+    const overlay = ensureShopierOverlay();
+    const item = readItems(modal)[0] || {};
+    overlay.querySelector("[data-shopier-product]").textContent = [item.productName, item.variantName].filter(Boolean).join(" · ");
+    overlay.querySelector("[data-shopier-total]").textContent = lira(link);
+    overlay.querySelector("[data-shopier-loading]").hidden = false;
+    const email = modal.dataset.email || "";
+    const coupon = modal.dataset.coupon || "";
+    overlay.querySelector("[data-shopier-email]").textContent = email;
+    const couponBox = overlay.querySelector("[data-shopier-coupon]");
+    couponBox.hidden = !coupon;
+    couponBox.querySelector("code").textContent = coupon;
+    couponBox.querySelector("[data-copy-key]").dataset.copyKey = coupon;
+    overlay.querySelector("[data-shopier-frame]").src = link.url;
+    overlay.hidden = false;
+    document.body.classList.add("shopier-open");
+    watchShopier(modal, email);
+  }
+
+  function closeShopier() {
+    const overlay = document.querySelector("[data-shopier-overlay]");
+    if (!overlay) return;
+    clearTimeout(overlay._timer);
+    overlay._watchId = null;
+    overlay.hidden = true;
+    overlay.querySelector("[data-shopier-frame]").src = "about:blank";
+    document.body.classList.remove("shopier-open");
+  }
+
+  async function shopierWatchToken(email, fresh) {
+    const storageKey = `shopier-watch:${email.toLowerCase()}`;
+    if (fresh) sessionStorage.removeItem(storageKey);
+    const saved = sessionStorage.getItem(storageKey);
+    if (saved) return saved;
+    const result = await postJson("/api/shopier-watch", { email });
+    const token = result.data?.token;
+    if (token) sessionStorage.setItem(storageKey, token);
+    return token || null;
+  }
+
+  async function watchShopier(modal, email) {
+    const overlay = ensureShopierOverlay();
+    clearTimeout(overlay._timer);
+    const watchId = {};
+    overlay._watchId = watchId;
+    const active = () => overlay._watchId === watchId && !overlay.hidden;
+
+    let token = await shopierWatchToken(email, false).catch(() => null);
+    if (!token || !active()) return;
+
+    const tick = async () => {
+      if (!active()) return;
+      try {
+        const res = await fetch(`/api/shopier-watch?token=${encodeURIComponent(token)}`, { cache: "no-store" });
+        if (res.status === 404) {
+          token = await shopierWatchToken(email, true);
+        } else {
+          const data = await res.json();
+          if (!active()) return;
+          if (data.status === "delivered" || data.status === "manual") {
+            sessionStorage.removeItem(`shopier-watch:${email.toLowerCase()}`);
+            closeShopier();
+            const keys = Array.isArray(data.keys) ? data.keys : [];
+            showCheckoutSuccess(modal, data.status === "delivered"
+              ? {
+                  status: "delivered",
+                  invoiceId: data.orderId,
+                  keys,
+                  message: keys.length
+                    ? "Payment approved. Your key is below and was also sent to your email."
+                    : "Payment approved. Your key has been sent to your email.",
+                }
+              : {
+                  status: "processing",
+                  invoiceId: data.orderId,
+                  keys: [],
+                  message: "Payment received. Our team is finishing your order and your key will arrive by email shortly.",
+                });
+            return;
+          }
+        }
+      } catch (_) {}
+      if (active() && token) overlay._timer = setTimeout(tick, SHOPIER_POLL_MS);
+    };
+    overlay._timer = setTimeout(tick, SHOPIER_POLL_MS);
+  }
+
   function showCheckoutSuccess(modal, data) {
     const success = modal.querySelector('[data-step="success"]');
     const delivered = data.status === "delivered";
@@ -635,6 +1009,8 @@
   function closeCheckout() {
     const modal = document.querySelector("[data-sellhub-checkout]");
     if (!modal || modal.dataset.busy) return;
+    stopCryptoPoll(modal);
+    closeShopier();
     modal.hidden = true;
     document.body.classList.remove("sellhub-checkout-open");
     pausedVideos.forEach((video) => video.play?.().catch(() => {}));
@@ -698,29 +1074,92 @@
     return Boolean(getProduct(slug)?.productId);
   }
 
+  /** "1 Day Key", "7 Days", "1 Month", "Lifetime" → day count, "lifetime" or null. */
+  function parsePlanDays(name) {
+    const s = String(name || "").toLowerCase();
+    if (/life\s*time|perm(anent)?\b|forever/.test(s)) return "lifetime";
+    const m = s.match(/(\d+(?:[.,]\d+)?)\s*-?\s*(hours?|hrs?|h\b|days?|d\b|weeks?|w\b|months?|m\b|years?|y\b)/);
+    if (!m) {
+      if (/\bdaily\b/.test(s)) return 1;
+      if (/\bweekly\b/.test(s)) return 7;
+      if (/\bmonthly\b/.test(s)) return 30;
+      return null;
+    }
+    const n = parseFloat(m[1].replace(",", "."));
+    const unit = m[2];
+    if (/^(hours?|hrs?|h)$/.test(unit)) return n / 24;
+    if (/^(weeks?|w)$/.test(unit)) return n * 7;
+    if (/^(months?|m)$/.test(unit)) return n * 30;
+    if (/^(years?|y)$/.test(unit)) return n * 365;
+    return n;
+  }
+
+  /** Per-day price and saving vs. the shortest timed plan; `bestId` is the cheapest per-day plan. */
+  function planInsights(variants) {
+    const byId = {};
+    const timed = variants.map((v) => ({ v, days: parsePlanDays(v.name), price: Number(v.price) })).filter((x) => x.days !== null);
+    const finite = timed.filter((x) => x.days !== "lifetime" && x.days > 0 && x.price > 0);
+    const base = [...finite].sort((a, b) => a.days - b.days)[0];
+    const basePerDay = base ? base.price / base.days : null;
+    for (const { v, days, price } of timed) {
+      if (days === "lifetime") {
+        byId[v.id] = { lifetime: true };
+        continue;
+      }
+      const perDay = days >= 1 && price > 0 ? price / days : null;
+      const save = perDay && basePerDay && v.id !== base.v.id ? Math.round((1 - perDay / basePerDay) * 100) : null;
+      byId[v.id] = { perDay: days > 1 ? perDay : null, save: save && save >= 5 ? save : null };
+    }
+    let bestId = null;
+    if (finite.length >= 2) {
+      const best = [...finite].sort((a, b) => a.price / a.days - b.price / b.days)[0];
+      if (best && byId[best.v.id]?.save) bestId = best.v.id;
+    }
+    return { byId, bestId };
+  }
+
+  const cents = (amount) => String(Math.round(Number(amount) * 100));
+
   function renderVariantPicker(slug, product) {
     const mount = document.querySelector(`[data-variant-picker="${slug}"]`);
     if (!mount || !product?.variants?.length) return;
 
-    const variants = product.variants;
+    const rank = (v) => {
+      const d = parsePlanDays(v.name);
+      return d === "lifetime" ? 1e9 : d === null ? 1e10 : d;
+    };
+    const variants = [...product.variants].sort((a, b) => rank(a) - rank(b));
     const initial = pickVariant(product, selectedVariants[slug]);
     selectedVariants[slug] = initial.id;
+    const insights = planInsights(variants);
 
     mount.innerHTML = `
       <p class="variant-label">Choose plan</p>
       <div class="variant-pills" role="listbox" aria-label="Plan length">
         ${variants
-          .map(
-            (variant) => `
-          <button type="button" class="variant-pill${variant.id === initial.id ? " active" : ""}"
+          .map((variant) => {
+            const info = insights.byId[variant.id] || {};
+            const best = insights.bestId === variant.id;
+            const meta = [
+              info.perDay ? `<span><b data-money-usd-cents="${cents(info.perDay)}">${escapeHtml(money(info.perDay))}</b>/day</span>` : "",
+              info.lifetime ? "<span>Pay once, use forever</span>" : "",
+              info.save ? `<em>Save ${info.save}%</em>` : "",
+            ].join("");
+            return `
+          <button type="button" class="variant-pill${variant.id === initial.id ? " active" : ""}${best ? " is-best" : ""}"
             data-variant-id="${escapeHtml(variant.id)}"
             data-variant-slug="${escapeHtml(slug)}"
             role="option"
             aria-selected="${variant.id === initial.id}">
-            <span>${escapeHtml(variant.name)}</span>
-            <strong>${escapeHtml(money(variant.price))}</strong>
-          </button>`
-          )
+            ${best ? '<i class="variant-best">Best value</i>' : ""}
+            <span class="variant-dot" aria-hidden="true"></span>
+            <span class="variant-info">
+              <span class="variant-name">${escapeHtml(String(variant.name).replace(/\s*key$/i, ""))}</span>
+              ${meta ? `<span class="variant-meta">${meta}</span>` : ""}
+            </span>
+            <strong data-money-usd-cents="${cents(variant.price)}">${escapeHtml(money(variant.price))}</strong>
+          </button>`;
+          })
           .join("")}
       </div>
     `;

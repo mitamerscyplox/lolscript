@@ -12,12 +12,11 @@ export const PAY_LOG_COLORS = {
  * `payment` marks money that actually reached us: it pings @everyone with the amount as a big
  * heading and a full embed. Everything else is posted as a compact message in small text.
  */
-export async function postPayLog({ title, color = PAY_LOG_COLORS.warning, fields = [], alert = false, payment }) {
+export async function postPayLog({ title, color = PAY_LOG_COLORS.warning, fields = [], alert = false, payment, source = "Binance Gift Card" }) {
   const token = process.env.DISCORD_BOT_TOKEN?.trim();
   const channelId = process.env.PAY_LOG_CHANNEL_ID?.trim();
   if (!token || !channelId) return false;
 
-  const source = "Binance Gift Card";
   const roleId = process.env.PAY_LOG_ALERT_ROLE_ID?.trim() || "";
   const rolePing = alert && roleId ? `<@&${roleId}>` : "";
   const footer = { text: `lolscript.store · ${source}` };

@@ -5,9 +5,19 @@
   "outputDirectory": "public",
   "cleanUrls": true,
   "functions": {
-    "api/giftcard-checkout.js": { "maxDuration": 60 }
+    "api/giftcard-checkout.js": { "maxDuration": 60 },
+    "api/shopier-webhook.js": { "maxDuration": 60 },
+    "api/crypto-checkout.js": { "maxDuration": 30 }
   },
   "trailingSlash": false,
+  "rewrites": [
+    { "source": "/api/auth/:path*", "destination": "/api/auth?route=:path*" },
+    { "source": "/api/account/:path*", "destination": "/api/auth?route=account/:path*" },
+    {
+      "source": "/api/:route(analytics|discord-invite|install-guide-video|patch-status|shopier-links|shopier-watch)",
+      "destination": "/api/site?route=:route"
+    }
+  ],
   "redirects": [
     {
       "source": "/(.*)",

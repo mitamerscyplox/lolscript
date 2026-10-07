@@ -374,7 +374,7 @@ async function createCheckoutSession(payload) {
     currency: "usd",
     returnUrl: payload.returnUrl,
     cartBundles: [],
-    methodName: "",
+    methodName: payload.methodName || "",
     bundleIds: [],
     customFieldValues: [],
     cart: {
@@ -453,6 +453,18 @@ export async function createPendingInvoice(payload, methodName) {
   const processed = await processCheckoutSession(sessionId, methodName);
   if (processed.error) return { ...processed, sessionId };
   return { sessionId, invoiceId: processed.invoiceId };
+}
+
+export function invoiceKeys(invoice) {
+  return (invoice?.invoiceItems || [])
+    .flatMap((item) => (Array.isArray(item.activationKey) ? item.activationKey : [item.activationKey]))
+    .map((key) => (key && typeof key === "object" ? key.key ?? key.value : key))
+    .filter((key) => typeof key === "string" && key.trim())
+    .map((key) => key.trim());
+}
+
+export function isPaidInvoiceStatus(status) {
+  return ["completed", "complete", "paid", "delivered"].includes(String(status || "").toLowerCase());
 }
 
 export async function findLiveVariant(productId, variantId) {

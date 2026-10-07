@@ -14,5 +14,9 @@
   },
   "devDependencies": {
     "sharp": "^0.35.1"
+  },
+  "dependencies": {
+    "@vercel/functions": "^2.2.13",
+    "qrcode": "^1.5.4"
   }
 }
