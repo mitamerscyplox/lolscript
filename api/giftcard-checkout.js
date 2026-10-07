@@ -550,6 +550,12 @@ export default async function handler(req, res) {
   }
 
   const cfg = config();
-  if (body?.action === "quote") return handleQuote(req, res, body, cfg);
-  return handlePay(req, res, body, cfg);
+  try {
+    if (body?.action === "quote") return await handleQuote(req, res, body, cfg);
+    return await handlePay(req, res, body, cfg);
+  } catch (error) {
+    console.error("[giftcard] request failed", error);
+    if (res.headersSent) return;
+    return res.status(502).json({ error: "Something went wrong on our side. Please try again, or open a ticket if your card was already redeemed." });
+  }
 }

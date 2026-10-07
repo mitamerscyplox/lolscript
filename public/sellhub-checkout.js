@@ -83,7 +83,7 @@
             </span>
             <span class="sellhub-method-text">
               <strong>Crypto <em class="sellhub-badge">Auto delivery</em></strong>
-              <small>Bitcoin, Ethereum, Litecoin, Tron or Bitcoin Cash. Pay right here, your key is delivered once the payment confirms.</small>
+              <small>USDT (TRC20 / BEP20), Bitcoin, Ethereum, Litecoin, Tron or Solana. Pay right here, your key is delivered once the payment confirms.</small>
             </span>
             <span class="sellhub-method-arrow" aria-hidden="true">&#8250;</span>
           </button>
@@ -176,6 +176,16 @@
             <li>Your key is shown here and emailed once the payment confirms, usually within a few minutes.</li>
           </ul>
           <p class="sellhub-crypto-wait" data-crypto-wait aria-live="polite"><span class="sellhub-dot" aria-hidden="true"></span>Waiting for your payment…</p>
+          <details class="sellhub-txid" data-crypto-claim-box hidden>
+            <summary>Paid but not detected?</summary>
+            <form data-crypto-claim novalidate>
+              <p>If your wallet sent a slightly different amount, paste the transaction ID (TxID / hash) and we will match it.</p>
+              <div class="sellhub-txid-row">
+                <input name="txid" type="text" placeholder="Transaction ID" autocomplete="off" spellcheck="false" required>
+                <button type="submit" class="button">Check</button>
+              </div>
+            </form>
+          </details>
           <p class="sellhub-checkout-error" data-crypto-error hidden></p>
         </div>
 
@@ -217,6 +227,7 @@
     });
 
     modal.querySelector('[data-step="details"]').addEventListener("submit", submitDetails);
+    modal.querySelector("[data-crypto-claim]").addEventListener("submit", submitCryptoClaim);
     modal.querySelector('[data-step="giftcard"]').addEventListener("submit", submitGiftCard);
     modal.querySelector('input[name="coupon"]').addEventListener("input", () => updateCouponNote(modal));
     modal.querySelector('input[name="giftcode"]').addEventListener("input", () => updateGiftCodeHint(modal));
@@ -334,7 +345,15 @@
       return { ok: false, network: true, data: {} };
     }
     const data = await res.json().catch(() => null);
-    return { ok: res.ok && Boolean(data), status: res.status, network: !data, data: data || {} };
+    if (!data) {
+      return {
+        ok: false,
+        status: res.status,
+        network: false,
+        data: { error: "Our payment server had a hiccup. Please try again in a few seconds." },
+      };
+    }
+    return { ok: res.ok, status: res.status, network: false, data };
   }
 
   async function fetchQuote(modal) {
@@ -755,12 +774,81 @@
     modal.querySelector("[data-crypto-total]").textContent = `$${crypto.total.toFixed(2)} USD`;
     modal.querySelector("[data-crypto-product]").textContent = crypto.product;
     modal.querySelector("[data-crypto-coins]").innerHTML = crypto.coins
-      .map((coin) => `<button type="button" class="sellhub-coin" role="tab" data-coin="${escapeHtml(coin.symbol)}">${escapeHtml(coin.symbol)}<small>${escapeHtml(coin.name)}</small></button>`)
+      .map((coin) => {
+        const sub = coin.network ? coin.network.match(/\(([^)]+)\)/)?.[1] || coin.name : coin.name;
+        return `<button type="button" class="sellhub-coin" role="tab" data-coin="${escapeHtml(coin.symbol)}">${escapeHtml(coin.ticker || coin.symbol)}<small>${escapeHtml(sub)}</small></button>`;
+      })
       .join("");
-    const wait = modal.querySelector("[data-crypto-wait]");
-    wait.classList.remove("is-error");
-    wait.innerHTML = '<span class="sellhub-dot" aria-hidden="true"></span>Waiting for your payment…';
+    setCryptoWait(modal, "Waiting for your payment…");
+    const claimBox = modal.querySelector("[data-crypto-claim-box]");
+    claimBox.hidden = !crypto.coins.some((coin) => coin.network);
+    claimBox.open = false;
+    claimBox.querySelector("input").value = "";
+    modal.querySelector("[data-crypto-error]").hidden = true;
     renderCoin(modal, crypto.selected);
+  }
+
+  function setCryptoWait(modal, text, isError) {
+    const wait = modal.querySelector("[data-crypto-wait]");
+    wait.classList.toggle("is-error", Boolean(isError));
+    wait.innerHTML = isError ? escapeHtml(text) : `<span class="sellhub-dot" aria-hidden="true"></span>${escapeHtml(text)}`;
+  }
+
+  /** Shared by polling and the TxID form: returns true once the order is finished. */
+  function applyCryptoStatus(modal, crypto, data) {
+    if (data?.status === "delivered" || data?.status === "processing") {
+      crypto.ended = true;
+      stopCryptoPoll(modal);
+      markCouponUsed(crypto.coupon);
+      const keys = Array.isArray(data.keys) ? data.keys : [];
+      showCheckoutSuccess(modal, {
+        status: data.status,
+        invoiceId: data.invoiceId,
+        keys,
+        message:
+          data.message ||
+          (keys.length
+            ? "Payment confirmed. Your key is below and was also sent to your email."
+            : "Payment confirmed. Your key has been sent to your email."),
+      });
+      return true;
+    }
+    if (data?.status === "expired") {
+      crypto.ended = true;
+      stopCryptoPoll(modal);
+      setCryptoWait(modal, "This payment window expired. Go back and choose Crypto again to get fresh addresses.", true);
+      return true;
+    }
+    if (data?.status === "confirming") {
+      setCryptoWait(modal, `Payment detected${data.detected ? ` (${data.detected})` : ""}. Waiting for network confirmations…`);
+    }
+    return false;
+  }
+
+  async function submitCryptoClaim(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const modal = form.closest(".sellhub-checkout");
+    const crypto = modal?._crypto;
+    if (!crypto || crypto.ended) return;
+    const input = form.querySelector("input");
+    const button = form.querySelector("button");
+    const error = modal.querySelector("[data-crypto-error]");
+    error.hidden = true;
+    if (!input.value.trim()) {
+      input.focus();
+      return;
+    }
+    button.disabled = true;
+    button.classList.add("loading");
+    const result = await postJson("/api/crypto-checkout", { action: "claim", token: crypto.token, txId: input.value.trim() });
+    button.disabled = false;
+    button.classList.remove("loading");
+    if (applyCryptoStatus(modal, crypto, result.data)) return;
+    if (!result.ok) {
+      error.textContent = result.network ? "Connection problem. Please check your internet and try again." : result.data.error || "Could not check this transaction.";
+      error.hidden = false;
+    }
   }
 
   function renderCoin(modal, symbol) {
@@ -773,12 +861,13 @@
       btn.classList.toggle("active", active);
       btn.setAttribute("aria-selected", active ? "true" : "false");
     });
+    const ticker = coin.ticker || coin.symbol;
     modal.querySelector("[data-crypto-pay]").innerHTML = `
       <div class="sellhub-crypto-qr" aria-label="${escapeHtml(coin.name)} address QR code">${coin.qr}</div>
       <div class="sellhub-crypto-fields">
         <span>Send exactly</span>
-        <div class="sellhub-key"><code>${escapeHtml(coin.amount)} ${escapeHtml(coin.symbol)}</code><button type="button" data-copy-key="${escapeHtml(coin.amount)}">Copy</button></div>
-        <span>To this ${escapeHtml(coin.name)} address</span>
+        <div class="sellhub-key"><code>${escapeHtml(coin.amount)} ${escapeHtml(ticker)}</code><button type="button" data-copy-key="${escapeHtml(coin.amount)}">Copy</button></div>
+        <span>${coin.network ? `To this address on the <b class="sellhub-network">${escapeHtml(coin.network)}</b> network` : `To this ${escapeHtml(coin.name)} address`}</span>
         <div class="sellhub-key"><code>${escapeHtml(coin.address)}</code><button type="button" data-copy-key="${escapeHtml(coin.address)}">Copy</button></div>
       </div>`;
   }
@@ -800,27 +889,7 @@
         data = await res.json();
       } catch (_) {}
       if (!active()) return;
-      if (data?.status === "delivered") {
-        crypto.ended = true;
-        markCouponUsed(crypto.coupon);
-        const keys = Array.isArray(data.keys) ? data.keys : [];
-        showCheckoutSuccess(modal, {
-          status: "delivered",
-          invoiceId: data.invoiceId,
-          keys,
-          message: keys.length
-            ? "Payment confirmed. Your key is below and was also sent to your email."
-            : "Payment confirmed. Your key has been sent to your email.",
-        });
-        return;
-      }
-      if (data?.status === "expired") {
-        crypto.ended = true;
-        const wait = modal.querySelector("[data-crypto-wait]");
-        wait.classList.add("is-error");
-        wait.textContent = "This payment window expired. Go back and choose Crypto again to get fresh addresses.";
-        return;
-      }
+      if (applyCryptoStatus(modal, crypto, data)) return;
       modal._cryptoTimer = setTimeout(tick, CRYPTO_POLL_MS);
     };
     modal._cryptoTimer = setTimeout(tick, CRYPTO_POLL_MS);

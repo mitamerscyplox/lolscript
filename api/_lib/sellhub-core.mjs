@@ -11,6 +11,13 @@ import {
 
 const DEFAULT_API = "https://dash.sellhub.cx/api/sellhub";
 
+/** Sellhub sometimes hangs for minutes; abort so the serverless function can answer before its own timeout. */
+function sellhubFetch(url, init = {}, ms = 12000) {
+  return fetch(url, { ...init, signal: AbortSignal.timeout(ms) });
+}
+
+const timedOut = (error) => error?.name === "TimeoutError" || error?.name === "AbortError";
+
 export const STORE_SLUGS = ["lol-script", "lol-vanguard-emulator", "lol-perm-spoofer"];
 
 const SLUG_MATCHERS = {
@@ -181,7 +188,7 @@ function parseVariants(p, price, productId) {
 async function fetchVariantsForProduct(productId, fallbackPrice, apiUrl, token) {
   try {
     const url = `${apiUrl}/products/variants?productId=${encodeURIComponent(productId)}`;
-    const res = await fetch(url, { headers: sellhubAuthHeaders(token), cache: "no-store" });
+    const res = await sellhubFetch(url, { headers: sellhubAuthHeaders(token), cache: "no-store" });
     if (!res.ok) return null;
     const data = await res.json();
     const raw = data?.data ?? data;
@@ -253,7 +260,7 @@ export async function fetchSellhubProducts() {
   const { apiUrl, token } = getConfig();
   if (!token) return [];
 
-  const res = await fetch(`${apiUrl}/products`, {
+  const res = await sellhubFetch(`${apiUrl}/products`, {
     headers: sellhubAuthHeaders(token),
     cache: "no-store",
   });
@@ -394,11 +401,16 @@ async function createCheckoutSession(payload) {
     },
   };
 
-  const res = await fetch(`${storeUrl}/api/checkout`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let res;
+  try {
+    res = await sellhubFetch(`${storeUrl}/api/checkout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (error) {
+    return { error: timedOut(error) ? "Sellhub checkout timed out" : `Sellhub unreachable: ${error?.message || error}` };
+  }
 
   const data = await readJson(res);
   if (!res.ok) {
@@ -409,11 +421,16 @@ async function createCheckoutSession(payload) {
 
 export async function processCheckoutSession(sessionId, methodName) {
   const { storeUrl } = getConfig();
-  const res = await fetch(`${storeUrl}/api/processCheckout`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: sessionId, methodName }),
-  });
+  let res;
+  try {
+    res = await sellhubFetch(
+      `${storeUrl}/api/processCheckout`,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: sessionId, methodName }) },
+      25000
+    );
+  } catch (error) {
+    return { error: timedOut(error) ? "Sellhub processCheckout timed out" : `Sellhub unreachable: ${error?.message || error}` };
+  }
   const data = await readJson(res);
   const invoiceId = data?.invoiceId || data?.data?.invoiceId || data?.invoice?.id;
   if (!res.ok || !invoiceId) {
@@ -424,10 +441,15 @@ export async function processCheckoutSession(sessionId, methodName) {
 
 export async function getInvoice(invoiceId) {
   const { apiUrl, token } = getConfig();
-  const res = await fetch(`${apiUrl}/invoices/${encodeURIComponent(invoiceId)}`, {
-    headers: sellhubAuthHeaders(token),
-    cache: "no-store",
-  });
+  let res;
+  try {
+    res = await sellhubFetch(`${apiUrl}/invoices/${encodeURIComponent(invoiceId)}`, {
+      headers: sellhubAuthHeaders(token),
+      cache: "no-store",
+    });
+  } catch (error) {
+    return { error: timedOut(error) ? "Get invoice timed out" : `Sellhub unreachable: ${error?.message || error}` };
+  }
   const data = await readJson(res);
   if (!res.ok) return { error: data?.message || data?.error || `Get invoice failed: ${res.status}` };
   return { invoice: data?.data?.invoice || data?.invoice || data?.data || null };

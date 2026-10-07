@@ -3259,12 +3259,33 @@ body.sellhub-checkout-open { overflow: hidden; }
 .sellhub-crypto-fields .sellhub-key code { font-size: 13px; }
 .sellhub-crypto-wait { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; color: #fde68a; font-size: 14px; font-weight: 700; text-align: center; }
 .sellhub-crypto-wait.is-error { color: #f87171; }
+.sellhub-crypto-fields > span .sellhub-network { color: #fbbf24; font-weight: 900; text-transform: none; letter-spacing: 0; }
+.sellhub-txid { border: 1px solid rgba(255,255,255,.08); border-radius: 12px; background: rgba(255,255,255,.02); }
+.sellhub-txid summary { padding: 10px 14px; color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer; list-style: none; text-align: center; }
+.sellhub-txid summary::-webkit-details-marker { display: none; }
+.sellhub-txid summary:hover { color: #fff; }
+.sellhub-txid form { display: grid; gap: 10px; padding: 0 14px 14px; }
+.sellhub-txid p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+.sellhub-txid-row { display: flex; gap: 8px; }
+.sellhub-txid-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 10px;
+  background: rgba(0,0,0,.25);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+}
+.sellhub-txid-row input:focus { border-color: rgba(247,147,26,.6); outline: none; }
+.sellhub-txid-row .button { flex: none; padding: 10px 16px; }
 .sellhub-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: currentColor; animation: sellhub-pulse 1.4s ease-in-out infinite; }
 @keyframes sellhub-pulse { 0%, 100% { opacity: .35; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.1); } }
 @media (max-width: 520px) {
-  .sellhub-coins { grid-template-columns: repeat(auto-fit, minmax(54px, 1fr)); gap: 6px; }
-  .sellhub-coin { padding: 10px 4px; font-size: 14px; }
-  .sellhub-coin small { display: none; }
+  .sellhub-coins { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .sellhub-coin { padding: 9px 4px; font-size: 14px; }
+  .sellhub-coin small { font-size: 10px; }
   .sellhub-crypto-pay { grid-template-columns: 1fr; justify-items: center; }
   .sellhub-crypto-fields { width: 100%; }
 }
