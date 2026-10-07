@@ -5,7 +5,7 @@
  */
 
 import { createHash, randomBytes, randomUUID, scrypt as scryptCb, timingSafeEqual } from "node:crypto";
-import { isPersistentStore, kvDel, kvGet, kvIncr, kvSet, kvSetForever, kvSetNxForever } from "./kv-store.mjs";
+import { isPersistentStore, kvDel, kvGet, kvGetDel, kvIncr, kvSet, kvSetForever, kvSetNxForever } from "./kv-store.mjs";
 
 const PROD = process.env.NODE_ENV === "production";
 export const SESSION_COOKIE = PROD ? "__Host-ls_session" : "ls_session";
@@ -357,10 +357,8 @@ export async function issueResetToken(user) {
 /** One-shot: the token is deleted on use and dies with any later password change. */
 export async function consumeResetToken(token) {
   if (typeof token !== "string" || !token || token.length > 100) return null;
-  const key = resetKey(hashToken(token));
-  const value = await kvGet(key);
+  const value = await kvGetDel(resetKey(hashToken(token)));
   if (!value) return null;
-  await kvDel(key);
   const [userId, version] = value.split(".");
   const user = await getUserById(userId);
   if (!user || Number(version) !== (user.sessionVersion ?? 0)) return null;

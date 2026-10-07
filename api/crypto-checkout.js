@@ -29,6 +29,10 @@ const DAY = 24 * 60 * 60;
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 /** How long a Binance order accepts deposits; slow coins (BTC) can take a while to confirm. */
 const ORDER_WINDOW_MS = 3 * 60 * 60 * 1000;
+/** Amounts stay reserved as long as deposits are visible in the history window, so nobody else can claim them. */
+const RESERVATION_SECONDS = 9 * 60 * 60;
+/** A TxID claim is only auto-approved within this many amount steps of the order's own amount (wallet rounding). */
+const CLAIM_TOLERANCE_STEPS = 10;
 const COIN_NAMES = {
   BTC: "Bitcoin",
   ETH: "Ethereum",
@@ -156,6 +160,10 @@ async function alertOnce(kind, title, fields) {
 }
 
 async function binanceCreate(req, res, order) {
+  const emailWait = await throttle("crypto-email", hash(order.email), 4, 3600);
+  if (emailWait) {
+    return res.status(429).json({ error: "Too many crypto orders for this email. Finish an open payment or try again later." });
+  }
   const live = await prepareOrder(req, res, order);
   if (!live) return;
 
@@ -179,12 +187,11 @@ async function binanceCreate(req, res, order) {
   }
 
   const id = randomBytes(12).toString("hex");
-  const ttl = Math.ceil(ORDER_WINDOW_MS / 1000) + 60;
   const reserved = await Promise.all(
     coins.map(async ({ coin, address }) => {
       const price = coin.stable ? 1 : prices[coin.coin];
       if (!(price > 0)) return null;
-      const amount = await reserveAmount(coin, opened.total / price, id, ttl);
+      const amount = await reserveAmount(coin, opened.total / price, id, RESERVATION_SECONDS);
       return amount ? { id: coin.id, address, amount, base: opened.total / price } : null;
     })
   );
@@ -370,37 +377,64 @@ async function binanceClaim(req, res, order, body) {
   if (!offer) return res.status(400).json({ error: "This transaction is for a different coin or network than this order." });
   const coin = byId[offer.id];
   if (!inWindow(order, deposit)) return res.status(400).json({ error: "This transaction was made before or long after this order was opened." });
-
-  // Another open order was waiting for exactly this amount, so the deposit is theirs.
-  const owner = await kvGet(amountKey(coin, Number(deposit.amount).toFixed(coin.decimals)));
-  if (owner && owner !== order.id) {
-    return res.status(409).json({ error: "This transaction belongs to another order. Contact support if you think this is wrong." });
+  if (await kvGet(`ls:cpay:tx:${normalizeTxId(deposit.txId) || deposit.id}`)) {
+    return res.status(409).json({ error: "This transaction was already used for an order." });
   }
-  if (Number(deposit.amount) < Number(offer.base) * 0.995) {
+
+  // The deposit address is public, so a TxID proves nothing about who paid. Auto-approve only a
+  // deposit that is within wallet-rounding distance of this order's amount and of no other order's.
+  const step = 10 ** -coin.decimals;
+  const paid = Number(deposit.amount);
+  const near = Math.abs(paid - Number(offer.amount)) <= CLAIM_TOLERANCE_STEPS * step + step / 2;
+  const others = near ? await otherReservationsNear(coin, paid, order.id) : 0;
+
+  if (near && others === 0) {
+    if (!isCredited(deposit)) {
+      return res.status(200).json({ status: "confirming", invoiceId: order.invoiceId, detected: `${deposit.amount} ${coin.ticker}` });
+    }
+    const result = await settle(order, deposit, coin, "transaction ID (rounded amount)");
+    if (!result) return res.status(409).json({ error: "This transaction was already used for another order." });
+    return res.status(200).json(result);
+  }
+
+  const underpaid = paid < Number(offer.base) * 0.995;
+  if (await kvSetNx(`ls:cpay:review:${normalizeTxId(deposit.txId) || deposit.id}`, order.id, 7 * DAY)) {
     await postPayLog({
-      title: "Crypto UNDERPAID — manual action needed",
+      title: underpaid ? "Crypto UNDERPAID claim — check manually" : "Crypto claim needs manual review",
       color: PAY_LOG_COLORS.urgent,
       alert: true,
       source: "Crypto",
       fields: [
         ["Product", order.label],
         ["Email", order.email],
-        ["Paid", `${deposit.amount} ${coin.ticker}`],
-        ["Expected", `${offer.amount} ${coin.ticker}`],
+        ["Deposit", `${deposit.amount} ${coin.ticker} (${coin.networkName})`],
+        ["Order amount", `${offer.amount} ${coin.ticker}`],
+        ["Why", underpaid ? "Deposit is below the order total" : others ? "Amount is close to another open order" : "Amount does not match this order"],
+        ["Binance status", isCredited(deposit) ? "credited" : "not credited yet"],
         ["TxID", deposit.txId],
         ["Sellhub invoice", order.invoiceId],
+        ["Action", "If this customer really sent it, complete the invoice in Sellhub"],
       ],
     });
-    return res.status(402).json({
-      error: `This transaction is ${deposit.amount} ${coin.ticker}, but the order needs ${offer.amount} ${coin.ticker}. Open a ticket on Discord and staff will sort it out.`,
-    });
   }
-  if (!isCredited(deposit)) {
-    return res.status(200).json({ status: "confirming", invoiceId: order.invoiceId, detected: `${deposit.amount} ${coin.ticker}` });
-  }
-  const result = await settle(order, deposit, coin, "transaction ID");
-  if (!result) return res.status(409).json({ error: "This transaction was already used for another order." });
-  return res.status(200).json(result);
+  return res.status(202).json({
+    status: "review",
+    message: underpaid
+      ? `This transaction is ${deposit.amount} ${coin.ticker}, but the order needs ${offer.amount} ${coin.ticker}. Staff have been notified, please open a ticket on Discord.`
+      : "The amount does not match this order exactly, so staff will verify it. Please open a ticket on Discord with your transaction ID.",
+  });
+}
+
+/** How many other orders hold a reserved amount within claim tolerance of `paid`. */
+async function otherReservationsNear(coin, paid, orderId) {
+  const step = 10 ** -coin.decimals;
+  const center = Math.round(paid / step);
+  const owners = await Promise.all(
+    Array.from({ length: CLAIM_TOLERANCE_STEPS * 2 + 1 }, (_, i) =>
+      kvGet(amountKey(coin, ((center - CLAIM_TOLERANCE_STEPS + i) * step).toFixed(coin.decimals)))
+    )
+  );
+  return owners.filter((owner) => owner && owner !== orderId).length;
 }
 
 /* ---------------------------------------------------------------- Sellhub crypto (fallback) */
@@ -470,6 +504,9 @@ async function handleStatus(req, res) {
   if (data?.o) {
     const order = await loadOrder(data.o);
     if (!order) return res.status(404).json({ error: "Order not found." });
+    if (await throttle("crypto-status", hash(clientIp(req)), 40, 60)) {
+      return res.status(200).json({ status: "waiting", invoiceId: order.invoiceId });
+    }
     return binanceStatus(res, order);
   }
   if (!data?.i) return res.status(404).json({ error: "Order not found." });

@@ -91,6 +91,17 @@ export async function kvSetNxForever(key, value) {
   return true;
 }
 
+/** Reads and deletes in one step, so a one-shot token cannot be used by two parallel requests. */
+export async function kvGetDel(key) {
+  if (restConfig()) {
+    const value = await redis(["GETDEL", key]);
+    return value == null ? null : String(value);
+  }
+  const value = memGet(key);
+  memory.delete(key);
+  return value == null ? null : String(value);
+}
+
 export async function kvDel(key) {
   if (restConfig()) return redis(["DEL", key]);
   memory.delete(key);

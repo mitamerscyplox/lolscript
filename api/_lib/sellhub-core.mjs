@@ -457,10 +457,15 @@ export async function getInvoice(invoiceId) {
 
 export async function completeInvoice(invoiceId) {
   const { apiUrl, token } = getConfig();
-  const res = await fetch(`${apiUrl}/invoices/${encodeURIComponent(invoiceId)}/complete`, {
-    method: "POST",
-    headers: sellhubAuthHeaders(token),
-  });
+  let res;
+  try {
+    res = await fetch(`${apiUrl}/invoices/${encodeURIComponent(invoiceId)}/complete`, {
+      method: "POST",
+      headers: sellhubAuthHeaders(token),
+    });
+  } catch (error) {
+    return { error: `Sellhub unreachable: ${error?.message || error}` };
+  }
   const data = await readJson(res);
   if (!res.ok) return { error: data?.message || data?.error || `Complete invoice failed: ${res.status}` };
   return { ok: true };

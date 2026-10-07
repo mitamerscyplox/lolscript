@@ -845,6 +845,11 @@
     button.disabled = false;
     button.classList.remove("loading");
     if (applyCryptoStatus(modal, crypto, result.data)) return;
+    if (result.data.status === "review") {
+      error.textContent = result.data.message || "Staff will verify this payment. Please open a ticket on Discord.";
+      error.hidden = false;
+      return;
+    }
     if (!result.ok) {
       error.textContent = result.network ? "Connection problem. Please check your internet and try again." : result.data.error || "Could not check this transaction.";
       error.hidden = false;

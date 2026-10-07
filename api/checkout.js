@@ -75,7 +75,11 @@ export default async function handler(req, res) {
     });
 
     if (result.error) {
-      return res.status(400).json({ error: result.error });
+      console.warn("[checkout] Sellhub refused checkout", result.error);
+      const couponError = typeof coupon === "string" && coupon.trim() && /coupon|discount|code/i.test(result.error);
+      return res.status(400).json({
+        error: couponError ? `The discount code ${coupon.trim().slice(0, 40).toUpperCase()} is not valid.` : "Checkout could not be started. Please try again or use another payment method.",
+      });
     }
     return res.status(200).json({ url: result.url });
   } catch (error) {

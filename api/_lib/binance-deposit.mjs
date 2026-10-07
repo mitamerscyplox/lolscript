@@ -8,7 +8,7 @@
 
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { binanceConfigured } from "./binance-giftcard.mjs";
-import { kvGet, kvSet, kvSetNx } from "./kv-store.mjs";
+import { kvDel, kvGet, kvSet, kvSetNx } from "./kv-store.mjs";
 
 const API = "https://api.binance.com";
 const MARKET_API = "https://data-api.binance.vision";
@@ -49,7 +49,8 @@ export function relaySignature(ts, body) {
 }
 
 export function relaySignatureValid(ts, body, signature) {
-  if (!binanceConfigured() || Math.abs(Date.now() - Number(ts)) > 60_000) return false;
+  const sentAt = Number(ts);
+  if (!binanceConfigured() || !Number.isFinite(sentAt) || Math.abs(Date.now() - sentAt) > 60_000) return false;
   const a = Buffer.from(String(signature || ""));
   const b = Buffer.from(relaySignature(ts, body));
   return a.length === b.length && timingSafeEqual(a, b);
@@ -150,12 +151,27 @@ export const amountKey = (coin, amount) => `ls:cpay:amt:${coin.id}:${amount}`;
  * Recent deposits (last few hours), shared across requests for a few seconds to stay far below
  * Binance rate limits. Returns { deposits } or { error, restricted }.
  */
-export async function recentDeposits() {
+async function cachedDeposits() {
   const cached = await kvGet("ls:cpay:history");
-  if (cached) {
-    try {
-      return { deposits: typeof cached === "string" ? JSON.parse(cached) : cached };
-    } catch {}
+  if (!cached) return null;
+  try {
+    return JSON.parse(cached);
+  } catch {
+    return null;
+  }
+}
+
+export async function recentDeposits() {
+  const cached = await cachedDeposits();
+  if (cached) return { deposits: cached };
+  // One request refreshes the cache; the others wait briefly for it instead of all hitting Binance.
+  if (!(await kvSetNx("ls:cpay:history:lock", "1", 8))) {
+    for (let i = 0; i < 6; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const fresh = await cachedDeposits();
+      if (fresh) return { deposits: fresh };
+    }
+    return { error: "Deposit history refresh in progress" };
   }
   const now = Date.now();
   const r = await sapiGet("/sapi/v1/capital/deposit/hisrec", {
@@ -163,7 +179,10 @@ export async function recentDeposits() {
     endTime: String(now),
     limit: "1000",
   });
-  if (!r.ok || !Array.isArray(r.data)) return { error: r.data?.msg || `HTTP ${r.status}`, restricted: r.restricted };
+  if (!r.ok || !Array.isArray(r.data)) {
+    await kvDel("ls:cpay:history:lock");
+    return { error: r.data?.msg || `HTTP ${r.status}`, restricted: r.restricted };
+  }
   const deposits = r.data.map((d) => ({
     id: String(d.id || ""),
     coin: String(d.coin || "").toUpperCase(),
@@ -174,6 +193,7 @@ export async function recentDeposits() {
     insertTime: Number(d.insertTime) || 0,
   }));
   await kvSet("ls:cpay:history", JSON.stringify(deposits), HISTORY_CACHE_SECONDS);
+  await kvDel("ls:cpay:history:lock");
   return { deposits };
 }
 
