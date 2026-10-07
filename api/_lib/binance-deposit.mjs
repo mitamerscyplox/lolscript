@@ -1,11 +1,12 @@
 /**
  * Crypto payments straight into the Binance account behind BINANCE_API_KEY.
  * Each order gets its own amount per coin (a few thousandths above the price), so a deposit in
- * Binance's deposit history can be matched to exactly one order. Binance rejects US servers,
- * so the function using this must run outside the US (see vercel.json regions).
+ * Binance's deposit history can be matched to exactly one order. Binance rejects US servers and
+ * Sellhub rejects some EU ones, so on Vercel the signed Binance calls go through
+ * api/binance-relay.js, which runs in Frankfurt (see vercel.json regions).
  */
 
-import { createHmac } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { binanceConfigured } from "./binance-giftcard.mjs";
 import { kvGet, kvSet, kvSetNx } from "./kv-store.mjs";
 
@@ -37,8 +38,49 @@ function sign(query) {
   return createHmac("sha256", process.env.BINANCE_API_SECRET.trim()).update(query).digest("hex");
 }
 
+export const RELAY_PATHS = ["/sapi/v1/capital/deposit/address", "/sapi/v1/capital/deposit/hisrec"];
+
+function relayKey() {
+  return createHash("sha256").update(`lolscript-binance-relay:${process.env.BINANCE_API_SECRET?.trim() || ""}`).digest();
+}
+
+export function relaySignature(ts, body) {
+  return createHmac("sha256", relayKey()).update(`${ts}.${body}`).digest("hex");
+}
+
+export function relaySignatureValid(ts, body, signature) {
+  if (!binanceConfigured() || Math.abs(Date.now() - Number(ts)) > 60_000) return false;
+  const a = Buffer.from(String(signature || ""));
+  const b = Buffer.from(relaySignature(ts, body));
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+async function viaRelay(path, params) {
+  const base = (process.env.SITE_URL || "https://www.lolscript.store").replace(/\/+$/, "");
+  const body = JSON.stringify({ path, params });
+  const ts = String(Date.now());
+  try {
+    const res = await fetch(`${base}/api/binance-relay`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Relay-Ts": ts, "X-Relay-Sig": relaySignature(ts, body) },
+      body,
+      cache: "no-store",
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await res.json().catch(() => null);
+    if (!data || typeof data.ok !== "boolean") return { ok: false, status: res.status, data: { msg: `Relay HTTP ${res.status}` }, restricted: false };
+    return data;
+  } catch (error) {
+    return { ok: false, status: 0, data: { msg: `Relay: ${error?.message || error}` }, restricted: false };
+  }
+}
+
 /** Signed GET against /sapi; returns { ok, status, data, restricted }. */
-async function sapiGet(path, params) {
+function sapiGet(path, params) {
+  return process.env.VERCEL && !process.env.BINANCE_RELAY_DIRECT ? viaRelay(path, params) : sapiGetDirect(path, params);
+}
+
+export async function sapiGetDirect(path, params) {
   const query = new URLSearchParams({ ...params, recvWindow: "10000", timestamp: String(Date.now()) }).toString();
   try {
     const res = await fetch(`${API}${path}?${query}&signature=${sign(query)}`, {

@@ -163,7 +163,7 @@ async function binanceCreate(req, res, order) {
   const coins = CRYPTO_COINS.map((coin, i) => ({ coin, address: addresses[i] })).filter((c) => typeof c.address === "string");
   if (!coins.length) {
     await alertOnce("address", "Crypto checkout down — Binance deposit addresses unavailable", [
-      ["Action", "Check BINANCE_API_KEY permissions and that api/crypto-checkout.js runs outside the US (vercel.json regions)"],
+      ["Action", "Check BINANCE_API_KEY permissions and that api/binance-relay.js runs outside the US (vercel.json regions)"],
     ]);
     return res.status(503).json({ error: "Crypto checkout is temporarily unavailable. Please try another payment method." });
   }

@@ -7,6 +7,7 @@
 
 import { fetchSellhubProducts } from "./sellhub-core.mjs";
 import { listShopierProducts } from "./shopier.mjs";
+import snapshot from "./shopier-listings.mjs";
 
 const CACHE_MS = 5 * 60 * 1000;
 
@@ -61,19 +62,23 @@ function toListing(product) {
 let cache = null;
 let inflight = null;
 
-/** LoL products on the Shopier account, cached for 5 minutes; keeps the last good list if the API fails. */
+/**
+ * LoL products on the Shopier account, cached for 5 minutes. Falls back to the last good list, then to
+ * shopier-listings.mjs (scripts/shopier-snapshot.mjs), because Shopier blocks Vercel's servers.
+ */
 export async function getShopierListings() {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache.listings;
   inflight ??= listShopierProducts()
     .then(({ products, error }) => {
       if (error) throw new Error(error);
       const listings = products.map(toListing).filter((l) => l.name && LOL_TITLE_RE.test(l.name));
+      if (!listings.length) throw new Error("no LoL products in the Shopier response");
       cache = { at: Date.now(), listings };
       return listings;
     })
     .catch((error) => {
-      console.warn("[shopier] product list failed:", error.message);
-      return cache?.listings ?? [];
+      console.warn("[shopier] product list failed, using saved listings:", error.message);
+      return cache?.listings ?? snapshot.map(toListing);
     })
     .finally(() => {
       inflight = null;
