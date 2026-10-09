@@ -236,6 +236,7 @@ async function verifySend(req, res) {
   if (!mailerReady()) return fail(res, "auth_err_mail_unavailable", 503);
   if (!(await kvSetNx(`ls:auth:verify-cooldown:${user.id}`, 1, 60))) return fail(res, "verify_err_cooldown", 429);
   if (!(await allowAttempt(`verify-send:${user.id}`, 6, 60 * 60))) return fail(res, "auth_err_rate_limited", 429);
+  if (!(await allowAttempt(`verify-send-day:${user.email}`, 10, 24 * 60 * 60))) return fail(res, "auth_err_rate_limited", 429);
   if (!(await sendVerifyCodeMail(user))) return fail(res, "auth_err_mail_unavailable", 503);
   send(res, 200, { ok: true });
 }

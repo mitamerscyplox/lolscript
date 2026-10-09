@@ -325,10 +325,20 @@ export async function issueVerifyCode(userId) {
   return code;
 }
 
-/** Five wrong guesses burn the code, so the 10^6 space can't be brute-forced. */
+const VERIFY_DAILY_GUESSES = 10;
+const verifyDayBucket = (userId) => `verify-day:${userId}`;
+
+/**
+ * Five wrong guesses burn the code, and a daily cap that resending does not reset keeps the
+ * 10^6 space out of reach over weeks of retries.
+ */
 export async function checkVerifyCode(userId, raw) {
   const stored = await kvGet(verifyKey(userId));
   if (!stored) return "expired";
+  if (Number((await kvGet(`ls:auth:rl:${verifyDayBucket(userId)}`)) || 0) >= VERIFY_DAILY_GUESSES) {
+    await kvDel(verifyKey(userId));
+    return "locked";
+  }
   const code = typeof raw === "string" ? raw.replace(/\D/g, "") : "";
   const a = Buffer.from(hashToken(code), "hex");
   const b = Buffer.from(stored, "hex");
@@ -337,7 +347,8 @@ export async function checkVerifyCode(userId, raw) {
     await clearAttempts(`verify:${userId}`);
     return "ok";
   }
-  if (!(await allowAttempt(`verify:${userId}`, 4, VERIFY_TTL_SEC))) {
+  const underDailyCap = await allowAttempt(verifyDayBucket(userId), VERIFY_DAILY_GUESSES, 24 * 60 * 60);
+  if (!underDailyCap || !(await allowAttempt(`verify:${userId}`, 4, VERIFY_TTL_SEC))) {
     await kvDel(verifyKey(userId));
     return "locked";
   }

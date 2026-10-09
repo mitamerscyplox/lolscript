@@ -8,6 +8,9 @@ export const PAY_LOG_COLORS = {
   urgent: 0xff0055,
 };
 
+/** Buyer-supplied values (email, coupon) must not render as masked links or formatting for staff. */
+const escapeMarkdown = (text) => text.replace(/([\\[\]()<>*_~|])/g, "\\$1");
+
 /**
  * `payment` marks money that actually reached us: it pings @everyone with the amount as a big
  * heading and a full embed. Everything else is posted as a compact message in small text.
@@ -33,7 +36,7 @@ export async function postPayLog({ title, color = PAY_LOG_COLORS.warning, fields
             color,
             fields: shown.map(([name, value]) => ({
               name,
-              value: String(value).slice(0, 1024),
+              value: escapeMarkdown(String(value)).slice(0, 1024),
               inline: String(value).length < 40,
             })),
             footer,
@@ -49,7 +52,7 @@ export async function postPayLog({ title, color = PAY_LOG_COLORS.warning, fields
             author: { name: title.slice(0, 256) },
             color,
             description: shown
-              .map(([name, value]) => `-# **${name}:** ${String(value).replace(/\s*\n\s*/g, ", ")}`)
+              .map(([name, value]) => `-# **${name}:** ${escapeMarkdown(String(value).replace(/\s*\n\s*/g, ", "))}`)
               .join("\n")
               .slice(0, 4096) || undefined,
             footer,

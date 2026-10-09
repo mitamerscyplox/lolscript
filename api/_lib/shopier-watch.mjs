@@ -38,13 +38,12 @@ export async function readShopierWatch(token) {
   const resultRaw = await kvGet(`ls:shopier:result:${watch.email}`);
   const result = resultRaw ? JSON.parse(resultRaw) : null;
   if (!result || result.at < watch.since) return { status: "waiting" };
+  // Non-owner watches only learn that the order finished; order details go to the verified owner.
+  if (watch.owner !== true) return { status: result.status === "manual" ? "manual" : "delivered", keys: [] };
   if (result.status === "manual") return { status: "manual", orderId: result.orderId, items: result.items };
 
-  let keys = [];
-  if (watch.owner === true) {
-    const claimKey = `ls:shopier:claim:${result.orderId}`;
-    const claimedBy = (await kvSetNx(claimKey, token, WATCH_TTL)) ? token : await kvGet(claimKey);
-    if (claimedBy === token) keys = result.keys;
-  }
+  const claimKey = `ls:shopier:claim:${result.orderId}`;
+  const claimedBy = (await kvSetNx(claimKey, token, WATCH_TTL)) ? token : await kvGet(claimKey);
+  const keys = claimedBy === token ? result.keys : [];
   return { status: "delivered", orderId: result.orderId, items: result.items, keys };
 }
