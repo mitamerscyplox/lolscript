@@ -433,6 +433,52 @@ body.nav-open {
   background: transparent;
 }
 
+@media (min-width: 981px) {
+  .shop-dropdown {
+    left: -10px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(178px, auto));
+    gap: 0 8px;
+    width: max-content;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding: 12px;
+    transform: translateY(8px);
+  }
+
+  .has-dropdown:hover .shop-dropdown,
+  .has-dropdown:focus-within .shop-dropdown,
+  .has-dropdown.dropdown-open .shop-dropdown {
+    transform: translateY(0);
+  }
+
+  .shop-group + .shop-group {
+    margin-top: 0;
+    padding-top: 0;
+    padding-left: 8px;
+    border-top: 0;
+    border-left: 1px solid rgba(255, 255, 255, .07);
+  }
+
+  .shop-dropdown a {
+    min-height: 36px;
+    align-items: center;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1240px) {
+  .shop-dropdown {
+    grid-template-columns: repeat(2, minmax(190px, auto));
+    gap: 10px 8px;
+  }
+
+  .shop-group:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
 .cart-link {
   display: inline-flex;
   align-items: center;
@@ -1187,7 +1233,8 @@ h3 {
   font-size: 20px;
 }
 
-.guide-hub-card h2 { margin: 0; font-size: 22px; }
+.guide-hub-card h2,
+.guide-hub-card h3 { margin: 0; font-size: 22px; }
 .guide-hub-card p { margin: 0; color: var(--muted); line-height: 1.6; }
 .guide-hub-link {
   display: inline-flex;
@@ -3981,3 +4028,9 @@ main .product-hero-character {
   main .product-hero-visual { min-height: 300px; }
   main .product-hero-character { height: clamp(300px, 80vw, 420px); }
 }
+
+/* Supported Riot servers strip (home, LoL Script and language pages). */
+.server-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 24px auto 0; max-width: 980px; padding: 0; list-style: none; }
+.server-list li { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid var(--line); border-radius: 999px; background: rgba(139, 92, 246, .08); color: var(--text); font-size: 14px; font-weight: 600; }
+.server-list li b { color: var(--accent-soft); font-weight: 800; }
+.server-note { margin: 16px auto 0; max-width: 760px; color: var(--muted); font-size: 14px; text-align: center; }

@@ -8,6 +8,7 @@ import {
   filterProductImages,
   isEmbedVideoUrl,
 } from "./sellhub-video.mjs";
+import { STORE_PRODUCTS, STORE_SLUGS, exactStoreSlug, storeProduct } from "./store-catalog.mjs";
 
 const DEFAULT_API = "https://dash.sellhub.cx/api/sellhub";
 
@@ -18,66 +19,19 @@ function sellhubFetch(url, init = {}, ms = 12000) {
 
 const timedOut = (error) => error?.name === "TimeoutError" || error?.name === "AbortError";
 
-export const STORE_SLUGS = ["lol-script", "lol-vanguard-emulator", "lol-perm-spoofer"];
+export { STORE_SLUGS };
 
-const SLUG_MATCHERS = {
-  "lol-script": ["lol-script", "lol script", "script"],
-  "lol-vanguard-emulator": ["vanguard", "emulator", "bolt"],
-  "lol-perm-spoofer": ["spoofer", "perm", "hwid"],
-};
-
-function envPrice(key, fallback) {
-  const raw = process.env[key];
-  if (raw == null || String(raw).trim() === "") return fallback;
-  const n = Number(String(raw).trim());
-  return Number.isFinite(n) && n > 0 ? n : fallback;
-}
-
-function variant(id, name, price) {
-  return { id, name, title: name, price, stock: 100 };
-}
-
-function buildFallback() {
-  const scriptVariants = [
-    variant("lol-script-1-day", "1 Day Key", envPrice("FALLBACK_LOL_SCRIPT_1_DAY", 3.99)),
-    variant("lol-script-7-day", "7 Day Key", envPrice("FALLBACK_LOL_SCRIPT_7_DAY", 11.99)),
-    variant("lol-script-30-day", "30 Day Key", envPrice("FALLBACK_LOL_SCRIPT_30_DAY", 27.99)),
-  ];
-  const vanguardVariants = [
-    variant("lol-vanguard-7-day", "7 Day Key", envPrice("FALLBACK_VANGUARD_7_DAY", 79.99)),
-    variant("lol-vanguard-30-day", "30 Day Key", envPrice("FALLBACK_VANGUARD_30_DAY", 199.99)),
-    variant("lol-vanguard-lifetime", "Lifetime Key", envPrice("FALLBACK_VANGUARD_LIFETIME", 449.99)),
-  ];
-  const spooferVariants = [
-    variant("lol-spoofer-onetime", "Onetime Key", envPrice("FALLBACK_SPOOFER_ONETIME", 19.99)),
-    variant("lol-spoofer-lifetime", "Lifetime Key", envPrice("FALLBACK_SPOOFER_LIFETIME", 49.99)),
-  ];
-
-  const cheapest = (variants) => Math.min(...variants.map((v) => v.price));
-
-  return {
-    "lol-script": {
-      name: "LoL Script",
-      price: cheapest(scriptVariants),
+const FALLBACK = Object.fromEntries(
+  STORE_PRODUCTS.map((p) => [
+    p.slug,
+    {
+      name: p.name,
+      price: Math.min(...p.fallback.map((v) => v.price)),
       currency: "usd",
-      variants: scriptVariants,
+      variants: p.fallback,
     },
-    "lol-vanguard-emulator": {
-      name: "LoL Vanguard Emulator",
-      price: cheapest(vanguardVariants),
-      currency: "usd",
-      variants: vanguardVariants,
-    },
-    "lol-perm-spoofer": {
-      name: "LoL Perm Spoofer",
-      price: cheapest(spooferVariants),
-      currency: "usd",
-      variants: spooferVariants,
-    },
-  };
-}
-
-const FALLBACK = buildFallback();
+  ])
+);
 
 function normalizeStoreUrl(raw) {
   const url = String(raw || "").trim().replace(/\/+$/, "");
@@ -274,12 +228,21 @@ export async function fetchSellhubProducts() {
   return products.filter((p) => !p.hidden);
 }
 
-function matchesStoreSlug(product, storeSlug) {
-  const keywords = SLUG_MATCHERS[storeSlug] || [storeSlug];
-  const haystack = `${product.name} ${product.sellhubSlug} ${product.id}`.toLowerCase();
-  const normalizedStore = storeSlug.toLowerCase();
-  if (product.sellhubSlug === normalizedStore) return true;
-  return keywords.some((kw) => haystack.includes(kw.toLowerCase()));
+/** Exact slug, then exact name; the legacy keywords only see Sellhub products no other slug claims exactly. */
+function findStoreProduct(products, storeSlug) {
+  const bySlug = products.find((p) => p.sellhubSlug === storeSlug);
+  if (bySlug) return bySlug;
+  const byName = products.find((p) => exactStoreSlug({ name: p.name }) === storeSlug);
+  if (byName) return byName;
+  const keywords = storeProduct(storeSlug)?.keywords || [];
+  if (!keywords.length) return null;
+  return (
+    products.find((p) => {
+      if (exactStoreSlug(p)) return false;
+      const haystack = `${p.name} ${p.sellhubSlug} ${p.id}`.toLowerCase();
+      return keywords.some((kw) => haystack.includes(kw));
+    }) || null
+  );
 }
 
 export function buildPageUrl(product, storeUrl) {
@@ -296,7 +259,7 @@ export function mapProductsToStore(products) {
 
   for (const storeSlug of STORE_SLUGS) {
     const fallback = FALLBACK[storeSlug];
-    const product = products.find((p) => matchesStoreSlug(p, storeSlug));
+    const product = findStoreProduct(products, storeSlug);
 
     if (!product) {
       mapped[storeSlug] = {
@@ -337,7 +300,7 @@ export function mapProductsToStore(products) {
 }
 
 export function getProductByStoreSlug(products, storeSlug) {
-  return products.find((p) => matchesStoreSlug(p, storeSlug)) || null;
+  return findStoreProduct(products, storeSlug);
 }
 
 function normalizeCheckoutUrl(url, storeUrl, sessionId) {

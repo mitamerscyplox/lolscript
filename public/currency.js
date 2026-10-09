@@ -11,6 +11,7 @@ const LOL_CURRENCIES = [
   ["NZD", "New Zealand Dollar"],
   ["MXN", "Mexican Peso"],
   ["BRL", "Brazilian Real"],
+  ["PLN", "Polish Zloty"],
   ["PHP", "Philippine Peso"],
   ["INR", "Indian Rupee"],
   ["JPY", "Japanese Yen"],
@@ -27,6 +28,7 @@ const LOL_FALLBACK_RATES = {
   NZD: 1.66,
   MXN: 17,
   BRL: 5.1,
+  PLN: 3.7,
   PHP: 57,
   INR: 83,
   JPY: 154,
@@ -34,8 +36,37 @@ const LOL_FALLBACK_RATES = {
   CNY: 7.24,
 };
 
+// Visitors who never picked a currency get the one for their time zone; checkout itself stays in USD.
+// Turkey stays on USD: Shopier shows its own fixed lira prices, which a live-rate TRY price would contradict.
+const LOL_ZONE_CURRENCIES = [
+  [/^Europe\/(London|Belfast|Guernsey|Jersey|Isle_of_Man)$/, "GBP"],
+  [/^Europe\/Istanbul$|^Asia\/Istanbul$/, "USD"],
+  [/^Europe\/Warsaw$/, "PLN"],
+  [/^Europe\//, "EUR"],
+  [/^America\/(Toronto|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Moncton|Whitehorse|Yellowknife|Iqaluit)$/, "CAD"],
+  [/^America\/(Sao_Paulo|Bahia|Fortaleza|Recife|Belem|Manaus|Cuiaba|Campo_Grande|Porto_Velho|Boa_Vista|Rio_Branco|Maceio|Araguaina|Santarem|Noronha)$/, "BRL"],
+  [/^America\/(Mexico_City|Monterrey|Merida|Cancun|Chihuahua|Hermosillo|Mazatlan|Tijuana|Bahia_Banderas|Matamoros|Ojinaga)$/, "MXN"],
+  [/^Australia\//, "AUD"],
+  [/^Pacific\/Auckland$/, "NZD"],
+  [/^Asia\/Manila$/, "PHP"],
+  [/^Asia\/(Kolkata|Calcutta)$/, "INR"],
+  [/^Asia\/Tokyo$/, "JPY"],
+  [/^Asia\/Seoul$/, "KRW"],
+  [/^Asia\/(Shanghai|Chongqing|Harbin|Urumqi)$/, "CNY"],
+];
+
+function lolDefaultCurrency() {
+  try {
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    const hit = LOL_ZONE_CURRENCIES.find(([re]) => re.test(zone));
+    if (hit) return hit[1];
+  } catch (_) {}
+  return "USD";
+}
+
 const LOLCurrency = (() => {
-  let currency = localStorage.getItem(LOL_CURRENCY_KEY) || "USD";
+  let currency = localStorage.getItem(LOL_CURRENCY_KEY) || lolDefaultCurrency();
+  if (!LOL_CURRENCIES.some(([code]) => code === currency)) currency = "USD";
   let rates = { ...LOL_FALLBACK_RATES };
 
   function readCachedRates() {

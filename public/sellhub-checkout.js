@@ -1257,7 +1257,50 @@
     document.querySelectorAll(`[data-price-note-slug="${slug}"]`).forEach((el) => {
       el.textContent = formatPlanNote(variant);
     });
+    updateBundleParts(slug, variant);
     window.LOLCurrency?.apply(document);
+  }
+
+  // Bundle pages list their parts; show each part's price for the same plan length and the total saved.
+  function updateBundleParts(slug, variant) {
+    const rows = document.querySelectorAll(`[data-bundle-of="${slug}"]`);
+    if (!rows.length) return;
+    const days = parsePlanDays(variant.name);
+    const label = String(variant.name).replace(/\s*(bundle|key)$/i, "").trim();
+    let regular = 0;
+    let complete = true;
+    rows.forEach((row) => {
+      const plan = row.querySelector("[data-part-plan]");
+      if (plan) plan.textContent = label;
+      const part = getProduct(row.getAttribute("data-bundle-part"));
+      const match = part?.variants?.find((v) => parsePlanDays(v.name) === days);
+      const priceEl = row.querySelector("[data-part-price]");
+      if (!match) {
+        complete = false;
+        if (priceEl) priceEl.hidden = true;
+        return;
+      }
+      regular += Number(match.price);
+      if (priceEl) {
+        priceEl.hidden = false;
+        priceEl.dataset.moneyUsdCents = cents(match.price);
+        priceEl.textContent = money(match.price);
+      }
+    });
+
+    const box = document.querySelector(`[data-bundle-summary="${slug}"]`);
+    if (!box) return;
+    const saved = regular - Number(variant.price);
+    box.hidden = !complete || saved <= 0;
+    if (box.hidden) return;
+    const regularEl = box.querySelector("[data-bundle-regular]");
+    const savedEl = box.querySelector("[data-bundle-saved]");
+    const pctEl = box.querySelector("[data-bundle-saved-pct]");
+    regularEl.dataset.moneyUsdCents = cents(regular);
+    regularEl.textContent = money(regular);
+    savedEl.dataset.moneyUsdCents = cents(saved);
+    savedEl.textContent = money(saved);
+    pctEl.textContent = String(Math.max(1, Math.round((saved / regular) * 100)));
   }
 
   function buildCheckoutItem(slug, quantity) {

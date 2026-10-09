@@ -258,7 +258,7 @@ function productCard(product) {
         </div>
         <div class="product-body">
           <div class="product-badge-row">
-            ${product.featured ? '<p class="badge">Featured</p>' : '<span class="product-badge-spacer" aria-hidden="true"></span>'}
+            ${product.featured || product.badge ? `<p class="badge">${escapeHtml(product.featured ? "Featured" : product.badge)}</p>` : '<span class="product-badge-spacer" aria-hidden="true"></span>'}
           </div>
           <h3><a href="${escapeHtml(product.page || "#products")}">${escapeHtml(product.name)}</a></h3>
           <p class="product-meta">${escapeHtml(product.description)}</p>

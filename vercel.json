@@ -31,6 +31,14 @@
           "value": "lolscript.store"
         }
       ]
+    },
+    { "source": "/hanbot", "destination": "/hanbot-key", "permanent": true },
+    { "source": "/legend-sense", "destination": "/legend-sense-key", "permanent": true },
+    { "source": "/:slug(winnerscript|unixcheats|hile-dunyasi)", "destination": "/lol-hile", "permanent": true },
+    {
+      "source": "/:slug(hangar-script|justanotherscript|titan-script|nyrex-script|pentasharp|cado-script|hexlol|xxe-script|hera-script|exo-script|phantom-script|reality-cheats|covert-script|devil-script|ciro-script|wh-satano|ven-script|unrevealed-script)",
+      "destination": "/lol-script",
+      "permanent": true
     }
   ],
   "headers": [

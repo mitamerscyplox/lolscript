@@ -11,7 +11,8 @@ import snapshot from "./shopier-listings.mjs";
 
 const CACHE_MS = 5 * 60 * 1000;
 
-const NOISE = new Set(["licence", "license", "lisans", "key", "keys", "anahtar", "of", "legends", "league", "vanguard", "perm"]);
+// "lol" is noise because Shopier titles must contain it (LOL_TITLE_RE) while Sellhub names like "Hanbot Key" do not.
+const NOISE = new Set(["licence", "license", "lisans", "key", "keys", "anahtar", "of", "legends", "league", "vanguard", "perm", "lol"]);
 const ALIASES = { "one time": "onetime", "life time": "lifetime", "league of legends": "lol", "ömür boyu": "lifetime", "tek seferlik": "onetime" };
 
 /** Shopier titles that belong to this site; orders without them are left to other stores on the account. */
@@ -21,6 +22,8 @@ function duration(text) {
   const s = String(text || "").toLowerCase();
   if (/\blife\s*time\b|ömür\s*boyu/.test(s)) return "lifetime";
   if (/\bone\s*time\b|tek\s*seferlik/.test(s)) return "onetime";
+  const h = s.match(/(\d+)\s*(hours?|saat)\b/);
+  if (h) return `${Number(h[1])}hour`;
   const n = s.match(/(\d+)\s*(day|gün|gun|week|hafta|month|ay)s?\b/);
   if (!n) return null;
   const mult = ["month", "ay"].includes(n[2]) ? 30 : ["week", "hafta"].includes(n[2]) ? 7 : 1;
@@ -33,7 +36,7 @@ function baseKey(text) {
   for (const [from, to] of Object.entries(ALIASES)) s = s.replaceAll(` ${from} `, ` ${to} `);
   s = s
     .replace(/\blife\s*time\b|\bone\s*time\b/g, " ")
-    .replace(/\b\d+\s*(days?|gün|gun|weeks?|hafta|months?|ay)\b/g, " ");
+    .replace(/\b\d+\s*(hours?|saat|days?|gün|gun|weeks?|hafta|months?|ay)\b/g, " ");
   return s
     .split(/\s+/)
     .filter((w) => w && !NOISE.has(w))
@@ -41,7 +44,7 @@ function baseKey(text) {
     .join(" ");
 }
 
-function listingKey(name, variantName) {
+export function listingKey(name, variantName) {
   const d = duration(variantName || name);
   const base = baseKey(name);
   return d && base ? `${base}|${d}` : null;
@@ -62,6 +65,9 @@ function toListing(product) {
 let cache = null;
 let inflight = null;
 
+// Hidden (custom) listings never appear in the store listing, so they are only known from the snapshot.
+const hiddenListings = snapshot.filter((p) => p.hidden).map(toListing);
+
 /**
  * LoL products on the Shopier account, cached for 5 minutes. Falls back to the last good list, then to
  * shopier-listings.mjs (scripts/shopier-snapshot.mjs), because Shopier blocks Vercel's servers.
@@ -71,7 +77,9 @@ export async function getShopierListings() {
   inflight ??= listShopierProducts()
     .then(({ products, error }) => {
       if (error) throw new Error(error);
-      const listings = products.map(toListing).filter((l) => l.name && LOL_TITLE_RE.test(l.name));
+      const visible = products.map(toListing).filter((l) => l.name && LOL_TITLE_RE.test(l.name));
+      const ids = new Set(visible.map((l) => l.id));
+      const listings = [...visible, ...hiddenListings.filter((l) => !ids.has(l.id))];
       if (!listings.length) throw new Error("no LoL products in the Shopier response");
       cache = { at: Date.now(), listings };
       return listings;

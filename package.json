@@ -8,7 +8,10 @@
     "dev": "node serve.mjs",
     "start": "node serve.mjs",
     "og": "node scripts/make-og.mjs",
-    "shop-menu": "node scripts/sync-shop-menu.mjs"
+    "shop-menu": "node scripts/sync-shop-menu.mjs",
+    "products": "node scripts/build-product-pages.mjs && node scripts/sync-shop-menu.mjs",
+    "sellhub:products": "node scripts/sellhub-create-products.mjs",
+    "shopier:products": "node scripts/shopier-create-products.mjs"
   },
   "engines": {
     "node": ">=18"

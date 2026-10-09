@@ -4,15 +4,17 @@
  */
 
 import { getConfig, getInvoice, invoiceKeys, sellhubAuthHeaders } from "./sellhub-core.mjs";
+import { exactStoreSlug } from "./store-catalog.mjs";
 
-const PRODUCT_PAGES = [
+/** Older invoices carry renamed products, so the original three keep a loose name match. */
+const LEGACY_PAGES = [
   ["lol-vanguard-emulator", /vanguard|emulator/i],
   ["lol-perm-spoofer", /spoofer/i],
   ["lol-script", /script/i],
 ];
 
 function pageSlug(name) {
-  return PRODUCT_PAGES.find(([, re]) => re.test(name || ""))?.[0] || null;
+  return exactStoreSlug({ name }) || LEGACY_PAGES.find(([, re]) => re.test(name || ""))?.[0] || null;
 }
 
 /** Raw Sellhub invoices for one exact email (the API filter also matches look-alike addresses). */

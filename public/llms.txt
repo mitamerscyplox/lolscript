@@ -13,6 +13,36 @@
 - [LoL Vanguard Emulator](https://www.lolscript.store/lol-vanguard-emulator): removes Riot Vanguard from your PC so League of Legends runs without the anti-cheat. From $79.99.
 - [LoL Perm Spoofer](https://www.lolscript.store/lol-perm-spoofer): permanent HWID spoofer for League of Legends (TPM, MAC, disk, and motherboard serials). From $19.99.
 
+<!-- products:start -->
+
+### LoL Scripts
+
+- [Hanbot Key](https://www.lolscript.store/hanbot-key): Hanbot League of Legends script key with orbwalker, prediction, evade, combos, and 160+ champions. Needs a Vanguard emulator. From $1.99.
+- [Legend Sense Key](https://www.lolscript.store/legend-sense-key): Legend Sense (LS) League of Legends script key with champion modules, evade, and prediction. Needs a Vanguard emulator. From $5.49.
+- [EngineSoul](https://www.lolscript.store/enginesoul): EngineSoul League of Legends script with short 8-hour plans up to 30 days. Needs a Vanguard emulator. From $2.79.
+- [US Tool Pro AIO](https://www.lolscript.store/us-tool-pro-aio): Advanced Hanbot add-on: tuned evade and orbwalker profiles, smart activator, auto level-up, and lobby automation. Requires Hanbot. From $1.99.
+- [RS Pro AIO](https://www.lolscript.store/rs-pro-aio): Advanced add-on for Legend Sense and Hanbot with champion combos, optimized combat logic, Yuumi automation, and tuned evade. From $1.99.
+- [Pvlol Script](https://www.lolscript.store/pvlol-script): Budget League of Legends script with 7-hour, 12-hour, 1-day, 7-day, and 30-day plans. Use at your own risk. From $1.09.
+- [BGX Script](https://www.lolscript.store/bgx-script): BGX Script for League of Legends, delivered instantly. Needs a Vanguard emulator. From $4.69.
+
+### Vanguard Emulators
+
+- [NOI Vanguard Emulator](https://www.lolscript.store/noi-vanguard-emulator): NOI 1-PC Vanguard emulator: remove Vanguard, run as administrator, and play. Easy setup, fast access. From $3.89.
+- [Seraph Vanguard Emulator](https://www.lolscript.store/seraph-vanguard-emulator): Seraph 1-PC Vanguard emulator: launch League of Legends without Vanguard. Also works on Linux. From $4.69.
+- [OXA Vanguard Emulator](https://www.lolscript.store/oxa-vanguard-emulator): OXA 1-PC Vanguard emulator with a slot system and 1-day or 7-day keys. Check slot availability before buying. From $4.69.
+- [Soyuz Vanguard Emulator](https://www.lolscript.store/soyuz-vanguard-emulator): Soyuz 1-PC Vanguard emulator with 1-day and 7-day keys. Public build: occasional Vanguard event or 2266 errors. From $4.69.
+
+### Bundle Deals
+
+- [OXA + EngineSoul Bundle](https://www.lolscript.store/oxa-enginesoul-bundle): OXA Vanguard emulator and EngineSoul in one checkout: both 1-day or 7-day keys for 5% less than buying them separately. From $8.89.
+- [Soyuz + EngineSoul Bundle](https://www.lolscript.store/soyuz-enginesoul-bundle): Soyuz Vanguard emulator and EngineSoul in one checkout: both 1-day or 7-day keys for 5% less than buying them separately. From $8.89.
+- [OXA + Hanbot Bundle](https://www.lolscript.store/oxa-hanbot-bundle): OXA Vanguard emulator and Hanbot in one checkout: both 1-day keys for 5% less than buying them separately. From $6.29.
+- [Soyuz + Hanbot Bundle](https://www.lolscript.store/soyuz-hanbot-bundle): Soyuz Vanguard emulator and Hanbot in one checkout: both 1-day keys for 5% less than buying them separately. From $6.29.
+- [OXA + Legend Sense Bundle](https://www.lolscript.store/oxa-legend-sense-bundle): OXA Vanguard emulator and Legend Sense in one checkout: both 1-day or 7-day keys for 3% less than buying them separately. From $9.79.
+- [Soyuz + Legend Sense Bundle](https://www.lolscript.store/soyuz-legend-sense-bundle): Soyuz Vanguard emulator and Legend Sense in one checkout: both 1-day or 7-day keys for 3% less than buying them separately. From $9.79.
+
+<!-- products:end -->
+
 ## Setup guides
 
 - [All setup guides](https://www.lolscript.store/setup-guide)
@@ -45,3 +75,16 @@
 
 - [Contact](https://www.lolscript.store/contact)
 - [Terms of Service](https://www.lolscript.store/terms)
+
+<!-- languages:start -->
+
+## LoL Script in other languages
+
+- [LoL Script 2026: Bansız ve Güvenli LoL Script](https://www.lolscript.store/tr/lol-script) (tr)
+- [LoL Skript 2026: Unentdecktes League of Legends Script](https://www.lolscript.store/de/lol-skript) (de)
+- [Script LoL 2026 : script League of Legends indétectable](https://www.lolscript.store/fr/script-lol) (fr)
+- [Script LoL 2026: script de League of Legends indetectable](https://www.lolscript.store/es/script-lol) (es)
+- [Script LoL 2026: script de League of Legends indetectável](https://www.lolscript.store/pt-br/script-lol) (pt-BR)
+- [Skrypt LoL 2026: niewykrywalny skrypt do League of Legends](https://www.lolscript.store/pl/skrypt-lol) (pl)
+
+<!-- languages:end -->
