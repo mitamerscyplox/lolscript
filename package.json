@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "node serve.mjs",
     "start": "node serve.mjs",
-    "og": "node scripts/make-og.mjs"
+    "og": "node scripts/make-og.mjs",
+    "shop-menu": "node scripts/sync-shop-menu.mjs"
   },
   "engines": {
     "node": ">=18"

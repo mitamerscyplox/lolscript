@@ -31,13 +31,27 @@ window.SITE_DATA = {
   },
   "categories": [
     {
-      "id": "lol",
-      "name": "League of Legends Products"
+      "id": "lol-scripts",
+      "name": "LoL Scripts",
+      "icon": "fa-solid fa-code",
+      "text": "Undetected League of Legends scripts with evade, prediction, orbwalker, and champion combos."
+    },
+    {
+      "id": "vanguard-bypass",
+      "name": "Vanguard Bypass",
+      "icon": "fa-solid fa-shield-halved",
+      "text": "Vanguard emulators and bypasses that let League of Legends run without Riot Vanguard active."
+    },
+    {
+      "id": "spoofers",
+      "name": "HWID Spoofers",
+      "icon": "fa-solid fa-fingerprint",
+      "text": "Permanent HWID spoofers that mask hardware identifiers for a clean League of Legends start."
     }
   ],
   "products": [
     {
-      "category": "lol",
+      "category": "lol-scripts",
       "name": "LoL Script",
       "slug": "lol-script",
       "description": "Fully undetected League of Legends script with evade, prediction, orbwalker, target selector, combos, and activator logic for 150+ champions. Keys deliver instantly after secure checkout.",
@@ -51,7 +65,7 @@ window.SITE_DATA = {
       "metaDescription": "Buy an undetected LoL Script with evade, prediction, orbwalker, combos, and 150+ champion support. Instant key delivery via secure checkout."
     },
     {
-      "category": "lol",
+      "category": "vanguard-bypass",
       "name": "LoL Vanguard Emulator",
       "slug": "lol-vanguard-emulator",
       "description": "Removes Riot Vanguard from your PC so you can play League of Legends without the anti-cheat running. Instant delivery with setup support included.",
@@ -65,7 +79,7 @@ window.SITE_DATA = {
       "metaDescription": "Get the LoL Vanguard Emulator to remove Riot Vanguard from your PC and play League without anti-cheat. Instant key delivery and setup guidance."
     },
     {
-      "category": "lol",
+      "category": "spoofers",
       "name": "LoL Perm Spoofer",
       "slug": "lol-perm-spoofer",
       "description": "Permanent HWID spoofer for League of Legends that masks hardware identifiers for a clean start. Clears traces, supports most motherboards and disks, and delivers instantly.",

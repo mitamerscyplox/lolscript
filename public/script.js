@@ -96,12 +96,24 @@ window.addEventListener("lolscript-discord-ready", (event) => {
   setTarget("[data-secondary-button]", url);
 });
 
+const ALL_CATEGORIES = "all";
+
+function categoryProducts(id) {
+  return products.filter((product) => product.category === id);
+}
+
 function renderCategories() {
   if (!categoryMount) return;
-  categoryMount.innerHTML = categories
-    .map((category, index) => `
-      <button class="tab ${index === 0 ? "active" : ""}" type="button" data-category="${escapeHtml(category.id)}">
-        ${escapeHtml(category.name)}
+  const tabs = [
+    { id: ALL_CATEGORIES, name: "All products", count: products.length },
+    ...categories.map((category) => ({ ...category, count: categoryProducts(category.id).length })),
+  ].filter((tab) => tab.count > 0);
+  categoryMount.innerHTML = tabs
+    .map((tab, index) => `
+      <button class="tab ${index === 0 ? "active" : ""}" type="button" data-category="${escapeHtml(tab.id)}">
+        ${tab.icon ? `<i class="${escapeHtml(tab.icon)}" aria-hidden="true"></i>` : ""}
+        ${escapeHtml(tab.name)}
+        <span class="tab-count">${tab.count}</span>
       </button>
     `)
     .join("");
@@ -190,21 +202,56 @@ window.addEventListener("lolscript-sellhub-ready", (event) => {
   applyLivePrices(productMount || document);
 });
 
-function renderProducts(category) {
+function renderProducts(category = ALL_CATEGORIES) {
   if (!productMount) return;
-  productMount.innerHTML = products
-    .filter((product) => product.category === category)
-    .map((product) => {
-      const priceCents = priceToCents(product.price);
-      const slug = product.slug || product.name;
-      const imageSrc = productImageSrc(product, slug);
-      const priceMarkup = priceCents
-        ? `<span class="price" data-price-slug="${escapeHtml(slug)}" data-money-usd-cents="${priceCents}">${escapeHtml(moneyText(priceCents))}</span>`
-        : `<span class="price" data-price-slug="${escapeHtml(slug)}">${escapeHtml(product.price)}</span>`;
-      const imageMarkup = imageSrc
-        ? `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async">`
-        : `<div class="product-icon" aria-hidden="true"><i class="${escapeHtml(product.icon || "fa-solid fa-box")}"></i></div>`;
-      return `
+  const groups = categories
+    .filter((group) => category === ALL_CATEGORIES || group.id === category)
+    .map((group) => ({ group, items: categoryProducts(group.id) }))
+    .filter(({ items }) => items.length > 0);
+  productMount.innerHTML = groups
+    .map(({ group, items }) => `
+      <section class="product-group" id="${escapeHtml(group.id)}" data-span="${Math.min(items.length, 3)}" aria-labelledby="group-title-${escapeHtml(group.id)}">
+        <header class="product-group-head">
+          <span class="product-group-icon" aria-hidden="true"><i class="${escapeHtml(group.icon || "fa-solid fa-box")}"></i></span>
+          <div>
+            <h3 id="group-title-${escapeHtml(group.id)}">${escapeHtml(group.name)} <span class="product-group-count">${items.length}</span></h3>
+            ${group.text ? `<p>${escapeHtml(group.text)}</p>` : ""}
+          </div>
+        </header>
+        <div class="product-grid">${items.map(productCard).join("")}</div>
+      </section>
+    `)
+    .join("");
+  window.LOLCurrency?.apply(productMount);
+  applyLivePrices(productMount);
+}
+
+/** The products are rendered after load, so the browser's own jump to "/#vanguard-bypass" finds nothing; redo it. */
+function scrollToCategoryHash() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (!id || !categories.some((category) => category.id === id)) return;
+  requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: "start" }));
+}
+
+window.addEventListener("hashchange", () => {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (!categories.some((category) => category.id === id)) return;
+  categoryMount?.querySelectorAll("[data-category]").forEach((tab) => tab.classList.toggle("active", tab.dataset.category === ALL_CATEGORIES));
+  renderProducts(ALL_CATEGORIES);
+  scrollToCategoryHash();
+});
+
+function productCard(product) {
+  const priceCents = priceToCents(product.price);
+  const slug = product.slug || product.name;
+  const imageSrc = productImageSrc(product, slug);
+  const priceMarkup = priceCents
+    ? `<span class="price" data-price-slug="${escapeHtml(slug)}" data-money-usd-cents="${priceCents}">${escapeHtml(moneyText(priceCents))}</span>`
+    : `<span class="price" data-price-slug="${escapeHtml(slug)}">${escapeHtml(product.price)}</span>`;
+  const imageMarkup = imageSrc
+    ? `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async">`
+    : `<div class="product-icon" aria-hidden="true"><i class="${escapeHtml(product.icon || "fa-solid fa-box")}"></i></div>`;
+  return `
       <article class="product-card${product.featured ? " is-featured" : ""}" id="${escapeHtml(product.slug || product.name)}">
         <div class="product-image">
           ${imageMarkup}
@@ -224,10 +271,6 @@ function renderProducts(category) {
         </div>
       </article>
     `;
-    })
-    .join("");
-  window.LOLCurrency?.apply(productMount);
-  applyLivePrices(productMount);
 }
 
 function moneyText(cents) {
@@ -404,7 +447,8 @@ function renderBlogs() {
 applySiteData();
 renderStats();
 renderCategories();
-renderProducts(categories[0]?.id || "lol");
+renderProducts(ALL_CATEGORIES);
+scrollToCategoryHash();
 loadSellhubPrices();
 renderShowcase();
 renderChampions();
