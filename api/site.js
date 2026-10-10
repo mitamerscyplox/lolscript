@@ -2,6 +2,7 @@ import analytics from "./_lib/routes/analytics.mjs";
 import discordInvite from "./_lib/routes/discord-invite.mjs";
 import installGuideVideo from "./_lib/routes/install-guide-video.mjs";
 import patchStatus from "./_lib/routes/patch-status.mjs";
+import productStatus from "./_lib/routes/product-status.mjs";
 import shopierLinks from "./_lib/routes/shopier-links.mjs";
 import shopierWatch from "./_lib/routes/shopier-watch.mjs";
 
@@ -11,6 +12,7 @@ const ROUTES = {
   "discord-invite": discordInvite,
   "install-guide-video": installGuideVideo,
   "patch-status": patchStatus,
+  "product-status": productStatus,
   "shopier-links": shopierLinks,
   "shopier-watch": shopierWatch,
 };

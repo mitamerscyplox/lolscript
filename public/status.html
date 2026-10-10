@@ -5,21 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="AayyHamM6hf-tY6lBctEnvbSSvhV1_wvprnbKBUyLhE" />
   <meta name="yandex-verification" content="b9ad98ab68040f84">
-  <title>LOLScript Status | League Patch Compatibility</title>
-  <meta name="description" content="Check LOLScript status, current League of Legends patch compatibility, instant delivery availability, and Discord community support response time.">
-  <meta name="keywords" content="LOLScript status, LoL script status, League script patch status, LoL patch compatibility">
+  <title>Product Status | LOLScript</title>
+  <meta name="description" content="Real-time status of every LOLScript product: LoL scripts, Vanguard emulators, bundles and HWID spoofers, synced from Discord.">
+  <meta name="keywords" content="LOLScript status, LoL script status, Vanguard emulator status, LoL spoofer status, League script patch status">
   <meta name="robots" content="index,follow">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="LOLScript.store">
-  <meta property="og:title" content="LOLScript Status">
-  <meta property="og:description" content="Current LOLScript patch status, delivery status, and support availability.">
+  <meta property="og:title" content="Product Status | LOLScript">
+  <meta property="og:description" content="Real-time status of every LOLScript product, synced from Discord.">
   <meta property="og:url" content="https://www.lolscript.store/status">
   <meta property="og:image" content="https://www.lolscript.store/assets/og/home.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LOLScript Status">
-  <meta name="twitter:description" content="Live LoL patch compatibility, delivery, and support status.">
+  <meta name="twitter:title" content="Product Status | LOLScript">
+  <meta name="twitter:description" content="Real-time status of every LOLScript product, synced from Discord.">
   <meta name="twitter:image" content="https://www.lolscript.store/assets/og/home.png">
   <link rel="canonical" href="https://www.lolscript.store/status">
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
@@ -29,7 +29,8 @@
   <link rel="apple-touch-icon" href="/assets/image/logo.png">
   <link rel="stylesheet" href="/style.css?v=intl-20261010">
   <script src="/patch-status.js?v=patch-status-20260618" defer></script>
-  <script src="/site-header.js?v=responsive-apple-20260618b" defer></script>
+  <script src="/site-header.js?v=status-nav-20261010" defer></script>
+  <script src="/status-page.js?v=status-mitamers-20261010" defer></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -45,31 +46,73 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
+      { "@type": "Question", "name": "Where does this status come from?", "acceptedAnswer": { "@type": "Answer", "text": "Every product status on this page is synced live from the status channel in the LOLScript Discord. When the team updates a product there, this page shows the change within a minute." } },
+      { "@type": "Question", "name": "What do Undetected, Updating and Offline mean?", "acceptedAnswer": { "@type": "Answer", "text": "Undetected means the product is working and safe to use. Updating means the developers are pushing an update, usually after a game or Vanguard patch. Offline means the product is temporarily unavailable and should not be launched." } },
       { "@type": "Question", "name": "How is LoL patch compatibility checked?", "acceptedAnswer": { "@type": "Answer", "text": "The current League of Legends patch is checked daily against Riot's official version data. The result is shown on this page and in the site header as Working on LoL Patch." } },
-      { "@type": "Question", "name": "What happens when a new League of Legends patch releases?", "acceptedAnswer": { "@type": "Answer", "text": "Open the loader and follow the update prompt. Updates for the LoL Script are normally ready the same day, and patch notes are posted in the LOLScript Discord." } },
+      { "@type": "Question", "name": "What happens when a new League of Legends patch releases?", "acceptedAnswer": { "@type": "Answer", "text": "Affected products switch to Updating while they are patched. Open the loader and follow the update prompt once the product is Undetected again. Patch notes are posted in the LOLScript Discord." } },
       { "@type": "Question", "name": "How fast are keys delivered?", "acceptedAnswer": { "@type": "Answer", "text": "Keys are delivered instantly after payment clears, on-screen and to the email used at checkout." } },
-      { "@type": "Question", "name": "Where can I get urgent compatibility information?", "acceptedAnswer": { "@type": "Answer", "text": "Join the LOLScript Discord before launching the game. Patch notes, update announcements, and support tickets are all handled there." } },
       { "@type": "Question", "name": "Where can I find setup instructions?", "acceptedAnswer": { "@type": "Answer", "text": "Each product has its own guide. Start from the setup guides page and open the guide for the product you purchased." } }
     ]
   }
   </script>
   <style>
-    .status-page { min-height:100vh; padding:132px var(--page-x) 84px; background:#0b0712; }
-    .status-wrap { width:min(1120px,100%); margin:0 auto; }
-    .status-hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,.72fr); gap:28px; align-items:center; }
-    .status-hero h1 { max-width:760px; margin:12px 0 18px; font-size:clamp(44px,7vw,82px); line-height:.96; }
-    .status-card, .status-item { border:1px solid rgba(255,255,255,.12); border-radius:8px; background:#181226; }
-    .status-card { padding:24px; box-shadow:0 24px 70px rgba(0,0,0,.34); }
-    .status-led { display:inline-flex; align-items:center; gap:10px; min-height:36px; padding:0 12px; border-radius:999px; color:#031007; background:#3fe77b; font-weight:900; }
-    .status-led::before { content:""; width:9px; height:9px; border-radius:50%; background:#031007; }
-    .status-card h2 { margin:16px 0 8px; font-size:34px; }
-    .status-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:34px; }
-    .status-item { padding:18px; }
-    .status-item span { display:block; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; }
-    .status-item strong { display:block; margin-top:8px; font-size:26px; }
-    .status-note { margin-top:34px; padding:22px; border-radius:8px; background:rgba(83,214,255,.08); border:1px solid rgba(83,214,255,.22); }
-    .status-note p { margin:0; color:var(--muted); line-height:1.7; }
-    @media (max-width:900px) { .status-hero, .status-grid { grid-template-columns:1fr; } .status-page { padding-top:106px; } }
+    .status-page { min-height:100vh; padding:104px 0 0; background:#0b0712; }
+    .ms-crumb { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:14px var(--page-x); border-bottom:1px solid var(--line); color:var(--muted); font-size:14px; }
+    .ms-crumb a { color:var(--muted); text-decoration:none; }
+    .ms-crumb a:hover { color:#fff; }
+    .ms-crumb [aria-current="page"] { color:#fff; font-weight:700; }
+    .ms-head { padding:42px var(--page-x) 28px; }
+    .ms-head h1 { margin:0; font-size:clamp(36px,5vw,54px); font-weight:700; letter-spacing:-.01em; line-height:1.05; }
+    .ms-head p { max-width:640px; margin:16px 0 0; color:var(--muted); font-size:15.5px; line-height:1.65; }
+    .ms-bar { display:flex; flex-wrap:wrap; gap:22px 28px; padding:14px var(--page-x); background:#110c1c; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+    .ms-stat { display:inline-flex; align-items:center; gap:8px; }
+    .ms-stat i { width:6px; height:6px; border-radius:50%; background:var(--c); }
+    .ms-stat b { font-size:13px; font-variant-numeric:tabular-nums; }
+    .ms-stat span { color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    [data-state="online"] { --c:#28d486; }
+    [data-state="maintenance"] { --c:#53d6ff; }
+    [data-state="offline"] { --c:#ef3a4d; }
+    [data-state="unknown"] { --c:#8a80a0; }
+    .ms-section { padding:32px var(--page-x) 8px; }
+    .ms-section-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:12px; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .ms-changes { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .ms-change { display:flex; flex-direction:column; gap:6px; min-height:92px; padding:14px 16px; border:1px solid var(--line); border-radius:3px; background:#0f0a18; color:inherit; text-decoration:none; }
+    .ms-change:hover { border-color:rgba(255,255,255,.22); background:#15101f; }
+    .ms-change-top { display:flex; justify-content:space-between; gap:8px; }
+    .ms-change-name { overflow:hidden; font-size:13px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+    .ms-change-time { color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.06em; }
+    .ms-change-text { margin:0; color:var(--muted); font-size:12px; line-height:1.45; }
+    .ms-empty { margin:0; padding:18px 16px; border:1px dashed var(--line); border-radius:3px; color:var(--muted); }
+    .ms-cats { columns:1; column-gap:16px; }
+    @media (min-width:900px) { .ms-cats { columns:2; } }
+    .ms-cat { break-inside:avoid; margin:0 0 16px; overflow:hidden; border:1px solid var(--line); border-radius:3px; background:#0f0a18; }
+    .ms-cat-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line); background:#15101f; }
+    .ms-cat-title { display:flex; min-width:0; align-items:center; gap:10px; font-size:14px; font-weight:700; }
+    .ms-cat-icon { display:grid; place-items:center; width:28px; height:28px; border:1px solid var(--line); border-radius:3px; color:#c4b5fd; background:#1b1530; font-size:12px; }
+    .ms-cat-count { color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+    .ms-rows { display:grid; }
+    .ms-row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:16px; align-items:center; padding:11px 16px; border-top:1px solid rgba(255,255,255,.06); color:inherit; text-decoration:none; font-size:13px; }
+    .ms-row:first-child { border-top:0; }
+    .ms-row:hover { background:rgba(255,255,255,.03); }
+    .ms-row-name { overflow:hidden; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+    .ms-row-time { color:var(--muted); font-size:11px; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+    .ms-badge { display:inline-flex; align-items:center; gap:6px; height:20px; padding:0 6px; border:1px solid var(--c); border-radius:3px; background:var(--c); color:#111926; font-size:11px; font-weight:800; letter-spacing:.02em; white-space:nowrap; }
+    .ms-badge[data-state="maintenance"] { color:#061018; }
+    .ms-badge[data-state="offline"] { color:#fff; }
+    .ms-badge[data-state="unknown"] { color:#fff; background:#4a4258; border-color:#4a4258; }
+    .ms-badge i { font-size:10px; }
+    .ms-foot { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-top:8px; padding:22px var(--page-x) 48px; color:var(--muted); font-size:13px; }
+    .ms-banner { color:#fff; font-weight:800; }
+    .ms-banner[data-state="online"] { color:#28d486; }
+    .ms-banner[data-state="maintenance"] { color:#53d6ff; }
+    .ms-banner[data-state="offline"] { color:#ef3a4d; }
+    @media (max-width:900px) {
+      .status-page { padding-top:88px; }
+      .ms-changes { grid-template-columns:1fr 1fr; }
+      .ms-row { grid-template-columns:minmax(0,1fr) auto; }
+      .ms-row-time { grid-column:1; }
+    }
+    @media (max-width:560px) { .ms-changes { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -119,6 +162,7 @@
         </div>
         <a href="/lol-tier-list">LoL Tier List</a>
         <a href="/setup-guide">Setup Guide</a>
+        <a href="/status">Status</a>
         <a href="/#faq">FAQ</a>
       </nav>
       <span class="patch-status">Working on LoL Patch 26.8</span>
@@ -135,48 +179,34 @@
   </header>
 
   <main class="status-page">
-    <div class="status-wrap">
-      <section class="status-hero">
-        <div>
-          <p class="badge">LOLScript status</p>
-          <h1>Current LoL patch compatibility</h1>
-          <p class="lead">Check whether LOLScript is updated for the latest League of Legends patch, whether checkout is delivering keys, and where to get support if you need setup help.</p>
-          <div class="hero-actions">
-            <a class="button primary" href="/#products">Buy Now</a>
-            <a class="button secondary" href="https://discord.gg/n2ng5mJjhm" target="_blank" rel="noreferrer">Join Discord</a>
-          </div>
-        </div>
-        <aside class="status-card">
-          <span class="status-led">Operational</span>
-          <h2 data-status-title>Working on LoL Patch 26.9</h2>
-          <p data-status-copy>LOLScript is updated for the latest League of Legends patch. Keys are delivered instantly after completed payment.</p>
-        </aside>
-      </section>
-
-      <section class="status-grid" aria-label="Service status">
-        <article class="status-item"><span>Script access</span><strong>Updated</strong><p>Current patch support is checked daily and displayed in the header.</p></article>
-        <article class="status-item"><span>Checkout</span><strong>Operational</strong><p>Card and crypto orders are tracked in admin, with instant key delivery after completion.</p></article>
-        <article class="status-item"><span>Support</span><strong>Discord community</strong><p>Discord support is available for setup, vouches, patch notes, and general questions before and after purchase.</p></article>
-      </section>
-
-      <section class="status-note">
-        <p>If a League of Legends patch has just released, this page updates after the daily patch check. For urgent compatibility questions, use the Live Discord community before launching.</p>
-      </section>
-
-      <section class="faq" style="margin-top:48px;">
-        <div class="section-heading">
-          <p class="eyebrow">FAQ</p>
-          <h2>LoL Script status questions</h2>
-        </div>
-        <div class="faq-list">
-          <details open><summary>How is LoL patch compatibility checked?</summary><p>The current League of Legends patch is checked daily against Riot's official version data. The result is shown on this page and in the site header as "Working on LoL Patch".</p></details>
-          <details><summary>What happens when a new League of Legends patch releases?</summary><p>Open the loader and follow the update prompt. Updates for the <a href="/lol-script">LoL Script</a> are normally ready the same day, and patch notes are posted in the LOLScript Discord.</p></details>
-          <details><summary>How fast are keys delivered?</summary><p>Keys are delivered instantly after payment clears, on-screen and to the email used at checkout.</p></details>
-          <details><summary>Where can I get urgent compatibility information?</summary><p>Join the LOLScript Discord before launching the game. Patch notes, update announcements, and support tickets are all handled there.</p></details>
-          <details><summary>Where can I find setup instructions?</summary><p>Each product has its own guide. Start from the <a href="/setup-guide">setup guides page</a> and open the guide for the product you purchased.</p></details>
-        </div>
-      </section>
+    <nav class="ms-crumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">Product status</span>
+    </nav>
+    <header class="ms-head">
+      <h1>Product status</h1>
+      <p>Real-time status of every product we sell.</p>
+    </header>
+    <div class="ms-bar" aria-label="Status summary">
+      <span class="ms-stat" data-state="online" title="Safe to use on the current patch."><i aria-hidden="true"></i><b data-count="online">–</b><span>Undetected</span></span>
+      <span class="ms-stat" data-state="offline" title="Temporarily unavailable. Do not launch."><i aria-hidden="true"></i><b data-count="offline">–</b><span>Offline</span></span>
+      <span class="ms-stat" data-state="maintenance" title="Updating after a game or Vanguard patch."><i aria-hidden="true"></i><b data-count="maintenance">–</b><span>Updating</span></span>
     </div>
+    <section class="ms-section" aria-label="Recent changes">
+      <div class="ms-section-head"><span>Recent changes</span><span data-change-count></span></div>
+      <div class="ms-changes" data-changes>
+        <p class="ms-empty">Loading status from Discord…</p>
+      </div>
+    </section>
+    <section class="ms-section" aria-label="By category">
+      <div class="ms-section-head"><span>By category</span><span data-cat-count></span></div>
+      <div class="ms-cats" data-cats></div>
+    </section>
+    <footer class="ms-foot">
+      <span data-sync>Synced with Discord · refreshes automatically</span>
+      <span class="ms-banner" data-banner data-state="unknown">Checking product status</span>
+    </footer>
   </main>
 
   <footer class="footer">

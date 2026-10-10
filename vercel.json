@@ -16,7 +16,7 @@
     { "source": "/api/auth/:path*", "destination": "/api/auth?route=:path*" },
     { "source": "/api/account/:path*", "destination": "/api/auth?route=account/:path*" },
     {
-      "source": "/api/:route(analytics|discord-invite|install-guide-video|patch-status|shopier-links|shopier-watch)",
+      "source": "/api/:route(analytics|discord-invite|install-guide-video|patch-status|product-status|shopier-links|shopier-watch)",
       "destination": "/api/site?route=:route"
     }
   ],

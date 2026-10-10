@@ -7,6 +7,15 @@
     header.classList.add("scrolled");
   }
 
+  if (nav && !nav.querySelector('a[href="/status"]')) {
+    const faqLink = nav.querySelector('a[href="/#faq"], a[href="#faq"]');
+    const statusLink = document.createElement("a");
+    statusLink.href = "/status";
+    statusLink.textContent = "Status";
+    if (faqLink) faqLink.before(statusLink);
+    else nav.appendChild(statusLink);
+  }
+
   if (nav && !nav.querySelector('a[href="/terms"]')) {
     const faqLink = nav.querySelector('a[href="/#faq"], a[href="#faq"]');
     const termsLink = document.createElement("a");
