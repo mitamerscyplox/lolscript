@@ -67,16 +67,6 @@ const TR = {
     features: ["8 saat, 1 gün, 7 gün ve 30 gün seçenekleri", "Orbwalker ve evade", "Şampiyona özel kombolar"],
     note: EMULATOR_NOTE,
   },
-  "us-tool-pro-aio": {
-    intro: "Hanbot için gelişmiş eklenti.",
-    features: ["Ayarlı evade ve orbwalker profilleri", "Akıllı activator", "Otomatik yetenek seviyesi", "Lobi otomasyonu"],
-    note: "Çalışması için Hanbot gerekir.",
-  },
-  "rs-pro-aio": {
-    intro: "Legend Sense ve Hanbot için gelişmiş eklenti.",
-    features: ["Şampiyona özel kombolar", "Optimize edilmiş savaş mantığı", "Yuumi otomasyonu", "Ayarlı evade"],
-    note: "Çalışması için Legend Sense veya Hanbot gerekir.",
-  },
   "pvlol-script": {
     intro: "Uygun fiyatlı League of Legends scripti. Birkaç saatten bir aya kadar paket seçenekleri.",
     features: ["7 saat, 12 saat, 1 gün, 7 gün ve 30 gün seçenekleri", "Hızlı teslimat"],

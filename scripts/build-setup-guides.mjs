@@ -31,11 +31,6 @@ const DISCORD = '<a href="/discord" target="_blank" rel="noreferrer">lolscript.s
 
 const EMULATOR_GUIDES = ["oxa-vanguard-emulator", "soyuz-vanguard-emulator", "noi-vanguard-emulator", "seraph-vanguard-emulator"];
 const emulatorLinks = EMULATOR_GUIDES.map((s) => `<a href="${guideHref(s)}">${bySlug.get(s).name.replace(" Vanguard Emulator", "")}</a>`).join(", ");
-// Add-ons run on top of another script; everything else in lol-scripts loads on its own.
-const ADDON_BASE = {
-  "us-tool-pro-aio": ["hanbot-key"],
-  "rs-pro-aio": ["legend-sense-key", "hanbot-key"],
-};
 
 /** Preparation steps that depend on what kind of product it is. */
 function preparation(p) {
@@ -58,13 +53,9 @@ function preparation(p) {
       ["Follow the order below", `Set up <a href="${guideHref(emu.slug)}">${emu.name}</a> first, then <a href="${guideHref(script.slug)}">${script.name}</a>.`],
     ];
   }
-  const base = ADDON_BASE[p.slug];
   return [
     ...common,
     ["Have a Vanguard emulator ready", `${p.name} loads while Riot Vanguard is not running. Set up an emulator first: ${emulatorLinks}.`],
-    ...(base
-      ? [["Install the base script", `${p.name} is an add-on and needs an active ${base.map((s) => `<a href="${guideHref(s)}">${bySlug.get(s).name.replace(" Key", "")}</a>`).join(" or ")} key.`]]
-      : []),
   ];
 }
 
@@ -271,7 +262,7 @@ const hubDescription = "Setup guides for every LOLScript product: LoL scripts (H
 const firstText = "If you use a separate script, set up a Vanguard emulator first (OXA, Soyuz, NOI, Seraph or the LoL Vanguard Emulator), then follow your script guide. Bundle guides show the order for both keys. If you also use the Perm Spoofer, run it before everything else.";
 const firstHtml = 'If you use a separate script, set up a Vanguard emulator first (<a href="/setup-guide-oxa-vanguard-emulator">OXA</a>, <a href="/setup-guide-soyuz-vanguard-emulator">Soyuz</a>, <a href="/setup-guide-noi-vanguard-emulator">NOI</a>, <a href="/setup-guide-seraph-vanguard-emulator">Seraph</a> or the <a href="/setup-guide-vanguard-emulator">LoL Vanguard Emulator</a>), then follow your script guide. Bundle guides show the order for both keys. If you also use the <a href="/setup-guide-perm-spoofer">Perm Spoofer</a>, run it before everything else.';
 const loaderText = "Some keys are shown on-screen and emailed right after checkout; for others you open a ticket in the LOLScript Discord with your order ID. Each product guide says which applies. The official loader link and update notes are shared in Discord.";
-const needText = "No. Every product is sold separately. Most scripts need a Vanguard emulator, and US Tool Pro AIO and RS Pro AIO also need a Hanbot or Legend Sense key. Bundles include an emulator and a script in one order.";
+const needText = "No. Every product is sold separately. Separate scripts such as Hanbot, Legend Sense and EngineSoul need a Vanguard emulator. Bundles include an emulator and a script in one order.";
 const answer = (q, a) => [new RegExp(`("name": "${q}", "acceptedAnswer": \\{ "@type": "Answer", "text": ")[^"]*`), `$1${a}`];
 const details = (q, a) => [new RegExp(`(<summary>${q}</summary><p>).*?(</p></details>)`), `$1${a}$2`];
 for (const [re, to] of [

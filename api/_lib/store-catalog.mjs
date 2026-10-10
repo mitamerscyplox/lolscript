@@ -61,8 +61,6 @@ export const STORE_PRODUCTS = [
     ["7 Day Key", 18.49],
     ["30 Day Key", 38.99],
   ]),
-  product("us-tool-pro-aio", "US Tool Pro AIO", ["US Tool", "UsTool Pro AIO"], [["1 Day Key", 1.99]]),
-  product("rs-pro-aio", "RS Pro AIO", ["RS Pro", "RSPro AIO"], [["1 Day Key", 1.99]]),
   product("pvlol-script", "Pvlol Script", ["Pvlolscript", "Pvlol", "PV LoL Script"], [
     ["7 Hour Key", 1.09],
     ["12 Hour Key", 1.69],

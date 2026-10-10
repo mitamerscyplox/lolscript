@@ -34,6 +34,9 @@
     },
     { "source": "/hanbot", "destination": "/hanbot-key", "permanent": true },
     { "source": "/legend-sense", "destination": "/legend-sense-key", "permanent": true },
+    { "source": "/us-tool-pro-aio", "destination": "/hanbot-key", "permanent": true },
+    { "source": "/rs-pro-aio", "destination": "/legend-sense-key", "permanent": true },
+    { "source": "/setup-guide-:slug(us-tool-pro-aio|rs-pro-aio)", "destination": "/setup-guide", "permanent": true },
     { "source": "/:slug(winnerscript|unixcheats|hile-dunyasi)", "destination": "/lol-hile", "permanent": true },
     {
       "source": "/:slug(hangar-script|justanotherscript|titan-script|nyrex-script|pentasharp|cado-script|hexlol|xxe-script|hera-script|exo-script|phantom-script|reality-cheats|covert-script|devil-script|ciro-script|wh-satano|ven-script|unrevealed-script)",

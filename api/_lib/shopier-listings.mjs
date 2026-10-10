@@ -155,17 +155,6 @@ export default [
     "hidden": true
   },
   {
-    "id": "51681635",
-    "title": "LoL US Tool Pro AIO 1 Gün Lisans",
-    "url": "https://www.shopier.com/mitamers/51681635",
-    "priceData": {
-      "price": 100,
-      "currency": "TRY"
-    },
-    "stockStatus": "inStock",
-    "hidden": true
-  },
-  {
     "id": "51681637",
     "title": "LoL OXA Bypass 1 Gün Lisans",
     "url": "https://www.shopier.com/mitamers/51681637",
@@ -182,17 +171,6 @@ export default [
     "url": "https://www.shopier.com/mitamers/51681639",
     "priceData": {
       "price": 1300,
-      "currency": "TRY"
-    },
-    "stockStatus": "inStock",
-    "hidden": true
-  },
-  {
-    "id": "51681640",
-    "title": "LoL RS Pro AIO 1 Gün Lisans",
-    "url": "https://www.shopier.com/mitamers/51681640",
-    "priceData": {
-      "price": 100,
       "currency": "TRY"
     },
     "stockStatus": "inStock",

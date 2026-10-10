@@ -175,18 +175,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.lolscript.store/us-tool-pro-aio</loc>
-    <lastmod>2026-10-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lolscript.store/rs-pro-aio</loc>
-    <lastmod>2026-10-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://www.lolscript.store/pvlol-script</loc>
     <lastmod>2026-10-09</lastmod>
     <changefreq>weekly</changefreq>
@@ -308,18 +296,6 @@
   </url>
   <url>
     <loc>https://www.lolscript.store/setup-guide-enginesoul</loc>
-    <lastmod>2026-10-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.lolscript.store/setup-guide-us-tool-pro-aio</loc>
-    <lastmod>2026-10-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.lolscript.store/setup-guide-rs-pro-aio</loc>
     <lastmod>2026-10-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
