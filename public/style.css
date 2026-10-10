@@ -345,6 +345,8 @@ body.nav-open {
 .nav-item.has-dropdown > a[href="/#products"]::before { content: "\f54e"; }
 .nav > a[href="/lol-tier-list"]::before { content: "\f091"; }
 .nav > a[href="/setup-guide"]::before { content: "\f02d"; }
+.nav > a[href="/status"]::before { content: "\f012"; }
+.nav > a[href="/terms"]::before { content: "\f15c"; }
 .nav > a[href="/#faq"]::before { content: "\f059"; }
 
 .nav-item {
@@ -2905,8 +2907,28 @@ body.product-showcase-modal-open {
     min-height: 32px;
   }
 
+  .nav {
+    background: #0d0a16;
+    max-height: calc(100dvh - 96px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .nav .shop-dropdown {
+    display: none;
+  }
+
+  .nav .has-dropdown.mobile-open .shop-dropdown {
+    display: block;
+  }
+
   .chevron {
     margin-left: auto;
+    transition: transform .2s ease;
+  }
+
+  .has-dropdown.mobile-open .chevron {
+    transform: rotate(225deg) translateY(-2px);
   }
 
   .hero {
@@ -3914,8 +3936,8 @@ body.sellhub-checkout-open { overflow: hidden; }
   .header-shell .nav { gap: 2px; font-size: 14px; }
   .header-shell .nav > a, .header-shell .nav-item > a { padding: 0 9px; }
 }
-@media (min-width: 981px) and (max-width: 1280px) { .header-shell .patch-status { display: none; } }
-@media (min-width: 981px) and (max-width: 1120px) { .header-shell.has-account { gap: 8px; } .header-shell .nav > a::before, .header-shell .nav-item.has-dropdown > a::before { display: none; } }
+@media (min-width: 981px) and (max-width: 1400px) { .header-shell .patch-status { display: none; } }
+@media (min-width: 981px) and (max-width: 1120px) { .header-shell.has-account { gap: 8px; } .header-shell .nav > a, .header-shell .nav-item > a { padding: 0 7px; } .header-shell .nav > a::before, .header-shell .nav-item.has-dropdown > a::before { display: none; } }
 
 /* ===== Product hero balance (overrides per-page inline styles) ===== */
 main .product-hero {

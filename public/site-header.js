@@ -55,7 +55,18 @@
       setMenu(!nav.classList.contains("open"));
     });
 
+    const mobileQuery = window.matchMedia("(max-width: 980px)");
+
     nav.addEventListener("click", (event) => {
+      const shopToggle = event.target.closest(".has-dropdown > a");
+      if (shopToggle && mobileQuery.matches) {
+        event.preventDefault();
+        const item = shopToggle.parentElement;
+        const expanded = !item.classList.contains("mobile-open");
+        item.classList.toggle("mobile-open", expanded);
+        shopToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        return;
+      }
       if (event.target.closest("a")) setMenu(false);
     });
 
