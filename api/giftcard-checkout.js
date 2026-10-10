@@ -1,5 +1,6 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { binanceAccountId, binanceConfigured, maskCode, normalizeGiftCardCode, redeemGiftCard } from "./_lib/binance-giftcard.mjs";
+import { clientIp } from "./_lib/http.mjs";
 import { kvDel, kvGet, kvIncr, kvSet, kvSetNx } from "./_lib/kv-store.mjs";
 import { PAY_LOG_COLORS, postPayLog } from "./_lib/pay-log.mjs";
 import { completeInvoice, createPendingInvoice, findLiveVariant, getInvoice } from "./_lib/sellhub-core.mjs";
@@ -71,11 +72,6 @@ async function readBody(req) {
   for await (const chunk of req) chunks.push(chunk);
   const raw = Buffer.concat(chunks).toString("utf8");
   return raw ? JSON.parse(raw) : {};
-}
-
-function clientIp(req) {
-  const forwarded = String(req.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
-  return forwarded || req.headers?.["x-real-ip"] || req.socket?.remoteAddress || "unknown";
 }
 
 function hash(value) {

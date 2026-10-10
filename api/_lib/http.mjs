@@ -11,7 +11,27 @@ export async function readBody(req) {
   return raw ? JSON.parse(raw) : {};
 }
 
+const BOT_CLIENT_MAX_SKEW_MS = 60_000;
+
+/**
+ * Checkouts the Discord bot opens for a member all come from the bot's one IP. The bot signs the member's
+ * Discord ID with the shared Binance API secret (hex HMAC-SHA256 of `${ts}.client.${id}`), so rate limits
+ * and failed-attempt blocks apply to that member instead of to every bot customer at once.
+ */
+function botClientId(req) {
+  const secret = process.env.BINANCE_API_SECRET?.trim();
+  const user = String(req.headers?.["x-bot-user"] || "");
+  const ts = String(req.headers?.["x-bot-ts"] || "");
+  const signature = String(req.headers?.["x-bot-sig"] || "");
+  if (!secret || !/^\d{15,22}$/.test(user) || !signature || Math.abs(Date.now() - Number(ts)) > BOT_CLIENT_MAX_SKEW_MS) return null;
+  const expected = createHmac("sha256", secret).update(`${ts}.client.${user}`).digest();
+  const given = Buffer.from(signature, "hex");
+  return given.length === expected.length && timingSafeEqual(given, expected) ? `discord:${user}` : null;
+}
+
 export function clientIp(req) {
+  const botClient = botClientId(req);
+  if (botClient) return botClient;
   const forwarded = String(req.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
   return forwarded || req.headers?.["x-real-ip"] || req.socket?.remoteAddress || "unknown";
 }
